@@ -18,6 +18,7 @@ const SCHOOLS = {
   pathwork: { color: "#c084fc", label: "Pathwork" },
   gentleBio: { color: "#ec4899", label: "Gentle Bio-Energetics" },
   orgonomy: { color: "#b91c1c", label: "Orgonomy (Reichian)" },
+  individualPsych: { color: "#14b8a6", label: "Individual Psychology" },
 };
 
 const EVENT_TYPES = {
@@ -35,6 +36,13 @@ const people = [
     contribution: "Founded psychoanalysis. Developed theories of the unconscious, dream interpretation, free association, and transference. Central figure from whom all branches in this lineage descend.",
     differenceFromTeacher: "Originator — no predecessor in this lineage.",
     source: "https://www.britannica.com/biography/Sigmund-Freud",
+  },
+  {
+    id: "adler", name: "Alfred Adler", birth: 1870, death: 1937,
+    school: "individualPsych", x: -4, z: -5,
+    contribution: "Founded Individual Psychology. Introduced the inferiority complex, the striving for superiority (self-realization), social interest (Gemeinschaftsgefühl), and birth-order theory. Established over 30 child-guidance clinics in Vienna.",
+    differenceFromTeacher: "Rejected Freud's emphasis on sexuality as the primary drive. Argued that social connectedness and the striving to overcome feelings of inferiority — not libido — were the core motivators of human behavior. Emphasized conscious, goal-directed action over unconscious determinism.",
+    source: "https://www.britannica.com/biography/Alfred-Adler",
   },
   {
     id: "jung", name: "Carl Jung", birth: 1875, death: 1961,
@@ -98,6 +106,11 @@ const events = [
   { year: 1895, personId: "freud", type: "publication", title: "Studies on Hysteria", desc: "Co-authored with Josef Breuer. Introduced the 'talking cure' and laid groundwork for psychoanalysis.", source: "https://iep.utm.edu/freud/" },
   { year: 1900, personId: "freud", type: "publication", title: "The Interpretation of Dreams", desc: "Foundational work arguing dreams are the 'royal road to the unconscious.' Introduced wish-fulfillment theory.", source: "https://www.britannica.com/biography/Sigmund-Freud" },
   { year: 1905, personId: "freud", type: "publication", title: "Three Essays on the Theory of Sexuality", desc: "Systematic theory of human psychosexual development. Highly controversial at the time.", source: "https://www.britannica.com/biography/Sigmund-Freud" },
+  { year: 1902, personId: "adler", type: "concept", title: "Adler joins Freud's Wednesday Society", desc: "Adler was among the first four physicians invited by Freud to join his Wednesday evening discussion group, the nucleus of the psychoanalytic movement.", source: "https://www.britannica.com/biography/Alfred-Adler" },
+  { year: 1911, personId: "adler", type: "conflict", title: "Adler breaks with Freud", desc: "After escalating theoretical disagreements, Adler resigned as president of the Vienna Psychoanalytic Society in June 1911. He was the first major figure to break from psychoanalysis, forming the Society for Free Psychoanalytic Research.", source: "https://www.britannica.com/biography/Alfred-Adler" },
+  { year: 1912, personId: "adler", type: "institutional", title: "Society for Individual Psychology founded", desc: "Adler formally established the Society for Individual Psychology, marking the institutional beginning of his independent school.", source: "https://www.britannica.com/biography/Alfred-Adler" },
+  { year: 1921, personId: "adler", type: "institutional", title: "First child-guidance clinic in Vienna", desc: "Adler opened the first of over 30 child-guidance clinics in the Vienna public school system, pioneering community-based mental health work with children and families.", source: "https://www.britannica.com/biography/Alfred-Adler" },
+  { year: 1927, personId: "adler", type: "publication", title: "Understanding Human Nature published", desc: "Major popular work presenting Individual Psychology to a general audience. Based on a year of public lectures in Vienna, it became an international bestseller.", source: "https://www.britannica.com/biography/Alfred-Adler" },
   { year: 1906, personId: "jung", type: "concept", title: "Jung begins correspondence with Freud", desc: "After reading The Interpretation of Dreams, Jung initiates contact. Start of intense intellectual partnership.", source: "https://www.britannica.com/biography/Carl-Jung" },
   { year: 1908, personId: "ferenczi", type: "concept", title: "Ferenczi meets Freud (Feb 2)", desc: "First meeting in Vienna. Immediate rapport leads to Ferenczi becoming Freud's closest disciple — invited to summer with Freud's family, an unprecedented honor.", source: "https://www.britannica.com/biography/Sandor-Ferenczi" },
   { year: 1909, personId: "jung", type: "institutional", title: "Freud & Jung at Clark University", desc: "Both lecture at Clark University, Worcester, MA (Sept 6–19). High point of their collaboration. Joint trip to America.", source: "https://commons.clarku.edu/freudhall/" },
@@ -122,6 +135,7 @@ const events = [
 ];
 
 const relationships = [
+  { from: "freud", to: "adler", type: "colleague", startYear: 1902, endYear: 1911, label: "Early collaborator (1902-1911). Adler was among the first four members of Freud's Wednesday Society and became president of the Vienna Psychoanalytic Society, but broke away over fundamental disagreements about the role of sexuality." },
   { from: "freud", to: "jung", type: "mentor", startYear: 1906, endYear: 1913, label: "Intense collaboration (1906-1913), ended in bitter rupture over sexuality and spirituality" },
   { from: "freud", to: "ferenczi", type: "mentor", startYear: 1908, endYear: 1932, label: "Closest disciple (1908-1932). Ferenczi was in Freud's 'inner circle.' Relationship deteriorated over trauma theory." },
   { from: "freud", to: "reich", type: "mentor", startYear: 1920, endYear: 1934, label: "Student and rising star (1920-1934). Expelled from movement over politics and radical sexology." },

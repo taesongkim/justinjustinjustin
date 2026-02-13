@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 // ===== CONSTANTS =====
 const YEAR_START = 1850;
-const YEAR_END = 2015;
+const YEAR_END = 2026;
 const Y_SCALE = 0.5;
 const yearToY = (year) => -(year - YEAR_START) * Y_SCALE;
 
@@ -19,6 +19,7 @@ const SCHOOLS = {
   gentleBio: { color: "#ec4899", label: "Gentle Bio-Energetics" },
   orgonomy: { color: "#b91c1c", label: "Orgonomy (Reichian)" },
   individualPsych: { color: "#14b8a6", label: "Individual Psychology" },
+  radicalAliveness: { color: "#f43f5e", label: "Radical Aliveness" },
 };
 
 const EVENT_TYPES = {
@@ -100,6 +101,13 @@ const people = [
     differenceFromTeacher: "Transformed Reich's sometimes forceful body interventions into an extremely gentle, preventive approach focused on infants and early bonding. Applied armoring prevention rather than armoring removal.",
     source: "https://en.wikipedia.org/wiki/Eva_Reich",
   },
+  {
+    id: "bradney", name: "Ann Bradney", birth: 1960, death: 2026,
+    school: "radicalAliveness", x: 7, z: 17,
+    contribution: "Founded the Radical Aliveness Institute. Developed a distinct group-process model expanding Core Energetics into community healing, systemic work, and cross-cultural trauma. Faculty at Esalen, Omega, and Hollyhock.",
+    differenceFromTeacher: "Expanded Pierrakos's individual/couples focus into a group-centered model addressing systemic and cultural dynamics. Integrated community healing and social justice dimensions not present in classical Core Energetics.",
+    source: "https://radicalaliveness.org/who",
+  },
 ];
 
 const events = [
@@ -132,6 +140,9 @@ const events = [
   { year: 1973, personId: "pierrakos", type: "institutional", title: "Institute of Core Energetics founded", desc: "Pierrakos establishes Core Energetics in New York City, synthesizing body-oriented therapy with the Pathwork spiritual framework.", source: "https://www.coreenergetics.org/john-pierrakos/" },
   { year: 1975, personId: "lowen", type: "publication", title: "Bioenergetics (book) published", desc: "Major synthesizing work bringing bioenergetic analysis to a wide audience. Explains character types, grounding, and the body-mind connection.", source: "https://en.wikipedia.org/wiki/Alexander_Lowen" },
   { year: 1997, personId: "evareich", type: "institutional", title: "Gentle Bio-Energetics Institute founded", desc: "Eva Reich formalizes her gentler adaptation of Reichian methods into an institute, focused on prevention and early intervention.", source: "https://en.wikipedia.org/wiki/Eva_Reich" },
+  { year: 1993, personId: "bradney", type: "concept", title: "Bradney begins training with Pierrakos", desc: "Ann Bradney enters the Core Energetics Institute in New York, studying directly under founder John Pierrakos. She would go on to serve on the faculty for nine years.", source: "https://radicalaliveness.org/who" },
+  { year: 2002, personId: "bradney", type: "conflict", title: "Bradney departs Core Energetics Institute", desc: "After nine years on the faculty at the Core Energetics Institute in New York, Bradney leaves to develop her own approach, eventually founding the Radical Aliveness Institute.", source: "https://radicalaliveness.org/who" },
+  { year: 2008, personId: "bradney", type: "institutional", title: "Radical Aliveness Institute founded", desc: "Bradney relocates from New York to California and founds the Radical Aliveness Institute, offering 2-year and 4-year training programs expanding Core Energetics into group process and community healing.", source: "https://radicalaliveness.org/who" },
 ];
 
 const relationships = [
@@ -145,6 +156,7 @@ const relationships = [
   { from: "reich", to: "evareich", type: "parent", startYear: 1924, endYear: 1957, label: "Daughter. Continued and adapted her father's legacy into gentler, prevention-focused methods." },
   { from: "lowen", to: "pierrakos", type: "colleague", startYear: 1956, endYear: 1969, label: "Co-founders of Bioenergetic Analysis (1956). Split in 1969 over the role of spirituality." },
   { from: "evapierrakos", to: "pierrakos", type: "partner", startYear: 1969, endYear: 1979, label: "Co-founded Center for the New Man (1969). Married 1971. Eva's Pathwork became the spiritual foundation of Core Energetics." },
+  { from: "pierrakos", to: "bradney", type: "mentor", startYear: 1993, endYear: 2001, label: "Direct student (1993-2001). Bradney trained under Pierrakos at the Core Energetics Institute in New York and served on the faculty until after his death." },
 ];
 
 const globalEvents = [
@@ -406,6 +418,30 @@ export default function PsychologistLineage() {
     scene.add(timelinePlane);
     threeRef.current.timelinePlane = timelinePlane;
 
+    // "Today" plane — transparent disc at current year
+    const todayY = yearToY(2026);
+    const todayPlaneGeo = new THREE.PlaneGeometry(40, 40);
+    const todayPlaneMat = new THREE.MeshBasicMaterial({
+      color: 0x6366f1, transparent: true, opacity: 0.04, side: THREE.DoubleSide, depthWrite: false,
+    });
+    const todayPlane = new THREE.Mesh(todayPlaneGeo, todayPlaneMat);
+    todayPlane.rotation.x = Math.PI / 2;
+    todayPlane.position.set(2, todayY, 4);
+    scene.add(todayPlane);
+    // "Today" edge ring for visibility
+    const todayRingGeo = new THREE.RingGeometry(19.5, 20, 64);
+    const todayRingMat = new THREE.MeshBasicMaterial({
+      color: 0x6366f1, transparent: true, opacity: 0.15, side: THREE.DoubleSide, depthWrite: false,
+    });
+    const todayRing = new THREE.Mesh(todayRingGeo, todayRingMat);
+    todayRing.rotation.x = Math.PI / 2;
+    todayRing.position.set(2, todayY, 4);
+    scene.add(todayRing);
+    // "Today" label
+    const todayLabel = createTextSprite("Today", { fontSize: 36, color: "#6366f1", bold: true, scale: 4 });
+    todayLabel.position.set(22, todayY, 4);
+    scene.add(todayLabel);
+
     const interactive = [];
 
     // ===== COMPUTE ALL CURVED PATHS =====
@@ -502,7 +538,8 @@ export default function PsychologistLineage() {
       pGroup.add(nameSprite);
 
       // Dates label (right under name, same color) — closer to name
-      const dateSprite = createTextSprite(`${p.birth}–${p.death}`, { fontSize: 26, color: SCHOOLS[p.school].color, scale: 3.5 });
+      const deathLabel = p.death >= 2026 ? "present" : p.death;
+      const dateSprite = createTextSprite(`${p.birth}–${deathLabel}`, { fontSize: 26, color: SCHOOLS[p.school].color, scale: 3.5 });
       dateSprite.position.set(birthPos.x, birthPos.y + 1.5, birthPos.z);
       pGroup.add(dateSprite);
       scene.add(pGroup);
@@ -750,11 +787,11 @@ export default function PsychologistLineage() {
     });
 
     // ===== GLOBAL EVENTS (transparent horizontal discs) =====
-    // Per-event radius based on estimated global impact (impactRank 1-10)
-    // Higher impact → larger radius, subtle differentiation for overlapping events
-    const GLOBAL_RADIUS_BASE = 11.5;
-    const GLOBAL_RADIUS_STEP = 0.25; // each rank adds 0.25 → range 12.0 to 14.0
+    // Radius dynamically computed to encompass all figure positions + padding
     const GLOBAL_CX = 1, GLOBAL_CZ = 4;
+    const maxPersonDist = Math.max(...people.map(p => Math.sqrt((p.x - GLOBAL_CX) ** 2 + (p.z - GLOBAL_CZ) ** 2)));
+    const GLOBAL_RADIUS_BASE = maxPersonDist + 3; // padding beyond farthest figure
+    const GLOBAL_RADIUS_STEP = 0.25; // each impactRank adds 0.25
     const GLOBAL_COL = new THREE.Color("#94a3b8");
     const globalParticleSystems = [];
 
@@ -1221,8 +1258,8 @@ export default function PsychologistLineage() {
         background: panelBg, borderRadius: 10, padding: "10px 16px", border: panelBorder, backdropFilter: "blur(8px)",
       }}>
         <span style={{ color: "#64748b", fontSize: 11, minWidth: 32 }}>1856</span>
-        <input type="range" min={1856} max={2008} value={year} onChange={onTimeline} style={{ flex: 1, accentColor: "#6366f1", height: 4 }} />
-        <span style={{ color: "#64748b", fontSize: 11, minWidth: 32, textAlign: "right" }}>2008</span>
+        <input type="range" min={1856} max={2026} value={year} onChange={onTimeline} style={{ flex: 1, accentColor: "#6366f1", height: 4 }} />
+        <span style={{ color: "#64748b", fontSize: 11, minWidth: 32, textAlign: "right" }}>2026</span>
         <div style={{ color: "#e2e8f0", fontSize: 14, fontWeight: 600, fontVariantNumeric: "tabular-nums", background: "#1e293b", padding: "4px 14px", borderRadius: 6, minWidth: 48, textAlign: "center", border: "1px solid #334155" }}>{year}</div>
       </div>
 
@@ -1363,7 +1400,7 @@ export default function PsychologistLineage() {
               <>
                 <div style={{ width: 8, height: 8, borderRadius: 2, background: si.color, marginBottom: 10 }} />
                 <div style={{ color: "#f1f5f9", fontSize: 17, fontWeight: 700, marginBottom: 2, lineHeight: 1.3 }}>{p.name}</div>
-                <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 14 }}>{p.birth}–{p.death} &middot; {si.label}</div>
+                <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 14 }}>{p.birth}–{p.death >= 2026 ? "present" : p.death} &middot; {si.label}</div>
                 <div style={{ color: "#cbd5e1", fontSize: 12.5, lineHeight: 1.6, marginBottom: 14 }}>{p.contribution}</div>
                 {p.differenceFromTeacher && (
                   <div style={{ background: "#1e293b", borderRadius: 8, padding: "10px 12px", marginBottom: 14, border: "1px solid #334155" }}>

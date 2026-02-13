@@ -11,7 +11,7 @@ export default function Home() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="text-center max-w-2xl"
       >
-        <h1 className="text-6xl sm:text-7xl font-bold tracking-tight mb-6">
+        <h1 className="text-6xl sm:text-7xl font-bold tracking-tight mb-6 font-[family-name:var(--font-tight)]">
           justin<span className="opacity-40">×3</span>
         </h1>
         <p className="text-lg sm:text-xl text-white/50 leading-relaxed">

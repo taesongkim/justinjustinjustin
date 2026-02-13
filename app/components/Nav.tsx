@@ -21,7 +21,7 @@ export default function Nav() {
         justinjustinjustin
       </Link>
 
-      <ul className="flex gap-8">
+      <ul className="flex gap-12 mr-4">
         {links.map(({ href, label }) => {
           const isActive = pathname === href;
           return (

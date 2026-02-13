@@ -1,7 +1,18 @@
 import type { Metadata } from "next";
+import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 import Nav from "./components/Nav";
 import Scene from "./components/Scene";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const interTight = Inter_Tight({
+  subsets: ["latin"],
+  variable: "--font-inter-tight",
+});
 
 export const metadata: Metadata = {
   title: "justinjustinjustin",
@@ -15,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased font-sans">
+      <body className={`${inter.variable} ${interTight.variable} antialiased font-sans`}>
         {/* 3D background — persists across page navigations */}
         <Scene />
 

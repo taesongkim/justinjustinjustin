@@ -19,8 +19,8 @@ interface ConnectingLinesProps {
   expandedIds: Set<string>;
   /** Stagger delay between top-to-bottom groups, in ms (0 = all at once). */
   staggerDelay: number;
-  /** Item ID → performance.now() timestamp of last interaction. */
-  touchedTimestamps: RefObject<Map<string, number>>;
+  /** Item ID → list of performance.now() timestamps for overlapping glows. */
+  touchedTimestamps: RefObject<Map<string, number[]>>;
 }
 
 // ─── Constants ────────────────────────────────────────────────
@@ -33,8 +33,14 @@ const REVEAL_DURATION = 100;
 const GLOW_TRAVEL_MS = 110;
 /** Tail length as a fraction of the total path length. */
 const GLOW_TAIL_FRAC = 0.35;
-/** Total visible glow duration (travel + tail fade). */
-const GLOW_DURATION = Math.ceil(GLOW_TRAVEL_MS * (1 + GLOW_TAIL_FRAC));
+/** Duration of the travel phase (head + tail clearing the path). */
+const GLOW_TRAVEL_TOTAL = Math.ceil(GLOW_TRAVEL_MS * (1 + GLOW_TAIL_FRAC));
+/** How long the full path stays lit after the travel completes (ms). */
+const GLOW_HOLD_MS = 100;
+/** How long the lit path fades back to neutral (ms). */
+const GLOW_FADE_MS = 500;
+/** Total visible glow duration (travel + hold + fade). */
+const GLOW_DURATION = GLOW_TRAVEL_TOTAL + GLOW_HOLD_MS + GLOW_FADE_MS;
 /**
  * Offset from the top of an item element to the vertical center of its first
  * line of text. Matches: 4px item padding + 4px inner padding + 10px (half of
@@ -594,50 +600,104 @@ export default function ConnectingLines({
 
     for (const bd of allBrackets) {
       for (const path of bd.childPaths) {
-        const ts = touched.get(path.childId);
-        if (ts === undefined) continue;
-        const elapsed = now - ts;
-        if (elapsed >= GLOW_DURATION || path.totalLength === 0) continue;
+        const raw = touched.get(path.childId);
+        if (!raw) continue;
+        const timestamps = Array.isArray(raw) ? raw : [raw as unknown as number];
+        if (timestamps.length === 0) continue;
+        if (path.totalLength === 0) continue;
 
-        hasActiveGlow = true;
+        for (const ts of timestamps) {
+          const elapsed = now - ts;
+          if (elapsed >= GLOW_DURATION) continue;
 
-        // Head travels from 0 → totalLength over GLOW_TRAVEL_MS
-        const headProgress = elapsed / GLOW_TRAVEL_MS; // 0 → 1+
-        const headDist = headProgress * path.totalLength;
-        const tailLength = GLOW_TAIL_FRAC * path.totalLength;
-        const tailDist = headDist - tailLength;
+          hasActiveGlow = true;
 
-        const drawStart = Math.max(0, tailDist);
-        const drawEnd = Math.min(path.totalLength, headDist);
+          if (elapsed < GLOW_TRAVEL_TOTAL) {
+            // ── Phase 1: Traveling glow (head moves child→parent) ──
+            const headProgress = elapsed / GLOW_TRAVEL_MS;
+            const headDist = headProgress * path.totalLength;
+            const tailLength = GLOW_TAIL_FRAC * path.totalLength;
+            const tailDist = headDist - tailLength;
 
-        if (drawStart >= path.totalLength || drawEnd <= 0) continue;
+            const drawStart = Math.max(0, tailDist);
+            const drawEnd = Math.min(path.totalLength, headDist);
 
-        // Fade out as the tail exits the path
-        const fadeAlpha =
-          headProgress <= 1
-            ? 1
-            : Math.max(0, 1 - (headProgress - 1) / GLOW_TAIL_FRAC);
+            if (drawEnd <= 0) continue;
 
-        ctx.save();
-        ctx.strokeStyle = glowColor;
-        ctx.lineWidth = 1.5;
-        ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-        ctx.globalAlpha = fadeAlpha * 0.9;
-        ctx.shadowColor = glowColor;
-        ctx.shadowBlur = 10;
-        drawPathSegment(ctx, path, drawStart, drawEnd);
-        // Second pass for stronger bloom
-        ctx.shadowBlur = 20;
-        ctx.globalAlpha = fadeAlpha * 0.4;
-        drawPathSegment(ctx, path, drawStart, drawEnd);
-        ctx.restore();
+            // Draw the already-traversed trail (stays lit behind the head)
+            const trailEnd = Math.min(path.totalLength, drawStart);
+            if (trailEnd > 0) {
+              ctx.save();
+              ctx.strokeStyle = glowColor;
+              ctx.lineWidth = 1.5;
+              ctx.lineCap = "round";
+              ctx.lineJoin = "round";
+              ctx.globalAlpha = 0.7;
+              ctx.shadowColor = glowColor;
+              ctx.shadowBlur = 8;
+              drawPathSegment(ctx, path, 0, trailEnd);
+              ctx.shadowBlur = 16;
+              ctx.globalAlpha = 0.3;
+              drawPathSegment(ctx, path, 0, trailEnd);
+              ctx.restore();
+            }
+
+            // Draw the bright traveling head segment
+            const fadeAlpha =
+              headProgress <= 1
+                ? 1
+                : Math.max(0, 1 - (headProgress - 1) / GLOW_TAIL_FRAC);
+
+            ctx.save();
+            ctx.strokeStyle = glowColor;
+            ctx.lineWidth = 1.5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.globalAlpha = fadeAlpha * 0.9;
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = 10;
+            drawPathSegment(ctx, path, drawStart, drawEnd);
+            ctx.shadowBlur = 20;
+            ctx.globalAlpha = fadeAlpha * 0.4;
+            drawPathSegment(ctx, path, drawStart, drawEnd);
+            ctx.restore();
+          } else {
+            // ── Phase 2 & 3: Hold then fade ──
+            const afterTravel = elapsed - GLOW_TRAVEL_TOTAL;
+            const alpha =
+              afterTravel < GLOW_HOLD_MS
+                ? 1
+                : Math.max(0, 1 - (afterTravel - GLOW_HOLD_MS) / GLOW_FADE_MS);
+
+            if (alpha <= 0) continue;
+
+            ctx.save();
+            ctx.strokeStyle = glowColor;
+            ctx.lineWidth = 1.5;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.globalAlpha = alpha * 0.7;
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = 8;
+            drawPathSegment(ctx, path, 0, path.totalLength);
+            ctx.shadowBlur = 16;
+            ctx.globalAlpha = alpha * 0.3;
+            drawPathSegment(ctx, path, 0, path.totalLength);
+            ctx.restore();
+          }
+        }
       }
     }
 
     // Clean up expired timestamps
-    for (const [id, ts] of touched) {
-      if (now - ts > GLOW_DURATION) touched.delete(id);
+    for (const [id, raw] of touched) {
+      const arr = Array.isArray(raw) ? raw : [raw as unknown as number];
+      const alive = arr.filter((ts) => now - ts < GLOW_DURATION);
+      if (alive.length === 0) {
+        touched.delete(id);
+      } else if (alive.length < arr.length) {
+        touched.set(id, alive);
+      }
     }
 
     // Keep RAF alive if any glow is active

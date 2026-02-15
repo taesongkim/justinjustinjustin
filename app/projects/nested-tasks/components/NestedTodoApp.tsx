@@ -108,8 +108,8 @@ export default function NestedTodoApp() {
   const itemRefs = useRef<Map<string, HTMLElement>>(new Map());
   const inputRefs = useRef<Map<string, HTMLTextAreaElement>>(new Map());
   const containerRef = useRef<HTMLDivElement>(null);
-  /** Item ID → performance.now() timestamp of last interaction. */
-  const touchedTimestamps = useRef<Map<string, number>>(new Map());
+  /** Item ID → list of performance.now() timestamps for overlapping glows. */
+  const touchedTimestamps = useRef<Map<string, number[]>>(new Map());
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveNoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -353,7 +353,10 @@ export default function NestedTodoApp() {
   );
 
   const markTouched = useCallback((id: string) => {
-    touchedTimestamps.current.set(id, performance.now());
+    const existing = touchedTimestamps.current.get(id);
+    const arr = Array.isArray(existing) ? existing : [];
+    arr.push(performance.now());
+    touchedTimestamps.current.set(id, arr);
   }, []);
 
   // ─── Context Value ────────────────────────────────────────

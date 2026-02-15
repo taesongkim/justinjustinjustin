@@ -1,0 +1,690 @@
+/* ─── Theme ───────────────────────────────────────────────────────── */
+
+.ht-root {
+  --ht-bg: #fafafa;
+  --ht-surface: #ffffff;
+  --ht-card-bg: #ffffff;
+  --ht-text-primary: #111111;
+  --ht-text-secondary: #555555;
+  --ht-text-muted: #999999;
+  --ht-border: #e2e2e2;
+  --ht-accent: #333333;
+  --ht-checkbox-color: #cccccc;
+  --ht-checkbox-checked: #333333;
+  --ht-danger: #d44;
+  --ht-radius: 10px;
+  --ht-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+  .ht-root:not(.ht-light) {
+    --ht-bg: #0a0a0a;
+    --ht-surface: #141414;
+    --ht-card-bg: #1a1a1a;
+    --ht-text-primary: #e8e8e8;
+    --ht-text-secondary: #aaaaaa;
+    --ht-text-muted: #666666;
+    --ht-border: #2a2a2a;
+    --ht-accent: #dddddd;
+    --ht-checkbox-color: #444444;
+    --ht-checkbox-checked: #dddddd;
+    --ht-danger: #e55;
+    --ht-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.ht-root.ht-dark {
+  --ht-bg: #0a0a0a;
+  --ht-surface: #141414;
+  --ht-card-bg: #1a1a1a;
+  --ht-text-primary: #e8e8e8;
+  --ht-text-secondary: #aaaaaa;
+  --ht-text-muted: #666666;
+  --ht-border: #2a2a2a;
+  --ht-accent: #dddddd;
+  --ht-checkbox-color: #444444;
+  --ht-checkbox-checked: #dddddd;
+  --ht-danger: #e55;
+  --ht-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ─── Base ────────────────────────────────────────────────────────── */
+
+.ht-root {
+  min-height: 100vh;
+  background: var(--ht-bg);
+  color: var(--ht-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Container ──────────────────────────────────────────────────── */
+
+.ht-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  position: relative;
+}
+
+.ht-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.ht-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--ht-border);
+  border-top-color: var(--ht-accent);
+  border-radius: 50%;
+  animation: ht-spin 0.6s linear infinite;
+}
+
+@keyframes ht-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Day navigation ─────────────────────────────────────────────── */
+
+.ht-day-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+}
+
+.ht-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--ht-border);
+  border-radius: 8px;
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ht-nav-btn:hover {
+  background: var(--ht-card-bg);
+  color: var(--ht-text-primary);
+}
+
+.ht-day-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 200px;
+  text-align: center;
+}
+
+.ht-day-label-text {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ht-text-primary);
+}
+
+.ht-today-btn {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ht-accent);
+  background: none;
+  border: 1px solid var(--ht-border);
+  border-radius: 4px;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ht-today-btn:hover {
+  background: var(--ht-surface);
+}
+
+/* ─── Mobile user navigation ─────────────────────────────────────── */
+
+.ht-mobile-user-nav {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 767px) {
+  .ht-mobile-user-nav {
+    display: flex;
+  }
+}
+
+.ht-mobile-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ht-border);
+  border-radius: 6px;
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.ht-mobile-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.ht-mobile-user-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.ht-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ht-checkbox-color);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.ht-dot-active {
+  background: var(--ht-accent);
+  transform: scale(1.3);
+}
+
+/* ─── Peek hints ─────────────────────────────────────────────────── */
+
+.ht-peek {
+  position: relative;
+  height: 20px;
+  margin: 0 auto;
+  max-width: 900px;
+  border-radius: var(--ht-radius);
+  background: var(--ht-card-bg);
+  border: 1px solid var(--ht-border);
+  opacity: 0.4;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.ht-peek:hover {
+  opacity: 0.6;
+}
+
+.ht-peek-top {
+  margin-bottom: 6px;
+  border-bottom: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.ht-peek-bottom {
+  margin-top: 6px;
+  border-top: none;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+/* ─── Cards viewport ─────────────────────────────────────────────── */
+
+.ht-cards-viewport {
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.ht-cards-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+@media (max-width: 767px) {
+  .ht-cards-row {
+    gap: 0;
+  }
+}
+
+.ht-card-wrapper {
+  flex: 1;
+  min-width: 260px;
+  max-width: 400px;
+}
+
+@media (max-width: 767px) {
+  .ht-card-wrapper {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .ht-card-hidden-mobile {
+    display: none;
+  }
+
+  .ht-add-user-wrapper {
+    display: none;
+  }
+}
+
+/* Show add-user on mobile only via dots navigation */
+@media (max-width: 767px) {
+  .ht-add-user-wrapper.ht-card-hidden-mobile {
+    display: none;
+  }
+}
+
+/* ─── Card ───────────────────────────────────────────────────────── */
+
+.ht-card {
+  background: var(--ht-card-bg);
+  border: 1px solid var(--ht-border);
+  border-radius: var(--ht-radius);
+  padding: 20px;
+  box-shadow: var(--ht-card-shadow);
+}
+
+.ht-card-today {
+  border-color: var(--ht-accent);
+  border-width: 1.5px;
+}
+
+/* ─── Card header ────────────────────────────────────────────────── */
+
+.ht-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.ht-card-name {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ht-text-primary);
+}
+
+.ht-card-date {
+  font-size: 12px;
+  color: var(--ht-text-muted);
+  margin: 2px 0 0;
+}
+
+.ht-card-menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--ht-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ht-card-menu-btn:hover {
+  background: var(--ht-border);
+  color: var(--ht-text-secondary);
+}
+
+/* ─── Delete confirmation ────────────────────────────────────────── */
+
+.ht-delete-confirm {
+  background: var(--ht-surface);
+  border: 1px solid var(--ht-border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--ht-text-secondary);
+}
+
+.ht-delete-confirm p {
+  margin: 0 0 10px;
+}
+
+.ht-delete-confirm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.ht-delete-confirm-cancel,
+.ht-delete-confirm-delete {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid var(--ht-border);
+  transition: background 0.15s;
+}
+
+.ht-delete-confirm-cancel {
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+}
+
+.ht-delete-confirm-cancel:hover {
+  background: var(--ht-card-bg);
+}
+
+.ht-delete-confirm-delete {
+  background: var(--ht-danger);
+  color: white;
+  border-color: var(--ht-danger);
+}
+
+.ht-delete-confirm-delete:hover {
+  opacity: 0.9;
+}
+
+/* ─── Habit list ─────────────────────────────────────────────────── */
+
+.ht-habit-list {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── Habit item ─────────────────────────────────────────────────── */
+
+.ht-habit-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 4px;
+  border-radius: 6px;
+  position: relative;
+  cursor: grab;
+  transition: background 0.1s;
+}
+
+.ht-habit-item:hover {
+  background: rgba(128, 128, 128, 0.06);
+}
+
+.ht-habit-item:hover .ht-habit-remove {
+  opacity: 1;
+}
+
+.ht-habit-dragging {
+  opacity: 0.4;
+}
+
+.ht-habit-drag-target {
+  box-shadow: 0 -2px 0 0 var(--ht-accent);
+}
+
+/* ─── Checkbox ───────────────────────────────────────────────────── */
+
+.ht-checkbox {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--ht-checkbox-color);
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.ht-checkbox-checked {
+  border-color: var(--ht-checkbox-checked);
+  background: var(--ht-checkbox-checked);
+}
+
+.ht-checkmark {
+  width: 14px;
+  height: 14px;
+  color: var(--ht-card-bg);
+}
+
+.ht-check-pulse {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ht-checkbox-checked);
+  pointer-events: none;
+}
+
+/* ─── Habit text ─────────────────────────────────────────────────── */
+
+.ht-habit-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--ht-text-primary);
+  transition: opacity 0.15s;
+  line-height: 1.3;
+}
+
+.ht-habit-checked-text {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+/* ─── Habit remove ───────────────────────────────────────────────── */
+
+.ht-habit-remove {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--ht-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.ht-habit-remove:hover {
+  color: var(--ht-danger);
+}
+
+/* ─── Add habit ──────────────────────────────────────────────────── */
+
+.ht-add-habit {
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+
+.ht-add-habit-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 4px;
+  font-size: 13px;
+  color: var(--ht-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ht-add-habit-btn:hover {
+  color: var(--ht-text-secondary);
+}
+
+.ht-add-habit-input-row {
+  overflow: hidden;
+}
+
+.ht-add-habit-input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 1px solid var(--ht-border);
+  border-radius: 6px;
+  background: var(--ht-surface);
+  color: var(--ht-text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.ht-add-habit-input:focus {
+  border-color: var(--ht-accent);
+}
+
+.ht-add-habit-input::placeholder {
+  color: var(--ht-text-muted);
+}
+
+/* ─── Notes ──────────────────────────────────────────────────────── */
+
+.ht-note {
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid var(--ht-border);
+  border-radius: 6px;
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.ht-note:focus {
+  border-color: var(--ht-accent);
+  color: var(--ht-text-primary);
+}
+
+.ht-note::placeholder {
+  color: var(--ht-text-muted);
+}
+
+/* ─── Add user card ──────────────────────────────────────────────── */
+
+.ht-add-user-btn-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 200px;
+  border-style: dashed;
+  cursor: pointer;
+  color: var(--ht-text-muted);
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.ht-add-user-btn-card span {
+  font-size: 14px;
+}
+
+.ht-add-user-btn-card:hover {
+  color: var(--ht-text-secondary);
+  border-color: var(--ht-text-muted);
+}
+
+.ht-add-user-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ht-add-user-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 16px;
+  font-weight: 500;
+  border: 1px solid var(--ht-border);
+  border-radius: 6px;
+  background: var(--ht-surface);
+  color: var(--ht-text-primary);
+  outline: none;
+}
+
+.ht-add-user-input:focus {
+  border-color: var(--ht-accent);
+}
+
+.ht-add-user-input::placeholder {
+  color: var(--ht-text-muted);
+}
+
+.ht-add-user-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.ht-add-user-cancel,
+.ht-add-user-confirm {
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--ht-border);
+  transition: background 0.15s;
+}
+
+.ht-add-user-cancel {
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+}
+
+.ht-add-user-confirm {
+  background: var(--ht-accent);
+  color: var(--ht-bg);
+  border-color: var(--ht-accent);
+}
+
+/* ─── Theme toggle ───────────────────────────────────────────────── */
+
+.ht-theme-toggle {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ht-border);
+  border-radius: 8px;
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.15s;
+}
+
+.ht-theme-toggle:hover {
+  background: var(--ht-card-bg);
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ht-spinner {
+    animation-duration: 1.5s;
+  }
+}

@@ -1,0 +1,98 @@
+/* ─── Nested Tasks Theme ─────────────────────────────────────── */
+/* All colors are CSS custom properties for easy theming.         */
+/* Swap the values below (or override them) to retheme the app.  */
+
+/* ─── Light Mode ───────────────────────────────────────────── */
+.nt-light {
+  --nt-bg: #ffffff;
+  --nt-surface: #f5f5f5;
+  --nt-text-primary: #1a1a1a;
+  --nt-text-secondary: #555555;
+  --nt-text-muted: #999999;
+  --nt-border: #e8e8e8;
+  --nt-accent: #3b82f6;
+  --nt-line-color: #dcdcdc;
+  --nt-checkbox-bg: #ffffff;
+  --nt-checkbox-border: #cccccc;
+  --nt-checkbox-checked: #3b82f6;
+}
+
+/* ─── Dark Mode ────────────────────────────────────────────── */
+.nt-dark {
+  --nt-bg: #0a0a0a;
+  --nt-surface: #161616;
+  --nt-text-primary: #e0e0e0;
+  --nt-text-secondary: #888888;
+  --nt-text-muted: #4a4a4a;
+  --nt-border: #222222;
+  --nt-accent: #60a5fa;
+  --nt-line-color: #2a2a2a;
+  --nt-checkbox-bg: #1a1a1a;
+  --nt-checkbox-border: #3a3a3a;
+  --nt-checkbox-checked: #60a5fa;
+}
+
+/* ─── Base Styles ──────────────────────────────────────────── */
+
+.nt {
+  /* Smooth transitions when switching themes */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nt *::selection {
+  background: var(--nt-accent);
+  color: white;
+}
+
+.nt input::placeholder,
+.nt textarea::placeholder {
+  color: var(--nt-text-muted);
+  opacity: 0.7;
+}
+
+/* ─── Focus Styles ─────────────────────────────────────────── */
+
+.nt input:focus {
+  background: var(--nt-surface) !important;
+  border-radius: 4px;
+}
+
+/* ─── Scrollbar Styling ────────────────────────────────────── */
+
+.nt::-webkit-scrollbar,
+.nt *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.nt::-webkit-scrollbar-track,
+.nt *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nt::-webkit-scrollbar-thumb,
+.nt *::-webkit-scrollbar-thumb {
+  background: var(--nt-border);
+  border-radius: 3px;
+}
+
+.nt::-webkit-scrollbar-thumb:hover,
+.nt *::-webkit-scrollbar-thumb:hover {
+  background: var(--nt-text-muted);
+}
+
+/* ─── Drag Handle Hover ────────────────────────────────────── */
+
+.nt [data-item-id]:hover .drag-handle {
+  opacity: 0.4 !important;
+}
+
+/* ─── Reduced Motion ───────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .nt,
+  .nt * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

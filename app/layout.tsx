@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${interTight.variable} antialiased font-sans`}>
+      <body suppressHydrationWarning className={`${inter.variable} ${interTight.variable} antialiased font-sans`}>
         {/* 3D background — persists across page navigations */}
         <Scene />
 

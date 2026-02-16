@@ -101,12 +101,21 @@ function ExpandArrow({
         e.stopPropagation();
         onClick();
       }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--nt-surface)";
+        e.currentTarget.style.opacity = "0.9";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "none";
+        e.currentTarget.style.opacity = "0.6";
+      }}
       tabIndex={-1}
       style={{
-        width: 18,
-        height: 18,
+        width: 20,
+        height: 20,
         background: "none",
         border: "none",
+        borderRadius: 4,
         cursor: "pointer",
         display: "flex",
         alignItems: "center",
@@ -114,7 +123,7 @@ function ExpandArrow({
         flexShrink: 0,
         padding: 0,
         color: "var(--nt-text-muted)",
-        transition: "color 0.15s, transform 0.15s",
+        transition: "color 0.15s, transform 0.15s, background 0.15s, opacity 0.15s",
         transform: hasChildren
           ? expanded ? "rotate(-90deg)" : "rotate(0deg)"
           : "rotate(0deg)",

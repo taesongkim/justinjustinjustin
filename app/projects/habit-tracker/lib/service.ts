@@ -8,7 +8,9 @@ export function toDateString(date: Date): DateString {
 }
 
 export function today(): DateString {
-  return toDateString(new Date());
+  // Use NYC (Eastern) time to determine "today"
+  const nyc = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+  return nyc as DateString;
 }
 
 export function shiftDate(dateStr: DateString, days: number): DateString {

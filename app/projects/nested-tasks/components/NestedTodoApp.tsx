@@ -25,6 +25,8 @@ import {
   findParentInTree,
   reorderChildren,
   collectDescendantIds,
+  computeGridAssignments,
+  GridPosition,
 } from "../lib/types";
 import TodoItemComponent from "./TodoItem";
 import ConnectingLines from "./ConnectingLines";
@@ -54,6 +56,7 @@ export const TodoContext = createContext<{
   expandedIds: Set<string>;
   columns: ColumnEntry[][];
   todos: TodoItem[];
+  gridAssignments: Map<string, GridPosition>;
 } | null>(null);
 
 export function useTodoContext() {
@@ -63,22 +66,6 @@ export function useTodoContext() {
 }
 
 // ─── Animation Variants ───────────────────────────────────────
-
-const columnVariants = {
-  hidden: { opacity: 0, x: -20, width: 0 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    width: "auto" as const,
-    transition: { duration: 0.2, ease: "easeOut" as const },
-  },
-  exit: {
-    opacity: 0,
-    x: -20,
-    width: 0,
-    transition: { duration: 0.15, ease: "easeIn" as const },
-  },
-};
 
 const toastVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -390,9 +377,14 @@ export default function NestedTodoApp() {
     ]
   );
 
+  const gridAssignments = useMemo(
+    () => computeGridAssignments(columns, expandedIds),
+    [columns, expandedIds]
+  );
+
   const contextValue = useMemo(
-    () => ({ actions, expandedIds, columns, todos }),
-    [actions, expandedIds, columns, todos]
+    () => ({ actions, expandedIds, columns, todos, gridAssignments }),
+    [actions, expandedIds, columns, todos, gridAssignments]
   );
 
   // ─── Note ─────────────────────────────────────────────────
@@ -502,61 +494,50 @@ export default function NestedTodoApp() {
           />
         </header>
 
-        {/* ─── Columns ─────────────────────────────────────── */}
-        <div
-          ref={containerRef}
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            position: "relative",
-            overflowX: "auto",
-            padding: "24px 0",
-            minHeight: "calc(100vh - 120px)",
-          }}
-        >
-          {/* SVG Lines Overlay */}
-          <ConnectingLines
-            containerRef={containerRef}
-            itemRefs={itemRefs}
-            columns={columns}
-            expandedIds={expandedIds}
-            staggerDelay={staggerDelay}
-            touchedTimestamps={touchedTimestamps}
-          />
+        {/* ─── Columns (CSS Grid) ────────────────────────── */}
+        {(() => {
+          let maxRow = 0;
+          for (const pos of gridAssignments.values()) {
+            if (pos.gridRow > maxRow) maxRow = pos.gridRow;
+          }
+          const lastRow = maxRow;
 
-          <AnimatePresence mode="popLayout">
-            {columns.map((column, colIndex) => (
-              <motion.div
-                key={colIndex}
-                variants={reducedMotion ? undefined : columnVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                style={{
-                  minWidth: 340,
-                  maxWidth: 440,
-                  flexShrink: 0,
-                  padding: "0 16px",
-                  borderRight: "none",
-                }}
-              >
-                <AnimatePresence mode="sync">
-                  {column.map((entry, itemIndex) => {
-                    // Show a separator between groups from different parents
-                    const prevEntry = itemIndex > 0 ? column[itemIndex - 1] : null;
-                    const showSeparator =
-                      colIndex > 0 &&
-                      prevEntry &&
-                      prevEntry.parentId !== entry.parentId;
+          return (
+            <div
+              ref={containerRef}
+              style={{
+                display: "grid",
+                gridTemplateColumns: `repeat(${columns.length}, minmax(340px, 440px))`,
+                gridAutoRows: "min-content",
+                position: "relative",
+                overflowX: "auto",
+                padding: "24px 0",
+                minHeight: "calc(100vh - 120px)",
+              }}
+            >
+              <ConnectingLines
+                containerRef={containerRef}
+                itemRefs={itemRefs}
+                columns={columns}
+                expandedIds={expandedIds}
+                staggerDelay={staggerDelay}
+                touchedTimestamps={touchedTimestamps}
+              />
 
+              <AnimatePresence mode="sync">
+                {columns.flatMap((column, colIndex) =>
+                  column.map((entry, itemIndex) => {
+                    const pos = gridAssignments.get(entry.item.id);
+                    if (!pos) return null;
                     return (
-                      <div key={entry.item.id}>
-                        {showSeparator && (
-                          <div
-                            style={{ height: 16 }}
-                            aria-hidden
-                          />
-                        )}
+                      <div
+                        key={entry.item.id}
+                        style={{
+                          gridRow: pos.gridRow,
+                          gridColumn: pos.gridColumn,
+                          padding: "0 16px",
+                        }}
+                      >
                         <TodoItemComponent
                           entry={entry}
                           colIndex={colIndex}
@@ -566,56 +547,56 @@ export default function NestedTodoApp() {
                         />
                       </div>
                     );
-                  })}
-                </AnimatePresence>
-
-                {/* Add item button at column bottom */}
-                {colIndex === 0 && (
-                  <button
-                    onClick={() => {
-                      if (column.length > 0) {
-                        createSiblingAfter(
-                          column[column.length - 1].item.id
-                        );
-                      } else {
-                        const newItem = createTodoItem("", 0);
-                        setTodos((prev) => {
-                          const updated = [...prev, newItem].map((t, i) => ({
-                            ...t,
-                            order: i,
-                          }));
-                          scheduleSave(updated);
-                          return updated;
-                        });
-                        focusItem(newItem.id);
-                      }
-                    }}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: "var(--nt-text-muted)",
-                      fontSize: 13,
-                      padding: "8px 12px",
-                      opacity: 0.5,
-                      transition: "opacity 0.15s",
-                      width: "100%",
-                      textAlign: "left",
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.opacity = "0.8")
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.opacity = "0.5")
-                    }
-                  >
-                    + Add item
-                  </button>
+                  })
                 )}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
+              </AnimatePresence>
+
+              {/* Add item button */}
+              <button
+                onClick={() => {
+                  if (columns[0] && columns[0].length > 0) {
+                    createSiblingAfter(
+                      columns[0][columns[0].length - 1].item.id
+                    );
+                  } else {
+                    const newItem = createTodoItem("", 0);
+                    setTodos((prev) => {
+                      const updated = [...prev, newItem].map((t, i) => ({
+                        ...t,
+                        order: i,
+                      }));
+                      scheduleSave(updated);
+                      return updated;
+                    });
+                    focusItem(newItem.id);
+                  }
+                }}
+                style={{
+                  gridColumn: 1,
+                  gridRow: lastRow + 1,
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--nt-text-muted)",
+                  fontSize: 13,
+                  padding: "8px 12px",
+                  opacity: 0.5,
+                  transition: "opacity 0.15s",
+                  width: "100%",
+                  textAlign: "left",
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.opacity = "0.8")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.opacity = "0.5")
+                }
+              >
+                + Add item
+              </button>
+            </div>
+          );
+        })()}
 
         {/* ─── Undo Toast ──────────────────────────────────── */}
         <AnimatePresence>

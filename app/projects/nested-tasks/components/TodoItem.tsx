@@ -440,7 +440,7 @@ export default function TodoItemComponent({
 
       const handleMove = (moveEvent: PointerEvent) => {
         const deltaY = moveEvent.clientY - dragStartY.current;
-        const itemHeight = 44; // approx item height (slightly larger for multi-line)
+        const itemHeight = itemElRef.current?.getBoundingClientRect().height ?? 44;
         const indexDelta = Math.round(deltaY / itemHeight);
         const newIndex = Math.max(
           0,

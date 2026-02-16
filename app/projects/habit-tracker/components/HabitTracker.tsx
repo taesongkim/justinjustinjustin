@@ -20,6 +20,58 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
+// ─── Preview Card (read-only, low opacity) ──────────────────────────
+
+function PreviewCard({ card, userName, userGoals }: { card: CardType; userName: string; userGoals: string }) {
+  return (
+    <div className="ht-card">
+      <div className="ht-card-header">
+        <span className="ht-card-name">{userName}</span>
+        <div className="ht-card-date-block">
+          <p className="ht-card-weekday">{svc.formatWeekday(card.date)}</p>
+          <p className="ht-card-date">{svc.formatShortDate(card.date)}</p>
+        </div>
+      </div>
+      {userGoals && (
+        <div className="ht-goals" style={{ pointerEvents: "none", minHeight: "unset" }}>
+          {userGoals}
+        </div>
+      )}
+      <div className="ht-habit-list">
+        {card.habits.map((habit) => (
+          <div key={habit.id} className="ht-habit-item" style={{ cursor: "default" }}>
+            <div
+              className={`ht-checkbox ${habit.checked ? "ht-checkbox-checked" : ""}`}
+              style={{ pointerEvents: "none" }}
+            >
+              {habit.checked && (
+                <svg viewBox="0 0 24 24" className="ht-checkmark">
+                  <path
+                    d="M5 13l4 4L19 7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.5}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </div>
+            <span className={`ht-habit-text ${habit.checked ? "ht-habit-checked-text" : ""}`}>
+              {habit.text}
+            </span>
+          </div>
+        ))}
+      </div>
+      {card.note && (
+        <div className="ht-note" style={{ pointerEvents: "none", minHeight: "unset" }}>
+          {card.note}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Main Component ─────────────────────────────────────────────────
 
 export default function HabitTracker() {
@@ -30,16 +82,16 @@ export default function HabitTracker() {
   const [users, setUsers] = useState<User[]>([]);
   const [currentDate, setCurrentDate] = useState(svc.today());
   const [cards, setCards] = useState<Map<string, CardType>>(new Map());
+  const [prevDayCards, setPrevDayCards] = useState<Map<string, CardType>>(new Map());
+  const [nextDayCards, setNextDayCards] = useState<Map<string, CardType>>(new Map());
   const [loading, setLoading] = useState(true);
   const [mobileUserIdx, setMobileUserIdx] = useState(0);
   const [dayDirection, setDayDirection] = useState(0); // -1 past, 1 future
   const [addingUser, setAddingUser] = useState(false);
   const [newUserName, setNewUserName] = useState("");
   const newUserInputRef = useRef<HTMLInputElement>(null);
-
-  // Track whether earlier/later cards exist for peek hints
-  const [hasPrev, setHasPrev] = useState(false);
-  const [hasNext, setHasNext] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // ── Data fetching ───────────────────────────────────────────────
 
@@ -71,22 +123,26 @@ export default function HabitTracker() {
     [users]
   );
 
-  // Check if adjacent days have any existing cards (for peek visibility)
-  const checkAdjacentDays = useCallback(
+  // Load adjacent day cards (read-only, no lazy creation — just fetch what exists)
+  const loadAdjacentCards = useCallback(
     async (date: string) => {
-      const prev = svc.shiftDate(date, -1);
-      const next = svc.shiftDate(date, 1);
+      const prevDate = svc.shiftDate(date, -1);
+      const nextDate = svc.shiftDate(date, 1);
       try {
-        const [prevCards, nextCards] = await Promise.all([
-          svc.getCardsForDate(prev),
-          svc.getCardsForDate(next),
+        const [prev, next] = await Promise.all([
+          svc.getCardsForDate(prevDate),
+          svc.getCardsForDate(nextDate),
         ]);
-        setHasPrev(prevCards.length > 0);
-        // Future days always peekable (lazy creation means they can be created)
-        setHasNext(true);
+        const prevMap = new Map<string, CardType>();
+        prev.forEach((c) => prevMap.set(c.user_id, c));
+        setPrevDayCards(prevMap);
+
+        const nextMap = new Map<string, CardType>();
+        next.forEach((c) => nextMap.set(c.user_id, c));
+        setNextDayCards(nextMap);
       } catch {
-        setHasPrev(false);
-        setHasNext(true);
+        setPrevDayCards(new Map());
+        setNextDayCards(new Map());
       }
     },
     []
@@ -101,7 +157,7 @@ export default function HabitTracker() {
       if (u.length > 0) {
         await loadCardsForDate(currentDate, u);
       }
-      await checkAdjacentDays(currentDate);
+      await loadAdjacentCards(currentDate);
       setLoading(false);
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -110,7 +166,7 @@ export default function HabitTracker() {
   useEffect(() => {
     if (users.length > 0) {
       loadCardsForDate(currentDate);
-      checkAdjacentDays(currentDate);
+      loadAdjacentCards(currentDate);
     }
   }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -118,12 +174,21 @@ export default function HabitTracker() {
 
   useEffect(() => {
     const unsub = svc.subscribeToChanges(
-      () => loadCardsForDate(currentDate),
-      () => loadCardsForDate(currentDate),
-      () => loadUsers().then(() => loadCardsForDate(currentDate))
+      () => {
+        loadCardsForDate(currentDate);
+        loadAdjacentCards(currentDate);
+      },
+      () => {
+        loadCardsForDate(currentDate);
+        loadAdjacentCards(currentDate);
+      },
+      () => loadUsers().then(() => {
+        loadCardsForDate(currentDate);
+        loadAdjacentCards(currentDate);
+      })
     );
     return unsub;
-  }, [currentDate, loadCardsForDate, loadUsers]);
+  }, [currentDate, loadCardsForDate, loadUsers, loadAdjacentCards]);
 
   // ── Day navigation ──────────────────────────────────────────────
 
@@ -163,7 +228,6 @@ export default function HabitTracker() {
   // ── Card action handlers ────────────────────────────────────────
 
   async function handleToggleHabit(habitId: string, checked: boolean) {
-    // Optimistic update
     setCards((prev) => {
       const next = new Map(prev);
       for (const [uid, card] of next) {
@@ -198,7 +262,6 @@ export default function HabitTracker() {
   }
 
   async function handleRemoveHabit(habitId: string) {
-    // Optimistic remove
     setCards((prev) => {
       const next = new Map(prev);
       for (const [uid, card] of next) {
@@ -216,7 +279,6 @@ export default function HabitTracker() {
   }
 
   async function handleReorderHabits(cardId: string, orderedIds: string[]) {
-    // Optimistic reorder
     setCards((prev) => {
       const next = new Map(prev);
       for (const [uid, card] of next) {
@@ -241,6 +303,13 @@ export default function HabitTracker() {
     await svc.updateNote(cardId, text);
   }
 
+  async function handleUpdateGoals(userId: string, goals: string) {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === userId ? { ...u, goals } : u))
+    );
+    await svc.updateUserGoals(userId, goals);
+  }
+
   async function handleDeleteUser(userId: string) {
     await svc.deleteUser(userId);
     setUsers((prev) => prev.filter((u) => u.id !== userId));
@@ -258,7 +327,6 @@ export default function HabitTracker() {
     setUsers((prev) => [...prev, user]);
     setNewUserName("");
     setAddingUser(false);
-    // Create first card for the new user
     const card = await svc.ensureCardExists(user.id, currentDate);
     setCards((prev) => {
       const next = new Map(prev);
@@ -281,9 +349,41 @@ export default function HabitTracker() {
     }),
   };
 
-  // ── Render ──────────────────────────────────────────────────────
+  // ── Render helpers ────────────────────────────────────────────────
 
   const isToday = currentDate === svc.today();
+  const hasPrev = prevDayCards.size > 0;
+  // Future is always navigable
+  const hasNext = true;
+
+  function renderPreviewRow(dayCards: Map<string, CardType>, position: "top" | "bottom") {
+    if (dayCards.size === 0) return null;
+    return (
+      <div
+        className={`ht-preview-row ht-preview-${position}`}
+        onClick={position === "top" ? goToPrevDay : goToNextDay}
+      >
+        <div className="ht-preview-row-inner">
+          {users.map((user, i) => {
+            const card = dayCards.get(user.id);
+            if (!card) return null;
+            return (
+              <div
+                key={user.id}
+                className={`ht-card-wrapper ${
+                  i !== mobileUserIdx ? "ht-card-hidden-mobile" : ""
+                }`}
+              >
+                <PreviewCard card={card} userName={user.name} userGoals={user.goals ?? ""} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Render ──────────────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -295,6 +395,107 @@ export default function HabitTracker() {
 
   return (
     <div className="ht-container">
+      {/* Top-right toolbar */}
+      <div className="ht-toolbar">
+        <button
+          className="ht-toolbar-btn"
+          onClick={() => { setAddingUser(true); setMenuOpen(false); }}
+          aria-label="Add person"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
+        <div className="ht-menu-wrapper">
+          <button
+            className="ht-toolbar-btn"
+            onClick={() => { setMenuOpen((v) => !v); setAddingUser(false); }}
+            aria-label="Menu"
+          >
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+              <circle cx="8" cy="3" r="1.2" fill="currentColor" />
+              <circle cx="8" cy="8" r="1.2" fill="currentColor" />
+              <circle cx="8" cy="13" r="1.2" fill="currentColor" />
+            </svg>
+          </button>
+          {menuOpen && (
+            <div className="ht-menu-dropdown">
+              <p className="ht-menu-heading">Remove person</p>
+              {users.map((u) => (
+                <div key={u.id} className="ht-menu-user-row">
+                  {confirmDeleteId === u.id ? (
+                    <>
+                      <span className="ht-menu-confirm-text">Delete {u.name}?</span>
+                      <button
+                        className="ht-menu-confirm-yes"
+                        onClick={() => { handleDeleteUser(u.id); setConfirmDeleteId(null); setMenuOpen(false); }}
+                      >
+                        Yes
+                      </button>
+                      <button
+                        className="ht-menu-confirm-no"
+                        onClick={() => setConfirmDeleteId(null)}
+                      >
+                        No
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="ht-menu-user-name">{u.name}</span>
+                      <button
+                        className="ht-menu-delete-btn"
+                        onClick={() => setConfirmDeleteId(u.id)}
+                        aria-label={`Delete ${u.name}`}
+                      >
+                        <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                          <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))}
+              {users.length === 0 && (
+                <p className="ht-menu-empty">No users yet</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Add user popover */}
+      {addingUser && (
+        <div className="ht-add-user-popover">
+          <input
+            ref={newUserInputRef}
+            type="text"
+            className="ht-add-user-input"
+            value={newUserName}
+            onChange={(e) => setNewUserName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCreateUser();
+              if (e.key === "Escape") {
+                setAddingUser(false);
+                setNewUserName("");
+              }
+            }}
+            placeholder="Name"
+            autoFocus
+          />
+          <div className="ht-add-user-actions">
+            <button
+              className="ht-add-user-cancel"
+              onClick={() => { setAddingUser(false); setNewUserName(""); }}
+            >
+              Cancel
+            </button>
+            <button className="ht-add-user-confirm" onClick={handleCreateUser}>
+              Add
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Day navigation header */}
       <div className="ht-day-nav">
         <button className="ht-nav-btn" onClick={goToPrevDay} aria-label="Previous day">
@@ -355,8 +556,8 @@ export default function HabitTracker() {
         </div>
       )}
 
-      {/* Peek hint: previous day */}
-      {hasPrev && <div className="ht-peek ht-peek-top" onClick={goToPrevDay} />}
+      {/* Preview: previous day */}
+      {hasPrev && renderPreviewRow(prevDayCards, "top")}
 
       {/* Cards area */}
       <div className="ht-cards-viewport">
@@ -384,81 +585,25 @@ export default function HabitTracker() {
                   <Card
                     card={card}
                     userName={user.name}
+                    userGoals={user.goals ?? ""}
                     onToggleHabit={handleToggleHabit}
                     onAddHabit={handleAddHabit}
                     onRemoveHabit={handleRemoveHabit}
                     onReorderHabits={handleReorderHabits}
                     onUpdateNote={handleUpdateNote}
-                    onDeleteUser={handleDeleteUser}
+                    onUpdateGoals={handleUpdateGoals}
                     isToday={isToday}
                   />
                 </div>
               );
             })}
 
-            {/* Add user card */}
-            <div className={`ht-card-wrapper ht-add-user-wrapper ${
-              users.length > 0 && mobileUserIdx !== users.length ? "ht-card-hidden-mobile" : ""
-            }`}>
-              {addingUser ? (
-                <div className="ht-card ht-add-user-card">
-                  <input
-                    ref={newUserInputRef}
-                    type="text"
-                    className="ht-add-user-input"
-                    value={newUserName}
-                    onChange={(e) => setNewUserName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleCreateUser();
-                      if (e.key === "Escape") {
-                        setAddingUser(false);
-                        setNewUserName("");
-                      }
-                    }}
-                    placeholder="Name"
-                    autoFocus
-                  />
-                  <div className="ht-add-user-actions">
-                    <button
-                      className="ht-add-user-cancel"
-                      onClick={() => {
-                        setAddingUser(false);
-                        setNewUserName("");
-                      }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="ht-add-user-confirm"
-                      onClick={handleCreateUser}
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  className="ht-card ht-add-user-btn-card"
-                  onClick={() => setAddingUser(true)}
-                >
-                  <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-                    <path
-                      d="M12 5v14M5 12h14"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span>Add Person</span>
-                </button>
-              )}
-            </div>
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Peek hint: next day */}
-      {hasNext && <div className="ht-peek ht-peek-bottom" onClick={goToNextDay} />}
+      {/* Preview: next day */}
+      {hasNext && nextDayCards.size > 0 && renderPreviewRow(nextDayCards, "bottom")}
     </div>
   );
 }

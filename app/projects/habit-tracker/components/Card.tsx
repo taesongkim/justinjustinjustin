@@ -3,54 +3,72 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Card as CardType } from "../lib/types";
-import { formatDate } from "../lib/service";
+import { formatWeekday, formatShortDate } from "../lib/service";
 import HabitItem from "./HabitItem";
 import AddHabitInput from "./AddHabitInput";
 
 interface CardProps {
   card: CardType;
   userName: string;
+  userGoals: string;
   onToggleHabit: (habitId: string, checked: boolean) => void;
   onAddHabit: (cardId: string, text: string) => void;
   onRemoveHabit: (habitId: string) => void;
   onReorderHabits: (cardId: string, orderedIds: string[]) => void;
   onUpdateNote: (cardId: string, text: string) => void;
-  onDeleteUser: (userId: string) => void;
+  onUpdateGoals: (userId: string, goals: string) => void;
   isToday: boolean;
 }
 
 export default function Card({
   card,
   userName,
+  userGoals,
   onToggleHabit,
   onAddHabit,
   onRemoveHabit,
   onReorderHabits,
   onUpdateNote,
-  onDeleteUser,
+  onUpdateGoals,
   isToday,
 }: CardProps) {
   const [note, setNote] = useState(card.note);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [goals, setGoals] = useState(userGoals);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const noteDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const goalsDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Sync note from props when card changes
   useEffect(() => {
     setNote(card.note);
   }, [card.note, card.id]);
+
+  useEffect(() => {
+    setGoals(userGoals);
+  }, [userGoals]);
 
   const handleNoteChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const val = e.target.value;
       setNote(val);
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => {
+      if (noteDebounceRef.current) clearTimeout(noteDebounceRef.current);
+      noteDebounceRef.current = setTimeout(() => {
         onUpdateNote(card.id, val);
       }, 500);
     },
     [card.id, onUpdateNote]
+  );
+
+  const handleGoalsChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const val = e.target.value;
+      setGoals(val);
+      if (goalsDebounceRef.current) clearTimeout(goalsDebounceRef.current);
+      goalsDebounceRef.current = setTimeout(() => {
+        onUpdateGoals(card.user_id, val);
+      }, 500);
+    },
+    [card.user_id, onUpdateGoals]
   );
 
   function handleDragEnd() {
@@ -73,43 +91,21 @@ export default function Card({
     <div className={`ht-card ${isToday ? "ht-card-today" : ""}`}>
       {/* Header */}
       <div className="ht-card-header">
-        <div>
-          <h3 className="ht-card-name">{userName}</h3>
-          <p className="ht-card-date">{formatDate(card.date)}</p>
+        <span className="ht-card-name">{userName}</span>
+        <div className="ht-card-date-block">
+          <p className="ht-card-weekday">{formatWeekday(card.date)}</p>
+          <p className="ht-card-date">{formatShortDate(card.date)}</p>
         </div>
-        <button
-          className="ht-card-menu-btn"
-          onClick={() => setShowDeleteConfirm(true)}
-          aria-label={`Delete user ${userName}`}
-        >
-          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-            <circle cx="8" cy="3" r="1.2" fill="currentColor" />
-            <circle cx="8" cy="8" r="1.2" fill="currentColor" />
-            <circle cx="8" cy="13" r="1.2" fill="currentColor" />
-          </svg>
-        </button>
       </div>
 
-      {/* Delete confirmation */}
-      {showDeleteConfirm && (
-        <div className="ht-delete-confirm">
-          <p>Delete {userName} and all their data?</p>
-          <div className="ht-delete-confirm-actions">
-            <button
-              className="ht-delete-confirm-cancel"
-              onClick={() => setShowDeleteConfirm(false)}
-            >
-              Cancel
-            </button>
-            <button
-              className="ht-delete-confirm-delete"
-              onClick={() => onDeleteUser(card.user_id)}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Goals */}
+      <textarea
+        className="ht-goals"
+        value={goals}
+        onChange={handleGoalsChange}
+        placeholder="Goals & commitments..."
+        rows={2}
+      />
 
       {/* Habits */}
       <div className="ht-habit-list">

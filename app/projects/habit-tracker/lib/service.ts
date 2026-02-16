@@ -27,6 +27,20 @@ export function formatDate(dateStr: DateString): string {
   });
 }
 
+export function formatWeekday(dateStr: DateString): string {
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("en-US", { weekday: "long" });
+}
+
+export function formatShortDate(dateStr: DateString): string {
+  const d = new Date(dateStr + "T12:00:00");
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 // ─── Users ──────────────────────────────────────────────────────────
 
 export async function getUsers(): Promise<User[]> {
@@ -59,6 +73,14 @@ export async function createUser(name: string): Promise<User> {
 
 export async function deleteUser(id: string): Promise<void> {
   const { error } = await supabase.from("users").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function updateUserGoals(id: string, goals: string): Promise<void> {
+  const { error } = await supabase
+    .from("users")
+    .update({ goals })
+    .eq("id", id);
   if (error) throw error;
 }
 

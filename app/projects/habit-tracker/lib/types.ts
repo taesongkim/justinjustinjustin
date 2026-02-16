@@ -1,6 +1,7 @@
 export interface User {
   id: string;
   name: string;
+  goals: string;
   created_at: string;
   sort_order: number;
 }

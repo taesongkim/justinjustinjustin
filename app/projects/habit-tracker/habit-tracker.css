@@ -67,6 +67,154 @@
   position: relative;
 }
 
+/* ─── Toolbar (top-right) ────────────────────────────────────────── */
+
+.ht-toolbar {
+  position: absolute;
+  top: 20px;
+  right: 16px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ht-toolbar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ht-border);
+  border-radius: 8px;
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ht-toolbar-btn:hover {
+  background: var(--ht-card-bg);
+  color: var(--ht-text-primary);
+}
+
+.ht-menu-wrapper {
+  position: relative;
+}
+
+.ht-menu-dropdown {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: 200px;
+  background: var(--ht-card-bg);
+  border: 1px solid var(--ht-border);
+  border-radius: var(--ht-radius);
+  padding: 8px;
+  box-shadow: var(--ht-card-shadow);
+}
+
+.ht-menu-heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ht-text-muted);
+  padding: 4px 8px 6px;
+  margin: 0;
+}
+
+.ht-menu-user-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  transition: background 0.1s;
+}
+
+.ht-menu-user-row:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.ht-menu-user-name {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ht-text-primary);
+}
+
+.ht-menu-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--ht-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.ht-menu-user-row:hover .ht-menu-delete-btn {
+  opacity: 1;
+}
+
+.ht-menu-delete-btn:hover {
+  color: var(--ht-danger);
+}
+
+.ht-menu-confirm-text {
+  flex: 1;
+  font-size: 12px;
+  color: var(--ht-text-secondary);
+}
+
+.ht-menu-confirm-yes,
+.ht-menu-confirm-no {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--ht-border);
+}
+
+.ht-menu-confirm-yes {
+  background: var(--ht-danger);
+  color: white;
+  border-color: var(--ht-danger);
+}
+
+.ht-menu-confirm-no {
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+}
+
+.ht-menu-empty {
+  font-size: 12px;
+  color: var(--ht-text-muted);
+  padding: 4px 8px;
+  margin: 0;
+}
+
+.ht-add-user-popover {
+  position: absolute;
+  top: 58px;
+  right: 16px;
+  z-index: 40;
+  background: var(--ht-card-bg);
+  border: 1px solid var(--ht-border);
+  border-radius: var(--ht-radius);
+  padding: 16px;
+  box-shadow: var(--ht-card-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 220px;
+}
+
 .ht-loading {
   display: flex;
   align-items: center;
@@ -98,6 +246,20 @@
   padding: 8px 0;
 }
 
+/* Desktop: pin day nav to the left, vertically centered */
+@media (min-width: 768px) {
+  .ht-day-nav {
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    flex-direction: column;
+    margin-bottom: 0;
+    padding: 0;
+    z-index: 40;
+  }
+}
+
 .ht-nav-btn {
   display: flex;
   align-items: center;
@@ -124,6 +286,12 @@
   gap: 4px;
   min-width: 200px;
   text-align: center;
+}
+
+@media (min-width: 768px) {
+  .ht-day-label {
+    min-width: unset;
+  }
 }
 
 .ht-day-label-text {
@@ -204,37 +372,88 @@
   transform: scale(1.3);
 }
 
-/* ─── Peek hints ─────────────────────────────────────────────────── */
+/* ─── Preview rows (adjacent days) ───────────────────────────────── */
 
-.ht-peek {
-  position: relative;
-  height: 20px;
-  margin: 0 auto;
-  max-width: 900px;
-  border-radius: var(--ht-radius);
-  background: var(--ht-card-bg);
-  border: 1px solid var(--ht-border);
-  opacity: 0.4;
+.ht-preview-row {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 30;
   cursor: pointer;
+  pointer-events: auto;
+  overflow: hidden;
   transition: opacity 0.15s;
 }
 
-.ht-peek:hover {
-  opacity: 0.6;
+.ht-preview-row:hover {
+  opacity: 1;
 }
 
-.ht-peek-top {
-  margin-bottom: 6px;
-  border-bottom: none;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+.ht-preview-row-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  opacity: 0.25;
+  transition: opacity 0.2s;
+  pointer-events: none;
 }
 
-.ht-peek-bottom {
-  margin-top: 6px;
-  border-top: none;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+.ht-preview-row:hover .ht-preview-row-inner {
+  opacity: 0.4;
+}
+
+/* Top preview: show bottom portion of prev day's cards peeking down */
+.ht-preview-top {
+  top: 0;
+  height: 80px;
+}
+
+.ht-preview-top .ht-preview-row-inner {
+  /* shift cards up so only the bottom slice is visible */
+  margin-top: -340px;
+}
+
+/* Bottom preview: show top portion of next day's cards peeking up */
+.ht-preview-bottom {
+  bottom: 0;
+  height: 80px;
+}
+
+.ht-preview-bottom .ht-preview-row-inner {
+  /* cards render at top, only top slice visible */
+}
+
+/* Preview cards match the same sizing as real cards */
+.ht-preview-row .ht-card-wrapper {
+  flex: 0 1 340px;
+  min-width: 260px;
+  max-width: 400px;
+}
+
+.ht-preview-row .ht-card {
+  height: 420px;
+}
+
+@media (max-width: 767px) {
+  .ht-preview-row .ht-card-wrapper {
+    min-width: 100%;
+    max-width: 100%;
+  }
+
+  .ht-preview-top {
+    height: 60px;
+  }
+
+  .ht-preview-bottom {
+    height: 60px;
+  }
+
+  .ht-preview-top .ht-preview-row-inner {
+    margin-top: -360px;
+  }
 }
 
 /* ─── Cards viewport ─────────────────────────────────────────────── */
@@ -243,12 +462,17 @@
   position: relative;
   overflow: hidden;
   min-height: 200px;
+  display: flex;
+  align-items: center;
+  min-height: calc(100vh - 120px);
 }
 
 .ht-cards-row {
   display: flex;
   gap: 16px;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 @media (max-width: 767px) {
@@ -258,7 +482,7 @@
 }
 
 .ht-card-wrapper {
-  flex: 1;
+  flex: 0 1 340px;
   min-width: 260px;
   max-width: 400px;
 }
@@ -272,17 +496,6 @@
   .ht-card-hidden-mobile {
     display: none;
   }
-
-  .ht-add-user-wrapper {
-    display: none;
-  }
-}
-
-/* Show add-user on mobile only via dots navigation */
-@media (max-width: 767px) {
-  .ht-add-user-wrapper.ht-card-hidden-mobile {
-    display: none;
-  }
 }
 
 /* ─── Card ───────────────────────────────────────────────────────── */
@@ -293,6 +506,10 @@
   border-radius: var(--ht-radius);
   padding: 20px;
   box-shadow: var(--ht-card-shadow);
+  height: 420px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
 .ht-card-today {
@@ -310,87 +527,61 @@
 }
 
 .ht-card-name {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--ht-text-primary);
+  line-height: 1;
+}
+
+.ht-card-date-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  gap: 0;
+}
+
+.ht-card-weekday {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--ht-text-secondary);
+  line-height: 1.1;
 }
 
 .ht-card-date {
-  font-size: 12px;
-  color: var(--ht-text-muted);
-  margin: 2px 0 0;
-}
-
-.ht-card-menu-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 6px;
-  background: none;
-  color: var(--ht-text-muted);
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.ht-card-menu-btn:hover {
-  background: var(--ht-border);
-  color: var(--ht-text-secondary);
-}
-
-/* ─── Delete confirmation ────────────────────────────────────────── */
-
-.ht-delete-confirm {
-  background: var(--ht-surface);
-  border: 1px solid var(--ht-border);
-  border-radius: 8px;
-  padding: 12px;
-  margin-bottom: 12px;
   font-size: 13px;
+  color: var(--ht-text-muted);
+  margin: 1px 0 0;
+  line-height: 1.1;
+}
+
+/* ─── Goals ──────────────────────────────────────────────────────── */
+
+.ht-goals {
+  width: 100%;
+  padding: 6px 0;
+  font-size: 13px;
+  line-height: 1.4;
+  border: none;
+  border-bottom: 1px solid var(--ht-border);
+  background: none;
   color: var(--ht-text-secondary);
+  resize: none;
+  outline: none;
+  font-family: inherit;
+  margin-bottom: 12px;
+  transition: border-color 0.15s;
 }
 
-.ht-delete-confirm p {
-  margin: 0 0 10px;
+.ht-goals:focus {
+  border-color: var(--ht-accent);
+  color: var(--ht-text-primary);
 }
 
-.ht-delete-confirm-actions {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-}
-
-.ht-delete-confirm-cancel,
-.ht-delete-confirm-delete {
-  font-size: 12px;
-  padding: 4px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  border: 1px solid var(--ht-border);
-  transition: background 0.15s;
-}
-
-.ht-delete-confirm-cancel {
-  background: var(--ht-surface);
-  color: var(--ht-text-secondary);
-}
-
-.ht-delete-confirm-cancel:hover {
-  background: var(--ht-card-bg);
-}
-
-.ht-delete-confirm-delete {
-  background: var(--ht-danger);
-  color: white;
-  border-color: var(--ht-danger);
-}
-
-.ht-delete-confirm-delete:hover {
-  opacity: 0.9;
+.ht-goals::placeholder {
+  color: var(--ht-text-muted);
 }
 
 /* ─── Habit list ─────────────────────────────────────────────────── */
@@ -398,6 +589,8 @@
 .ht-habit-list {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 /* ─── Habit item ─────────────────────────────────────────────────── */
@@ -580,35 +773,7 @@
   color: var(--ht-text-muted);
 }
 
-/* ─── Add user card ──────────────────────────────────────────────── */
-
-.ht-add-user-btn-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 200px;
-  border-style: dashed;
-  cursor: pointer;
-  color: var(--ht-text-muted);
-  transition: color 0.15s, border-color 0.15s;
-}
-
-.ht-add-user-btn-card span {
-  font-size: 14px;
-}
-
-.ht-add-user-btn-card:hover {
-  color: var(--ht-text-secondary);
-  border-color: var(--ht-text-muted);
-}
-
-.ht-add-user-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+/* ─── Add user inputs ────────────────────────────────────────────── */
 
 .ht-add-user-input {
   width: 100%;

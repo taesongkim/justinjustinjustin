@@ -107,7 +107,7 @@ export function computeGridAssignments(
         list = [];
         childrenOf.set(entry.parentId, list);
       }
-      list.push({ entry, colIndex: colIdx });
+      list.push({ entry, colIndex: colIdx + 1 }); // 1-based for CSS Grid
     }
   }
 

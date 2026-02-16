@@ -1,3 +1,8 @@
+// ─── Constants ────────────────────────────────────────────────
+
+/** Maximum number of columns (nesting depth) allowed. */
+export const MAX_COLUMNS = 4;
+
 // ─── Data Model ───────────────────────────────────────────────
 
 export interface TodoItem {
@@ -42,8 +47,8 @@ export function computeColumns(
   const sorted = [...todos].sort((a, b) => a.order - b.order);
   columns.push(sorted.map((t) => ({ item: t, parentId: null, depth: 0 })));
 
-  // Columns 1–3: children of expanded items in previous column
-  for (let col = 0; col < 3; col++) {
+  // Columns 1..(MAX_COLUMNS-1): children of expanded items in previous column
+  for (let col = 0; col < MAX_COLUMNS - 1; col++) {
     const currentColumn = columns[col];
     const nextColumn: ColumnEntry[] = [];
 
@@ -358,4 +363,18 @@ export function collectDescendantIds(item: TodoItem): string[] {
     ids.push(...collectDescendantIds(child));
   }
   return ids;
+}
+
+/**
+ * Get the maximum nesting depth of an item's subtree.
+ * A leaf returns 0, an item with children returns 1 + max child depth.
+ */
+export function getSubtreeDepth(item: TodoItem): number {
+  if (item.children.length === 0) return 0;
+  let max = 0;
+  for (const child of item.children) {
+    const d = getSubtreeDepth(child);
+    if (d > max) max = d;
+  }
+  return 1 + max;
 }

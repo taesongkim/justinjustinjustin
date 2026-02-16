@@ -3,6 +3,7 @@
 import { useCallback, useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useTodoContext } from "./NestedTodoApp";
+import { MAX_COLUMNS, getSubtreeDepth } from "../lib/types";
 import type { ColumnEntry } from "../lib/types";
 
 // ─── Animation ────────────────────────────────────────────────
@@ -201,7 +202,7 @@ export default function TodoItemComponent({
   const { actions, expandedIds, columns, todos, gridAssignments, dragState } = useTodoContext();
   const { item, parentId } = entry;
   const isExpanded = expandedIds.has(item.id);
-  const canExpand = colIndex < 3;
+  const canExpand = colIndex < MAX_COLUMNS - 1;
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const itemElRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -422,6 +423,9 @@ export default function TodoItemComponent({
       const pos = gridAssignments.get(item.id);
       const origGridCol = pos?.gridColumn ?? 1;
 
+      // Compute subtree depth of the dragged item for column-limit checks
+      const itemSubtreeDepth = getSubtreeDepth(item);
+
       actions.startDrag({
         itemId: item.id,
         parentId,
@@ -430,6 +434,7 @@ export default function TodoItemComponent({
         gridColumn: origGridCol,
         targetParentId: parentId,
         targetGridColumn: origGridCol,
+        isBlocked: false,
       });
 
       // ─── Helpers for midpoint detection ───────────────────
@@ -534,16 +539,22 @@ export default function TodoItemComponent({
         // Detect which grid column cursor is over
         const hoverCol = getColumnAtX(cursorX);
 
+        // Check if dropping in this column would exceed the nesting limit.
+        // The item's deepest descendant would land at column:
+        //   hoverCol (1-based) + itemSubtreeDepth
+        // which must be <= MAX_COLUMNS
+        const wouldExceedLimit = hoverCol + itemSubtreeDepth > MAX_COLUMNS;
+
         if (hoverCol === origGridCol) {
           // Same column as original — check if cursor is near own parent group
           const groups = getParentGroupsInColumn(hoverCol);
           const closest = findClosestGroup(cursorY, groups);
 
           if (closest && closest.parentId === parentId) {
-            // Within original parent group — same-parent reorder
+            // Within original parent group — same-parent reorder (never blocked)
             const midpoints = getMidpoints(siblings);
             const dropIndex = computeDropIndex(cursorY, midpoints, siblings.length);
-            actions.updateDragTarget(parentId, origGridCol, dropIndex);
+            actions.updateDragTarget(parentId, origGridCol, dropIndex, false);
           } else if (closest) {
             // Different parent group in same column — cross-branch
             const targetEntries = closest.entries.filter(
@@ -551,7 +562,7 @@ export default function TodoItemComponent({
             );
             const midpoints = getMidpoints(targetEntries);
             const dropIndex = computeDropIndex(cursorY, midpoints, targetEntries.length);
-            actions.updateDragTarget(closest.parentId, hoverCol, dropIndex);
+            actions.updateDragTarget(closest.parentId, hoverCol, dropIndex, wouldExceedLimit);
           }
         } else {
           // Different column — cross-branch
@@ -564,7 +575,7 @@ export default function TodoItemComponent({
             );
             const midpoints = getMidpoints(targetEntries);
             const dropIndex = computeDropIndex(cursorY, midpoints, targetEntries.length);
-            actions.updateDragTarget(closest.parentId, hoverCol, dropIndex);
+            actions.updateDragTarget(closest.parentId, hoverCol, dropIndex, wouldExceedLimit);
           }
         }
       };

@@ -50,6 +50,8 @@ export interface DragState {
   targetParentId: string | null;
   /** Grid column of the target parent group (1-based). */
   targetGridColumn: number;
+  /** Whether the drop is blocked (e.g. would exceed column limit). */
+  isBlocked: boolean;
 }
 
 interface TodoActions {
@@ -70,7 +72,7 @@ interface TodoActions {
   markTouched: (id: string) => void;
   startDrag: (state: DragState) => void;
   updateDragDrop: (dropIndex: number) => void;
-  updateDragTarget: (targetParentId: string | null, targetGridColumn: number, dropIndex: number) => void;
+  updateDragTarget: (targetParentId: string | null, targetGridColumn: number, dropIndex: number, isBlocked?: boolean) => void;
   endDrag: (commit: boolean) => void;
 }
 
@@ -389,10 +391,10 @@ export default function NestedTodoApp() {
   }, []);
 
   const updateDragTarget = useCallback(
-    (targetParentId: string | null, targetGridColumn: number, dropIndex: number) => {
+    (targetParentId: string | null, targetGridColumn: number, dropIndex: number, isBlocked = false) => {
       setDragState((prev) => {
         if (!prev) return null;
-        const next = { ...prev, targetParentId, targetGridColumn, dropIndex };
+        const next = { ...prev, targetParentId, targetGridColumn, dropIndex, isBlocked };
         dragStateRef.current = next;
         return next;
       });
@@ -403,7 +405,7 @@ export default function NestedTodoApp() {
   const endDrag = useCallback(
     (commit: boolean) => {
       const ds = dragStateRef.current;
-      if (commit && ds) {
+      if (commit && ds && !ds.isBlocked) {
         const isCrossBranch = ds.targetParentId !== ds.parentId;
 
         if (isCrossBranch) {
@@ -659,11 +661,11 @@ export default function NestedTodoApp() {
 
               {/* Drop indicator line */}
               {dragState && (() => {
-                const { fromIndex, dropIndex, parentId: srcParent, targetParentId, targetGridColumn } = dragState;
+                const { fromIndex, dropIndex, parentId: srcParent, targetParentId, targetGridColumn, isBlocked } = dragState;
                 const isCrossBranch = targetParentId !== srcParent;
 
                 // Don't show indicator when drop would be a no-op (same parent, same position)
-                if (!isCrossBranch && (dropIndex === fromIndex || dropIndex === fromIndex + 1)) {
+                if (!isCrossBranch && !isBlocked && (dropIndex === fromIndex || dropIndex === fromIndex + 1)) {
                   return null;
                 }
 
@@ -679,7 +681,6 @@ export default function NestedTodoApp() {
                 // Determine which grid row to place the indicator at
                 let indicatorRow: number;
                 if (siblings.length === 0) {
-                  // Empty group — place at the target parent's row
                   const parentPos = targetParentId ? gridAssignments.get(targetParentId) : null;
                   indicatorRow = parentPos ? parentPos.gridRow : 1;
                 } else if (dropIndex <= 0) {
@@ -691,29 +692,48 @@ export default function NestedTodoApp() {
                   const pos = prev ? gridAssignments.get(prev.item.id) : null;
                   indicatorRow = pos ? pos.gridRow + 1 : 1;
                 }
+
+                const lineColor = isBlocked ? "var(--nt-text-muted)" : "var(--nt-accent)";
+
                 return (
-                  <div
-                    key="drop-indicator"
-                    style={{
-                      gridColumn: targetGridColumn,
-                      gridRow: indicatorRow,
-                      padding: "0 16px",
-                      height: 2,
-                      alignSelf: "start",
-                      marginTop: -1,
-                      pointerEvents: "none",
-                      zIndex: 10,
-                    }}
-                  >
+                  <>
                     <div
+                      key="drop-indicator"
                       style={{
-                        height: 2,
-                        borderRadius: 1,
-                        background: isCrossBranch ? "var(--nt-accent)" : "var(--nt-accent)",
-                        boxShadow: `0 0 ${isCrossBranch ? 8 : 6}px var(--nt-accent)`,
+                        gridColumn: targetGridColumn,
+                        gridRow: indicatorRow,
+                        padding: "0 16px",
+                        height: isBlocked ? "auto" : 2,
+                        alignSelf: "start",
+                        marginTop: -1,
+                        pointerEvents: "none",
+                        zIndex: 10,
                       }}
-                    />
-                  </div>
+                    >
+                      <div
+                        style={{
+                          height: 2,
+                          borderRadius: 1,
+                          background: lineColor,
+                          boxShadow: isBlocked ? "none" : `0 0 ${isCrossBranch ? 8 : 6}px var(--nt-accent)`,
+                          opacity: isBlocked ? 0.5 : 1,
+                        }}
+                      />
+                      {isBlocked && (
+                        <div
+                          style={{
+                            fontSize: 11,
+                            color: "var(--nt-text-muted)",
+                            opacity: 0.7,
+                            marginTop: 4,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          Exceeds nesting limit
+                        </div>
+                      )}
+                    </div>
+                  </>
                 );
               })()}
 

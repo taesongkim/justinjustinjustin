@@ -473,11 +473,11 @@
   }
 
   .ht-preview-row .ht-card {
-    height: calc(100vh - 144px);
+    height: calc(100dvh - 144px);
   }
 
   .ht-preview-top .ht-preview-row-inner {
-    margin-top: calc(-100vh + 144px + 60px);
+    margin-top: calc(-100dvh + 144px + 60px);
   }
 
   .ht-preview-row-inner {
@@ -504,7 +504,7 @@
   }
 
   .ht-card {
-    height: calc(100vh - 144px);
+    height: calc(100dvh - 144px);
   }
 }
 
@@ -911,7 +911,7 @@
     cursor: pointer;
     overflow: hidden;
     width: 28px;
-    height: calc(100vh - 144px);
+    height: calc(100dvh - 144px);
     opacity: 0.3;
     transition: opacity 0.15s;
   }
@@ -965,7 +965,7 @@
 
 @media (max-width: 767px) {
   .ht-preview-placeholder {
-    height: calc(100vh - 144px);
+    height: calc(100dvh - 144px);
   }
 }
 

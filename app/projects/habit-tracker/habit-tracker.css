@@ -472,12 +472,16 @@
     height: 60px;
   }
 
+  .ht-preview-row .ht-card {
+    height: calc(100vh - 144px);
+  }
+
   .ht-preview-top .ht-preview-row-inner {
-    margin-top: -360px;
+    margin-top: calc(-100vh + 144px + 60px);
   }
 
   .ht-preview-row-inner {
-    padding: 0 40px;
+    padding: 0 56px;
   }
 }
 
@@ -494,7 +498,13 @@
 
 @media (max-width: 767px) {
   .ht-cards-viewport {
-    min-height: calc(100vh - 40px);
+    min-height: unset;
+    align-items: flex-start;
+    padding-top: 52px;
+  }
+
+  .ht-card {
+    height: calc(100vh - 144px);
   }
 }
 
@@ -879,7 +889,10 @@
 
 @media (max-width: 767px) {
   .ht-theme-toggle {
-    display: none;
+    top: 16px;
+    right: 16px;
+    bottom: auto;
+    z-index: 35;
   }
 }
 
@@ -893,13 +906,12 @@
   .ht-peek-user {
     display: block;
     position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 72px;
     z-index: 25;
     cursor: pointer;
     overflow: hidden;
     width: 28px;
-    height: 420px;
+    height: calc(100vh - 144px);
     opacity: 0.3;
     transition: opacity 0.15s;
   }
@@ -917,7 +929,8 @@
   }
 
   .ht-peek-user-inner {
-    width: calc(100vw - 32px);
+    width: calc(100vw - 112px);
+    height: 100%;
     pointer-events: none;
   }
 
@@ -932,7 +945,7 @@
   }
 
   .ht-peek-user .ht-card {
-    height: 420px;
+    height: 100%;
   }
 
   /* Give main card horizontal room for side peeks + gap */
@@ -948,6 +961,12 @@
   border: 2px dashed var(--ht-border);
   border-radius: var(--ht-radius);
   background: none;
+}
+
+@media (max-width: 767px) {
+  .ht-preview-placeholder {
+    height: calc(100vh - 144px);
+  }
 }
 
 .ht-preview-row .ht-preview-placeholder-wrapper {

@@ -29,18 +29,18 @@ const SETTLE_DURATION = 1000;
 const MIN_GAP = 12;
 /** Duration of each individual element's reveal wipe (ms). */
 const REVEAL_DURATION = 100;
-/** Time (ms) for the glow head to travel from child to parent. */
-const GLOW_TRAVEL_MS = 110;
+/** Glow travel speed in pixels per millisecond. Adjust to taste. ~1.5 px/ms ≈ 1500 px/s. */
+const GLOW_SPEED = 3;
+/** Minimum travel time so very short paths don't flash too fast (ms). */
+const GLOW_MIN_TRAVEL_MS = 60;
 /** Tail length as a fraction of the total path length. */
 const GLOW_TAIL_FRAC = 0.35;
-/** Duration of the travel phase (head + tail clearing the path). */
-const GLOW_TRAVEL_TOTAL = Math.ceil(GLOW_TRAVEL_MS * (1 + GLOW_TAIL_FRAC));
 /** How long the full path stays lit after the travel completes (ms). */
 const GLOW_HOLD_MS = 100;
 /** How long the lit path fades back to neutral (ms). */
 const GLOW_FADE_MS = 500;
-/** Total visible glow duration (travel + hold + fade). */
-const GLOW_DURATION = GLOW_TRAVEL_TOTAL + GLOW_HOLD_MS + GLOW_FADE_MS;
+/** Upper-bound glow duration for cleanup (generous estimate). */
+const GLOW_DURATION_MAX = 2000;
 /**
  * Offset from the top of an item element to the vertical center of its first
  * line of text. Matches: 4px item padding + 4px inner padding + 10px (half of
@@ -611,13 +611,17 @@ export default function ConnectingLines({
 
         for (const ts of timestamps) {
           const elapsed = now - ts;
-          if (elapsed >= GLOW_DURATION) continue;
+          // Per-path timing based on constant speed
+          const travelMs = Math.max(GLOW_MIN_TRAVEL_MS, path.totalLength / GLOW_SPEED);
+          const travelTotal = Math.ceil(travelMs * (1 + GLOW_TAIL_FRAC));
+          const glowDuration = travelTotal + GLOW_HOLD_MS + GLOW_FADE_MS;
+          if (elapsed >= glowDuration) continue;
 
           hasActiveGlow = true;
 
-          if (elapsed < GLOW_TRAVEL_TOTAL) {
+          if (elapsed < travelTotal) {
             // ── Phase 1: Traveling glow (head moves child→parent) ──
-            const headProgress = elapsed / GLOW_TRAVEL_MS;
+            const headProgress = elapsed / travelMs;
             const headDist = headProgress * path.totalLength;
             const tailLength = GLOW_TAIL_FRAC * path.totalLength;
             const tailDist = headDist - tailLength;
@@ -632,7 +636,7 @@ export default function ConnectingLines({
             if (trailEnd > 0) {
               ctx.save();
               ctx.strokeStyle = glowColor;
-              ctx.lineWidth = 1.5;
+              ctx.lineWidth = 1;
               ctx.lineCap = "round";
               ctx.lineJoin = "round";
               ctx.globalAlpha = 0.7;
@@ -653,7 +657,7 @@ export default function ConnectingLines({
 
             ctx.save();
             ctx.strokeStyle = glowColor;
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
             ctx.globalAlpha = fadeAlpha * 0.9;
@@ -673,7 +677,7 @@ export default function ConnectingLines({
             }
           } else {
             // ── Phase 2 & 3: Hold then fade ──
-            const afterTravel = elapsed - GLOW_TRAVEL_TOTAL;
+            const afterTravel = elapsed - travelTotal;
             const alpha =
               afterTravel < GLOW_HOLD_MS
                 ? 1
@@ -683,7 +687,7 @@ export default function ConnectingLines({
 
             ctx.save();
             ctx.strokeStyle = glowColor;
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
             ctx.globalAlpha = alpha * 0.7;
@@ -753,7 +757,7 @@ export default function ConnectingLines({
     // Clean up expired timestamps
     for (const [id, raw] of touched) {
       const arr = Array.isArray(raw) ? raw : [raw as unknown as number];
-      const alive = arr.filter((ts) => now - ts < GLOW_DURATION);
+      const alive = arr.filter((ts) => now - ts < GLOW_DURATION_MAX);
       if (alive.length === 0) {
         touched.delete(id);
       } else if (alive.length < arr.length) {

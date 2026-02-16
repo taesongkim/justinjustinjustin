@@ -56,6 +56,7 @@ export interface DragState {
 
 interface TodoActions {
   toggleExpand: (id: string) => void;
+  expandAllDescendants: (id: string) => void;
   toggleCheck: (id: string) => void;
   updateText: (id: string, text: string) => void;
   createSiblingAfter: (id: string) => void;
@@ -197,6 +198,29 @@ export default function NestedTodoApp() {
         } else {
           next.add(id);
         }
+        return next;
+      });
+    },
+    [todos]
+  );
+
+  const expandAllDescendants = useCallback(
+    (id: string) => {
+      const item = findItemInTree(todos, id);
+      if (!item) return;
+      setExpandedIds((prev) => {
+        const next = new Set(prev);
+        next.add(id);
+        // Expand every descendant that has children
+        const expandRecursive = (node: TodoItem) => {
+          for (const child of node.children) {
+            if (child.children.length > 0) {
+              next.add(child.id);
+              expandRecursive(child);
+            }
+          }
+        };
+        expandRecursive(item);
         return next;
       });
     },
@@ -451,6 +475,7 @@ export default function NestedTodoApp() {
   const actions: TodoActions = useMemo(
     () => ({
       toggleExpand: toggleExpandWithCleanup,
+      expandAllDescendants,
       toggleCheck,
       updateText,
       createSiblingAfter,
@@ -468,6 +493,7 @@ export default function NestedTodoApp() {
     }),
     [
       toggleExpandWithCleanup,
+      expandAllDescendants,
       toggleCheck,
       updateText,
       createSiblingAfter,
@@ -610,6 +636,33 @@ export default function NestedTodoApp() {
           }
           const lastRow = maxRow;
 
+          // Find spacer rows (empty rows between expanded subtrees)
+          const spacerRows: number[] = [];
+          const rootItems = columns[0] || [];
+          for (const entry of rootItems) {
+            const pos = gridAssignments.get(entry.item.id);
+            if (!pos) continue;
+            // A root with subtree > 1 row has a spacer after it
+            if (expandedIds.has(entry.item.id) && entry.item.children.length > 0) {
+              // The spacer row is the row after the last row of this subtree
+              // Find the max row used by this root's descendants
+              let subtreeMaxRow = pos.gridRow;
+              const checkDescendants = (item: typeof entry.item) => {
+                for (const child of item.children) {
+                  const childPos = gridAssignments.get(child.id);
+                  if (childPos && childPos.gridRow > subtreeMaxRow) {
+                    subtreeMaxRow = childPos.gridRow;
+                  }
+                  if (expandedIds.has(child.id)) {
+                    checkDescendants(child);
+                  }
+                }
+              };
+              checkDescendants(entry.item);
+              spacerRows.push(subtreeMaxRow + 1);
+            }
+          }
+
           return (
             <div
               ref={containerRef}
@@ -658,6 +711,18 @@ export default function NestedTodoApp() {
                   })
                 )}
               </AnimatePresence>
+
+              {/* Spacer rows between expanded subtrees */}
+              {spacerRows.map((row) => (
+                <div
+                  key={`spacer-${row}`}
+                  style={{
+                    gridColumn: 1,
+                    gridRow: row,
+                    height: 12,
+                  }}
+                />
+              ))}
 
               {/* Drop indicator line */}
               {dragState && (() => {

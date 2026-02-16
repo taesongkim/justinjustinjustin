@@ -44,10 +44,8 @@ function Checkbox({
         width: 16,
         height: 16,
         borderRadius: 3,
-        border: checked
-          ? "1.5px solid var(--nt-checkbox-checked)"
-          : "1.5px solid var(--nt-checkbox-border)",
-        background: checked ? "var(--nt-checkbox-checked)" : "transparent",
+        border: "none",
+        background: checked ? "var(--nt-checkbox-checked)" : "var(--nt-checkbox-border)",
         cursor: "pointer",
         display: "flex",
         alignItems: "center",
@@ -103,11 +101,11 @@ function ExpandArrow({
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.background = "var(--nt-surface)";
-        e.currentTarget.style.opacity = "0.9";
+        e.currentTarget.style.opacity = hasChildren ? "0.9" : "0.6";
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.background = "none";
-        e.currentTarget.style.opacity = "0.6";
+        e.currentTarget.style.opacity = hasChildren ? "0.6" : "0.2";
       }}
       tabIndex={-1}
       style={{
@@ -127,7 +125,7 @@ function ExpandArrow({
         transform: hasChildren
           ? expanded ? "rotate(-90deg)" : "rotate(0deg)"
           : "rotate(0deg)",
-        opacity: 0.6,
+        opacity: hasChildren ? 0.6 : 0.2,
       }}
       aria-label={hasChildren ? (expanded ? "Collapse" : "Expand") : "Add child"}
     >
@@ -155,6 +153,75 @@ function ExpandArrow({
       )}
     </button>
   );
+}
+
+// ─── Expand All Button ───────────────────────────────────────
+
+function ExpandAllButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--nt-surface)";
+        e.currentTarget.style.opacity = "0.9";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "none";
+        e.currentTarget.style.opacity = "0.6";
+      }}
+      tabIndex={-1}
+      style={{
+        width: 20,
+        height: 20,
+        background: "none",
+        border: "none",
+        borderRadius: 4,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        padding: 0,
+        color: "var(--nt-text-muted)",
+        transition: "background 0.15s, opacity 0.15s",
+        opacity: 0.6,
+      }}
+      aria-label="Expand all branches"
+    >
+      <svg width="10" height="10" viewBox="0 0 10 10">
+        <path
+          d="M0.5 2 L3.5 5 L0.5 8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M5.5 2 L8.5 5 L5.5 8"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+/** Check if all expandable descendants of an item are already expanded. */
+function allBranchesExpanded(item: { id: string; children: { id: string; children: any[] }[] }, expandedIds: Set<string>): boolean {
+  for (const child of item.children) {
+    if (child.children.length > 0) {
+      if (!expandedIds.has(child.id)) return false;
+      if (!allBranchesExpanded(child, expandedIds)) return false;
+    }
+  }
+  return true;
 }
 
 // ─── Drag Handle ──────────────────────────────────────────────
@@ -651,15 +718,30 @@ export default function TodoItemComponent({
         background: isDragging
           ? "var(--nt-surface)"
           : "transparent",
-        transition: "background 0.1s",
+        transition: "background 0.25s",
       }}
       onMouseEnter={(e) => {
-        const handle = e.currentTarget.querySelector(
+        const el = e.currentTarget;
+        if (!isDragging) {
+          // Clear any existing animation timeout so re-hover resets
+          const prevTimeout = (el as any).__bgTimeout;
+          if (prevTimeout) clearTimeout(prevTimeout);
+
+          el.style.transition = "background 0.25s";
+          el.style.background = "rgba(255, 255, 255, 0.015)";
+          // Fade back to invisible over 1s after a brief hold
+          (el as any).__bgTimeout = setTimeout(() => {
+            el.style.transition = "background 1s";
+            el.style.background = "transparent";
+          }, 300);
+        }
+        const handle = el.querySelector(
           ".drag-handle"
         ) as HTMLElement;
         if (handle) handle.style.opacity = "0.5";
       }}
       onMouseLeave={(e) => {
+        // Let the animation play out — don't clear background on leave
         const handle = e.currentTarget.querySelector(
           ".drag-handle"
         ) as HTMLElement;
@@ -667,7 +749,7 @@ export default function TodoItemComponent({
       }}
     >
       {/* Push checkbox + drag handle down to align with first line of text */}
-      <div style={{ paddingTop: 4, display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+      <div style={{ paddingTop: 5, display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
         <DragHandle onDragStart={handleDragStart} />
         <Checkbox
           checked={item.checked}
@@ -687,6 +769,16 @@ export default function TodoItemComponent({
           autoResize(e.target);
         }}
         onKeyDown={handleKeyDown}
+        onBlur={() => {
+          // Auto-remove empty items when they lose focus,
+          // but keep at least one root item so the list is never empty
+          if (item.text === "" && item.children.length === 0) {
+            const isOnlyRoot = parentId === null && columnLength <= 1;
+            if (!isOnlyRoot) {
+              actions.deleteItem(item.id);
+            }
+          }
+        }}
         placeholder="Type something..."
         spellCheck={false}
         rows={1}
@@ -713,7 +805,13 @@ export default function TodoItemComponent({
       />
 
       {canExpand && (
-        <div style={{ paddingTop: 4, flexShrink: 0 }}>
+        <div style={{ paddingTop: 4, flexShrink: 0, display: "flex", alignItems: "center", gap: 2 }}>
+          {item.children.some((c) => c.children.length > 0) &&
+            !allBranchesExpanded(item, expandedIds) && (
+            <ExpandAllButton
+              onClick={() => actions.expandAllDescendants(item.id)}
+            />
+          )}
           <ExpandArrow
             expanded={isExpanded}
             hasChildren={item.children.length > 0}

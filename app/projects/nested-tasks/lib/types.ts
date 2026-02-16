@@ -152,6 +152,11 @@ export function computeGridAssignments(
   for (const entry of columns[0]) {
     const rowsUsed = assignItem(entry.item.id, 1, currentRow);
     currentRow += rowsUsed;
+    // Add a spacer row after expanded subtrees so connector lines
+    // between parent groups have room for the bracket gap
+    if (rowsUsed > 1) {
+      currentRow += 1;
+    }
   }
 
   return assignments;

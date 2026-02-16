@@ -88,9 +88,11 @@ function Checkbox({
 
 function ExpandArrow({
   expanded,
+  hasChildren,
   onClick,
 }: {
   expanded: boolean;
+  hasChildren: boolean;
   onClick: () => void;
 }) {
   return (
@@ -113,21 +115,35 @@ function ExpandArrow({
         padding: 0,
         color: "var(--nt-text-muted)",
         transition: "color 0.15s, transform 0.15s",
-        transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+        transform: hasChildren
+          ? expanded ? "rotate(-90deg)" : "rotate(0deg)"
+          : "rotate(0deg)",
         opacity: 0.6,
       }}
-      aria-label={expanded ? "Collapse" : "Expand"}
+      aria-label={hasChildren ? (expanded ? "Collapse" : "Expand") : "Add child"}
     >
-      <svg width="10" height="10" viewBox="0 0 10 10">
-        <path
-          d="M3 1 L7 5 L3 9"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      {hasChildren ? (
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <path
+            d="M1 3 L5 7 L9 3"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      ) : (
+        <svg width="10" height="10" viewBox="0 0 10 10">
+          <path
+            d="M5 1 L5 9 M1 5 L9 5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+      )}
     </button>
   );
 }
@@ -691,6 +707,7 @@ export default function TodoItemComponent({
         <div style={{ paddingTop: 4, flexShrink: 0 }}>
           <ExpandArrow
             expanded={isExpanded}
+            hasChildren={item.children.length > 0}
             onClick={() => {
               if (!isExpanded && item.children.length === 0) {
                 actions.createFirstChild(item.id);

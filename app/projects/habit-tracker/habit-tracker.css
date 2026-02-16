@@ -81,10 +81,7 @@
 
 @media (max-width: 767px) {
   .ht-toolbar {
-    position: fixed;
-    top: auto;
-    bottom: 56px;
-    right: 16px;
+    display: none;
   }
 }
 
@@ -233,10 +230,7 @@
 
 @media (max-width: 767px) {
   .ht-add-user-popover {
-    position: fixed;
-    top: auto;
-    bottom: 96px;
-    right: 16px;
+    display: none;
   }
 }
 
@@ -273,8 +267,7 @@
 
 @media (max-width: 767px) {
   .ht-day-nav {
-    margin-bottom: 8px;
-    padding: 4px 0;
+    display: none;
   }
 }
 
@@ -358,13 +351,7 @@
   margin-bottom: 12px;
 }
 
-@media (max-width: 767px) {
-  .ht-mobile-user-nav {
-    display: flex;
-    margin-top: 48px;
-    margin-bottom: 12px;
-  }
-}
+/* Mobile user nav is now replaced by side peek cards */
 
 .ht-mobile-nav-btn {
   display: flex;
@@ -488,6 +475,10 @@
   .ht-preview-top .ht-preview-row-inner {
     margin-top: -360px;
   }
+
+  .ht-preview-row-inner {
+    padding: 0 40px;
+  }
 }
 
 /* ─── Cards viewport ─────────────────────────────────────────────── */
@@ -503,9 +494,7 @@
 
 @media (max-width: 767px) {
   .ht-cards-viewport {
-    align-items: flex-start;
-    min-height: unset;
-    padding-top: 0;
+    min-height: calc(100vh - 40px);
   }
 }
 
@@ -886,6 +875,92 @@
 
 .ht-theme-toggle:hover {
   background: var(--ht-card-bg);
+}
+
+@media (max-width: 767px) {
+  .ht-theme-toggle {
+    display: none;
+  }
+}
+
+/* ─── Side peek cards (mobile user navigation) ──────────────────── */
+
+.ht-peek-user {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .ht-peek-user {
+    display: block;
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 25;
+    cursor: pointer;
+    overflow: hidden;
+    width: 28px;
+    height: 420px;
+    opacity: 0.3;
+    transition: opacity 0.15s;
+  }
+
+  .ht-peek-user:active {
+    opacity: 0.5;
+  }
+
+  .ht-peek-user-left {
+    left: 0;
+  }
+
+  .ht-peek-user-right {
+    right: 0;
+  }
+
+  .ht-peek-user-inner {
+    width: calc(100vw - 32px);
+    pointer-events: none;
+  }
+
+  /* Left peek: show the right edge of the card */
+  .ht-peek-user-left .ht-peek-user-inner {
+    transform: translateX(calc(-100% + 28px));
+  }
+
+  /* Right peek: card renders from left, only left 28px visible */
+  .ht-peek-user-right .ht-peek-user-inner {
+    /* card starts at left edge, overflow clips the rest */
+  }
+
+  .ht-peek-user .ht-card {
+    height: 420px;
+  }
+
+  /* Give main card horizontal room for side peeks + gap */
+  .ht-cards-row {
+    padding: 0 40px;
+  }
+}
+
+/* ─── Preview placeholder (empty future day) ────────────────────── */
+
+.ht-preview-placeholder {
+  height: 420px;
+  border: 2px dashed var(--ht-border);
+  border-radius: var(--ht-radius);
+  background: none;
+}
+
+.ht-preview-row .ht-preview-placeholder-wrapper {
+  flex: 0 1 340px;
+  min-width: 260px;
+  max-width: 400px;
+}
+
+@media (max-width: 767px) {
+  .ht-preview-row .ht-preview-placeholder-wrapper {
+    min-width: 100%;
+    max-width: 100%;
+  }
 }
 
 /* ─── Reduced motion ─────────────────────────────────────────────── */

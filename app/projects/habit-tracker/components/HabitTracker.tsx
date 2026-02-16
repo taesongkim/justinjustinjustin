@@ -353,31 +353,55 @@ export default function HabitTracker() {
 
   const isToday = currentDate === svc.today();
   const hasPrev = prevDayCards.size > 0;
-  // Future is always navigable
-  const hasNext = true;
 
   function renderPreviewRow(dayCards: Map<string, CardType>, position: "top" | "bottom") {
-    if (dayCards.size === 0) return null;
+    const isEmpty = dayCards.size === 0;
+    // For bottom (future) position, show dotted placeholder if no cards exist
+    if (isEmpty && position === "top") return null;
     return (
       <div
         className={`ht-preview-row ht-preview-${position}`}
         onClick={position === "top" ? goToPrevDay : goToNextDay}
       >
         <div className="ht-preview-row-inner">
-          {users.map((user, i) => {
-            const card = dayCards.get(user.id);
-            if (!card) return null;
-            return (
-              <div
-                key={user.id}
-                className={`ht-card-wrapper ${
-                  i !== mobileUserIdx ? "ht-card-hidden-mobile" : ""
-                }`}
-              >
-                <PreviewCard card={card} userName={user.name} userGoals={user.goals ?? ""} />
-              </div>
-            );
-          })}
+          {isEmpty ? (
+            <div className="ht-preview-placeholder-wrapper">
+              <div className="ht-preview-placeholder" />
+            </div>
+          ) : (
+            users.map((user, i) => {
+              const card = dayCards.get(user.id);
+              if (!card) return null;
+              return (
+                <div
+                  key={user.id}
+                  className={`ht-card-wrapper ${
+                    i !== mobileUserIdx ? "ht-card-hidden-mobile" : ""
+                  }`}
+                >
+                  <PreviewCard card={card} userName={user.name} userGoals={user.goals ?? ""} />
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function renderUserPeek(direction: "left" | "right") {
+    const targetIdx = direction === "left" ? mobileUserIdx - 1 : mobileUserIdx + 1;
+    if (targetIdx < 0 || targetIdx >= users.length) return null;
+    const user = users[targetIdx];
+    const card = cards.get(user.id);
+    if (!card) return null;
+    return (
+      <div
+        className={`ht-peek-user ht-peek-user-${direction}`}
+        onClick={direction === "left" ? prevUser : nextUser}
+      >
+        <div className="ht-peek-user-inner">
+          <PreviewCard card={card} userName={user.name} userGoals={user.goals ?? ""} />
         </div>
       </div>
     );
@@ -559,6 +583,10 @@ export default function HabitTracker() {
       {/* Preview: previous day */}
       {hasPrev && renderPreviewRow(prevDayCards, "top")}
 
+      {/* Side peek cards for mobile user navigation */}
+      {renderUserPeek("left")}
+      {renderUserPeek("right")}
+
       {/* Cards area */}
       <div className="ht-cards-viewport">
         <AnimatePresence mode="wait" custom={dayDirection}>
@@ -602,8 +630,8 @@ export default function HabitTracker() {
         </AnimatePresence>
       </div>
 
-      {/* Preview: next day */}
-      {hasNext && nextDayCards.size > 0 && renderPreviewRow(nextDayCards, "bottom")}
+      {/* Preview: next day (shows dotted placeholder if no cards exist yet) */}
+      {renderPreviewRow(nextDayCards, "bottom")}
     </div>
   );
 }

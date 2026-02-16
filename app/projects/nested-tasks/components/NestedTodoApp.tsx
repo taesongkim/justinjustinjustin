@@ -696,44 +696,48 @@ export default function NestedTodoApp() {
                 const lineColor = isBlocked ? "var(--nt-text-muted)" : "var(--nt-accent)";
 
                 return (
-                  <>
+                  <div
+                    key="drop-indicator"
+                    style={{
+                      gridColumn: targetGridColumn,
+                      gridRow: indicatorRow,
+                      padding: "0 16px",
+                      height: 2,
+                      alignSelf: "start",
+                      marginTop: -1,
+                      pointerEvents: "none",
+                      zIndex: 10,
+                      position: "relative",
+                    }}
+                  >
                     <div
-                      key="drop-indicator"
                       style={{
-                        gridColumn: targetGridColumn,
-                        gridRow: indicatorRow,
-                        padding: "0 16px",
-                        height: isBlocked ? "auto" : 2,
-                        alignSelf: "start",
-                        marginTop: -1,
-                        pointerEvents: "none",
-                        zIndex: 10,
+                        height: 2,
+                        borderRadius: 1,
+                        background: lineColor,
+                        boxShadow: isBlocked ? "none" : `0 0 ${isCrossBranch ? 8 : 6}px var(--nt-accent)`,
+                        opacity: isBlocked ? 0.5 : 1,
                       }}
-                    >
+                    />
+                    {isBlocked && (
                       <div
                         style={{
-                          height: 2,
-                          borderRadius: 1,
-                          background: lineColor,
-                          boxShadow: isBlocked ? "none" : `0 0 ${isCrossBranch ? 8 : 6}px var(--nt-accent)`,
-                          opacity: isBlocked ? 0.5 : 1,
+                          position: "absolute",
+                          top: "50%",
+                          left: "50%",
+                          transform: "translate(-50%, -50%)",
+                          fontSize: 11,
+                          color: "var(--nt-text-muted)",
+                          background: "var(--nt-bg)",
+                          padding: "2px 8px",
+                          borderRadius: 4,
+                          whiteSpace: "nowrap",
                         }}
-                      />
-                      {isBlocked && (
-                        <div
-                          style={{
-                            fontSize: 11,
-                            color: "var(--nt-text-muted)",
-                            opacity: 0.7,
-                            marginTop: 4,
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          Exceeds nesting limit
-                        </div>
-                      )}
-                    </div>
-                  </>
+                      >
+                        Exceeds nesting limit
+                      </div>
+                    )}
+                  </div>
                 );
               })()}
 

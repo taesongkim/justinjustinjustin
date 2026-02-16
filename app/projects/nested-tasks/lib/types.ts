@@ -285,6 +285,71 @@ export function reorderChildren(
   });
 }
 
+/**
+ * Move an item (and its subtree) from its current parent to a new parent
+ * at the given insert index. Works for:
+ *  - same parent reorder (though reorderChildren is simpler for that)
+ *  - cross-parent moves within any depth
+ *  - moves to/from root (parentId = null)
+ *
+ * Returns null if the move is invalid (e.g. dropping onto own descendant).
+ */
+export function moveItemToParent(
+  todos: TodoItem[],
+  itemId: string,
+  targetParentId: string | null,
+  insertIndex: number
+): TodoItem[] | null {
+  // 1. Find the item to move
+  const movingItem = findItemInTree(todos, itemId);
+  if (!movingItem) return null;
+
+  // 2. Prevent circular: can't drop onto own descendant
+  if (targetParentId) {
+    const descIds = collectDescendantIds(movingItem);
+    if (descIds.includes(targetParentId) || itemId === targetParentId) {
+      return null;
+    }
+  }
+
+  // 3. Remove item from its current location
+  let updated = deleteItemFromTree(todos, itemId);
+
+  // 4. Re-number siblings at the old parent location
+  const oldParent = findParentInTree(todos, itemId);
+  if (oldParent) {
+    updated = updateItemInTree(updated, oldParent.id, (p) => ({
+      ...p,
+      children: p.children.map((c, i) => ({ ...c, order: i })),
+    }));
+  } else {
+    // Was at root
+    updated = updated.map((t, i) => ({ ...t, order: i }));
+  }
+
+  // 5. Insert at target location
+  if (targetParentId === null) {
+    // Insert at root level
+    const sorted = [...updated].sort((a, b) => a.order - b.order);
+    const idx = Math.min(insertIndex, sorted.length);
+    sorted.splice(idx, 0, movingItem);
+    updated = sorted.map((t, i) => ({ ...t, order: i }));
+  } else {
+    // Insert as child of target parent
+    updated = updateItemInTree(updated, targetParentId, (parent) => {
+      const children = [...parent.children].sort((a, b) => a.order - b.order);
+      const idx = Math.min(insertIndex, children.length);
+      children.splice(idx, 0, movingItem);
+      return {
+        ...parent,
+        children: children.map((c, i) => ({ ...c, order: i })),
+      };
+    });
+  }
+
+  return updated;
+}
+
 // Collect all descendant IDs (for cleaning up expanded state on delete)
 export function collectDescendantIds(item: TodoItem): string[] {
   const ids: string[] = [];

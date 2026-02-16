@@ -198,7 +198,7 @@ export default function TodoItemComponent({
   columnLength,
   reducedMotion,
 }: TodoItemProps) {
-  const { actions, expandedIds, columns, todos } = useTodoContext();
+  const { actions, expandedIds, columns, todos, gridAssignments, dragState } = useTodoContext();
   const { item, parentId } = entry;
   const isExpanded = expandedIds.has(item.id);
   const canExpand = colIndex < 3;
@@ -403,66 +403,175 @@ export default function TodoItemComponent({
     ]
   );
 
-  // ─── Drag Handling (pointer-based) ──────────────────────
-
-  const dragStartY = useRef(0);
-  const dragItemOriginalIndex = useRef(0);
-  const currentDropIndex = useRef(0);
+  // ─── Drag Handling (pointer-based, preview mode) ────────
 
   const handleDragStart = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
       setIsDragging(true);
       actions.markTouched(item.id);
-      dragStartY.current = e.clientY;
 
-      const parent = parentId
-        ? (() => {
-            const find = (
-              items: typeof todos
-            ): (typeof todos)[0] | null => {
-              for (const t of items) {
-                if (t.id === parentId) return t;
-                const f = find(t.children);
-                if (f) return f;
-              }
-              return null;
-            };
-            return find(todos);
-          })()
-        : null;
-      const pool = parent
-        ? [...parent.children].sort((a, b) => a.order - b.order)
-        : [...todos].sort((a, b) => a.order - b.order);
-      const idx = pool.findIndex((p) => p.id === item.id);
-      dragItemOriginalIndex.current = idx;
-      currentDropIndex.current = idx;
+      // Find siblings in the same parent group
+      const siblingCol = columns.find((col) =>
+        col.some((ce) => ce.item.id === item.id)
+      );
+      const siblings = siblingCol
+        ? siblingCol.filter((ce) => ce.parentId === parentId)
+        : [];
+      const idx = siblings.findIndex((ce) => ce.item.id === item.id);
+      const pos = gridAssignments.get(item.id);
+      const origGridCol = pos?.gridColumn ?? 1;
+
+      actions.startDrag({
+        itemId: item.id,
+        parentId,
+        fromIndex: idx,
+        dropIndex: idx,
+        gridColumn: origGridCol,
+        targetParentId: parentId,
+        targetGridColumn: origGridCol,
+      });
+
+      // ─── Helpers for midpoint detection ───────────────────
+
+      /** Get Y midpoints for a list of entries (by querying DOM). */
+      const getMidpoints = (entries: ColumnEntry[]): number[] => {
+        return entries.map((ce) => {
+          const el = document.querySelector(
+            `[data-item-id="${ce.item.id}"]`
+          ) as HTMLElement | null;
+          if (!el) return 0;
+          const rect = el.getBoundingClientRect();
+          return rect.top + rect.height / 2;
+        });
+      };
+
+      /** Compute drop index from cursor Y and midpoints. */
+      const computeDropIndex = (cursorY: number, midpoints: number[], count: number): number => {
+        let dropIdx = 0;
+        for (let i = 0; i < midpoints.length; i++) {
+          if (cursorY > midpoints[i]) dropIdx = i + 1;
+        }
+        return Math.max(0, Math.min(count, dropIdx));
+      };
+
+      /** Detect which grid column the cursor is over. */
+      const getColumnAtX = (cursorX: number): number => {
+        // Query the grid container's column cells to find boundaries
+        const container = document.querySelector("[data-item-id]")?.closest("[style*='display: grid']") as HTMLElement | null;
+        if (!container) return origGridCol;
+
+        const containerRect = container.getBoundingClientRect();
+        const relX = cursorX - containerRect.left + container.scrollLeft;
+
+        // Get actual column widths from the grid's computed columns
+        const colWidths = window.getComputedStyle(container).gridTemplateColumns.split(" ").map(parseFloat);
+        let cumulative = 0;
+        for (let i = 0; i < colWidths.length; i++) {
+          cumulative += colWidths[i];
+          if (relX < cumulative) return i + 1; // 1-based
+        }
+        return colWidths.length; // past the last column
+      };
+
+      /** Find parent groups in a given grid column (1-based). */
+      const getParentGroupsInColumn = (gridCol: number): { parentId: string | null; entries: ColumnEntry[] }[] => {
+        const colIdx = gridCol - 1; // 0-based array index
+        const col = columns[colIdx];
+        if (!col) return [];
+
+        // Group entries by parentId
+        const groups = new Map<string | null, ColumnEntry[]>();
+        for (const entry of col) {
+          const pid = entry.parentId;
+          let list = groups.get(pid);
+          if (!list) { list = []; groups.set(pid, list); }
+          list.push(entry);
+        }
+        return Array.from(groups.entries()).map(([pid, entries]) => ({
+          parentId: pid,
+          entries,
+        }));
+      };
+
+      /** Find which parent group is closest to cursorY in a column. */
+      const findClosestGroup = (
+        cursorY: number,
+        groups: { parentId: string | null; entries: ColumnEntry[] }[]
+      ): { parentId: string | null; entries: ColumnEntry[] } | null => {
+        if (groups.length === 0) return null;
+        if (groups.length === 1) return groups[0];
+
+        let best = groups[0];
+        let bestDist = Infinity;
+
+        for (const group of groups) {
+          // Get bounding box of this group
+          let minY = Infinity, maxY = -Infinity;
+          for (const ce of group.entries) {
+            const el = document.querySelector(`[data-item-id="${ce.item.id}"]`) as HTMLElement | null;
+            if (!el) continue;
+            const rect = el.getBoundingClientRect();
+            if (rect.top < minY) minY = rect.top;
+            if (rect.bottom > maxY) maxY = rect.bottom;
+          }
+          // Distance: 0 if cursor is within, else distance to nearest edge
+          const dist = cursorY < minY ? minY - cursorY : cursorY > maxY ? cursorY - maxY : 0;
+          if (dist < bestDist) {
+            bestDist = dist;
+            best = group;
+          }
+        }
+        return best;
+      };
+
+      // ─── Pointer move handler ─────────────────────────────
 
       const handleMove = (moveEvent: PointerEvent) => {
-        const deltaY = moveEvent.clientY - dragStartY.current;
-        const itemHeight = itemElRef.current?.getBoundingClientRect().height ?? 44;
-        const indexDelta = Math.round(deltaY / itemHeight);
-        const newIndex = Math.max(
-          0,
-          Math.min(
-            pool.length - 1,
-            dragItemOriginalIndex.current + indexDelta
-          )
-        );
-        if (newIndex !== currentDropIndex.current) {
-          currentDropIndex.current = newIndex;
-          actions.markTouched(item.id);
-          actions.reorderInColumn(
-            parentId,
-            dragItemOriginalIndex.current,
-            newIndex
-          );
-          dragItemOriginalIndex.current = newIndex;
+        const cursorX = moveEvent.clientX;
+        const cursorY = moveEvent.clientY;
+
+        // Detect which grid column cursor is over
+        const hoverCol = getColumnAtX(cursorX);
+
+        if (hoverCol === origGridCol) {
+          // Same column as original — check if cursor is near own parent group
+          const groups = getParentGroupsInColumn(hoverCol);
+          const closest = findClosestGroup(cursorY, groups);
+
+          if (closest && closest.parentId === parentId) {
+            // Within original parent group — same-parent reorder
+            const midpoints = getMidpoints(siblings);
+            const dropIndex = computeDropIndex(cursorY, midpoints, siblings.length);
+            actions.updateDragTarget(parentId, origGridCol, dropIndex);
+          } else if (closest) {
+            // Different parent group in same column — cross-branch
+            const targetEntries = closest.entries.filter(
+              (ce) => ce.item.id !== item.id
+            );
+            const midpoints = getMidpoints(targetEntries);
+            const dropIndex = computeDropIndex(cursorY, midpoints, targetEntries.length);
+            actions.updateDragTarget(closest.parentId, hoverCol, dropIndex);
+          }
+        } else {
+          // Different column — cross-branch
+          const groups = getParentGroupsInColumn(hoverCol);
+          const closest = findClosestGroup(cursorY, groups);
+
+          if (closest) {
+            const targetEntries = closest.entries.filter(
+              (ce) => ce.item.id !== item.id
+            );
+            const midpoints = getMidpoints(targetEntries);
+            const dropIndex = computeDropIndex(cursorY, midpoints, targetEntries.length);
+            actions.updateDragTarget(closest.parentId, hoverCol, dropIndex);
+          }
         }
       };
 
       const handleUp = () => {
         setIsDragging(false);
+        actions.endDrag(true);
         window.removeEventListener("pointermove", handleMove);
         window.removeEventListener("pointerup", handleUp);
       };
@@ -470,10 +579,17 @@ export default function TodoItemComponent({
       window.addEventListener("pointermove", handleMove);
       window.addEventListener("pointerup", handleUp);
     },
-    [item.id, parentId, todos, actions]
+    [item.id, parentId, columns, gridAssignments, actions]
   );
 
   // ─── Render ─────────────────────────────────────────────
+
+  const isDraggedAway =
+    isDragging &&
+    dragState != null &&
+    (dragState.targetParentId !== dragState.parentId ||
+      (dragState.dropIndex !== dragState.fromIndex &&
+        dragState.dropIndex !== dragState.fromIndex + 1));
 
   return (
     <motion.div
@@ -481,9 +597,14 @@ export default function TodoItemComponent({
       data-item-id={item.id}
       variants={reducedMotion ? undefined : itemVariants}
       initial="hidden"
-      animate="visible"
+      animate={{
+        opacity: isDraggedAway ? 0.35 : 1,
+        height: "auto",
+        marginBottom: 2,
+      }}
       exit="exit"
       layout={reducedMotion ? false : "position"}
+      transition={{ duration: 0.15, ease: "easeOut" }}
       style={{
         display: "flex",
         alignItems: "flex-start",
@@ -491,7 +612,6 @@ export default function TodoItemComponent({
         padding: "4px 6px",
         borderRadius: 6,
         cursor: "default",
-        opacity: isDragging ? 0.5 : 1,
         background: isDragging
           ? "var(--nt-surface)"
           : "transparent",

@@ -24,6 +24,7 @@ import {
   findItemInTree,
   findParentInTree,
   reorderChildren,
+  moveItemToParent,
   collectDescendantIds,
   computeGridAssignments,
   GridPosition,
@@ -32,6 +33,24 @@ import TodoItemComponent from "./TodoItem";
 import ConnectingLines from "./ConnectingLines";
 
 // ─── Context ──────────────────────────────────────────────────
+
+/** Describes an active drag operation. */
+export interface DragState {
+  /** The item being dragged. */
+  itemId: string;
+  /** Parent of the dragged item (null = root). */
+  parentId: string | null;
+  /** Original index in the sibling list. */
+  fromIndex: number;
+  /** Current drop target index (gap between siblings). */
+  dropIndex: number;
+  /** Grid column (1-based) of the sibling group. */
+  gridColumn: number;
+  /** Target parent for cross-branch drops (null = root). */
+  targetParentId: string | null;
+  /** Grid column of the target parent group (1-based). */
+  targetGridColumn: number;
+}
 
 interface TodoActions {
   toggleExpand: (id: string) => void;
@@ -49,6 +68,10 @@ interface TodoActions {
   registerItemRef: (id: string, el: HTMLElement | null) => void;
   registerInputRef: (id: string, el: HTMLTextAreaElement | null) => void;
   markTouched: (id: string) => void;
+  startDrag: (state: DragState) => void;
+  updateDragDrop: (dropIndex: number) => void;
+  updateDragTarget: (targetParentId: string | null, targetGridColumn: number, dropIndex: number) => void;
+  endDrag: (commit: boolean) => void;
 }
 
 export const TodoContext = createContext<{
@@ -57,6 +80,7 @@ export const TodoContext = createContext<{
   columns: ColumnEntry[][];
   todos: TodoItem[];
   gridAssignments: Map<string, GridPosition>;
+  dragState: DragState | null;
 } | null>(null);
 
 export function useTodoContext() {
@@ -100,6 +124,8 @@ export default function NestedTodoApp() {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveNoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [dragState, setDragState] = useState<DragState | null>(null);
+  const dragStateRef = useRef<DragState | null>(null);
 
   // ─── Load ─────────────────────────────────────────────────
 
@@ -346,6 +372,78 @@ export default function NestedTodoApp() {
     touchedTimestamps.current.set(id, arr);
   }, []);
 
+  // ─── Drag Actions ───────────────────────────────────────────
+
+  const startDrag = useCallback((state: DragState) => {
+    dragStateRef.current = state;
+    setDragState(state);
+  }, []);
+
+  const updateDragDrop = useCallback((dropIndex: number) => {
+    setDragState((prev) => {
+      if (!prev) return null;
+      const next = { ...prev, dropIndex };
+      dragStateRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const updateDragTarget = useCallback(
+    (targetParentId: string | null, targetGridColumn: number, dropIndex: number) => {
+      setDragState((prev) => {
+        if (!prev) return null;
+        const next = { ...prev, targetParentId, targetGridColumn, dropIndex };
+        dragStateRef.current = next;
+        return next;
+      });
+    },
+    []
+  );
+
+  const endDrag = useCallback(
+    (commit: boolean) => {
+      const ds = dragStateRef.current;
+      if (commit && ds) {
+        const isCrossBranch = ds.targetParentId !== ds.parentId;
+
+        if (isCrossBranch) {
+          // Cross-branch move: use moveItemToParent
+          setTodos((prev) => {
+            const result = moveItemToParent(
+              prev,
+              ds.itemId,
+              ds.targetParentId,
+              ds.dropIndex
+            );
+            if (!result) return prev; // invalid move (e.g. circular)
+            scheduleSave(result);
+            return result;
+          });
+          // If moving to a new parent, make sure that parent is expanded
+          if (ds.targetParentId) {
+            setExpandedIds((prev) => {
+              const next = new Set(prev);
+              next.add(ds.targetParentId!);
+              return next;
+            });
+          }
+          markTouched(ds.itemId);
+        } else {
+          // Same-parent reorder
+          const { fromIndex, dropIndex } = ds;
+          const toIndex = dropIndex > fromIndex ? dropIndex - 1 : dropIndex;
+          if (fromIndex !== toIndex) {
+            reorderInColumn(ds.parentId, fromIndex, toIndex);
+            markTouched(ds.itemId);
+          }
+        }
+      }
+      dragStateRef.current = null;
+      setDragState(null);
+    },
+    [reorderInColumn, markTouched, scheduleSave]
+  );
+
   // ─── Context Value ────────────────────────────────────────
 
   const actions: TodoActions = useMemo(
@@ -361,6 +459,10 @@ export default function NestedTodoApp() {
       registerItemRef,
       registerInputRef,
       markTouched,
+      startDrag,
+      updateDragDrop,
+      updateDragTarget,
+      endDrag,
     }),
     [
       toggleExpandWithCleanup,
@@ -374,6 +476,10 @@ export default function NestedTodoApp() {
       registerItemRef,
       registerInputRef,
       markTouched,
+      startDrag,
+      updateDragDrop,
+      updateDragTarget,
+      endDrag,
     ]
   );
 
@@ -383,8 +489,8 @@ export default function NestedTodoApp() {
   );
 
   const contextValue = useMemo(
-    () => ({ actions, expandedIds, columns, todos, gridAssignments }),
-    [actions, expandedIds, columns, todos, gridAssignments]
+    () => ({ actions, expandedIds, columns, todos, gridAssignments, dragState }),
+    [actions, expandedIds, columns, todos, gridAssignments, dragState]
   );
 
   // ─── Note ─────────────────────────────────────────────────
@@ -550,6 +656,66 @@ export default function NestedTodoApp() {
                   })
                 )}
               </AnimatePresence>
+
+              {/* Drop indicator line */}
+              {dragState && (() => {
+                const { fromIndex, dropIndex, parentId: srcParent, targetParentId, targetGridColumn } = dragState;
+                const isCrossBranch = targetParentId !== srcParent;
+
+                // Don't show indicator when drop would be a no-op (same parent, same position)
+                if (!isCrossBranch && (dropIndex === fromIndex || dropIndex === fromIndex + 1)) {
+                  return null;
+                }
+
+                // Find siblings in the TARGET parent group
+                const targetCol = columns.find((col) =>
+                  col.some((e) => e.parentId === targetParentId)
+                );
+                // For root targets, use column 0; for others find matching column
+                const siblings = targetParentId === null
+                  ? (columns[0] || [])
+                  : (targetCol ? targetCol.filter((e) => e.parentId === targetParentId) : []);
+
+                // Determine which grid row to place the indicator at
+                let indicatorRow: number;
+                if (siblings.length === 0) {
+                  // Empty group — place at the target parent's row
+                  const parentPos = targetParentId ? gridAssignments.get(targetParentId) : null;
+                  indicatorRow = parentPos ? parentPos.gridRow : 1;
+                } else if (dropIndex <= 0) {
+                  const first = siblings[0];
+                  const pos = first ? gridAssignments.get(first.item.id) : null;
+                  indicatorRow = pos ? pos.gridRow : 1;
+                } else {
+                  const prev = siblings[Math.min(dropIndex - 1, siblings.length - 1)];
+                  const pos = prev ? gridAssignments.get(prev.item.id) : null;
+                  indicatorRow = pos ? pos.gridRow + 1 : 1;
+                }
+                return (
+                  <div
+                    key="drop-indicator"
+                    style={{
+                      gridColumn: targetGridColumn,
+                      gridRow: indicatorRow,
+                      padding: "0 16px",
+                      height: 2,
+                      alignSelf: "start",
+                      marginTop: -1,
+                      pointerEvents: "none",
+                      zIndex: 10,
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: 2,
+                        borderRadius: 1,
+                        background: isCrossBranch ? "var(--nt-accent)" : "var(--nt-accent)",
+                        boxShadow: `0 0 ${isCrossBranch ? 8 : 6}px var(--nt-accent)`,
+                      }}
+                    />
+                  </div>
+                );
+              })()}
 
               {/* Add item button */}
               <button

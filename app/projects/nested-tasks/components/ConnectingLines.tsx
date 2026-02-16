@@ -598,6 +598,9 @@ export default function ConnectingLines({
       (d): d is BracketDrawable => d.type === "bracket"
     )];
 
+    // Track max glow alpha per parent for the parent highlight pass
+    const parentGlowAlpha = new Map<string, number>();
+
     for (const bd of allBrackets) {
       for (const path of bd.childPaths) {
         const raw = touched.get(path.childId);
@@ -661,6 +664,13 @@ export default function ConnectingLines({
             ctx.globalAlpha = fadeAlpha * 0.4;
             drawPathSegment(ctx, path, drawStart, drawEnd);
             ctx.restore();
+
+            // Parent glow ramps up as head approaches parent (last 30% of travel)
+            if (headProgress > 0.7) {
+              const rampAlpha = Math.min(1, (headProgress - 0.7) / 0.3);
+              const prev = parentGlowAlpha.get(bd.parentId) ?? 0;
+              parentGlowAlpha.set(bd.parentId, Math.max(prev, rampAlpha));
+            }
           } else {
             // ── Phase 2 & 3: Hold then fade ──
             const afterTravel = elapsed - GLOW_TRAVEL_TOTAL;
@@ -684,9 +694,60 @@ export default function ConnectingLines({
             ctx.globalAlpha = alpha * 0.3;
             drawPathSegment(ctx, path, 0, path.totalLength);
             ctx.restore();
+
+            // Track parent glow alpha (max across all children/timestamps)
+            const prev = parentGlowAlpha.get(bd.parentId) ?? 0;
+            parentGlowAlpha.set(bd.parentId, Math.max(prev, alpha));
           }
         }
       }
+    }
+
+    // ─── Parent item glow highlight ──────────────────────────
+    for (const [parentId, alpha] of parentGlowAlpha) {
+      if (alpha <= 0) continue;
+      const parentEl = itemRefs.current.get(parentId);
+      if (!parentEl) continue;
+      const rect = parentEl.getBoundingClientRect();
+      const x = rect.left - containerRect.left + scrollLeft;
+      const y = rect.top - containerRect.top + scrollTop;
+      const pw = rect.width;
+      const ph = rect.height;
+      const r = 6; // border-radius to match item styling
+
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.35;
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = 12;
+      ctx.strokeStyle = glowColor;
+      ctx.lineWidth = 1;
+      // Draw rounded rect outline with glow
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + pw - r, y);
+      ctx.quadraticCurveTo(x + pw, y, x + pw, y + r);
+      ctx.lineTo(x + pw, y + ph - r);
+      ctx.quadraticCurveTo(x + pw, y + ph, x + pw - r, y + ph);
+      ctx.lineTo(x + r, y + ph);
+      ctx.quadraticCurveTo(x, y + ph, x, y + ph - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      // Fill with 8% white
+      ctx.fillStyle = glowColor;
+      ctx.globalAlpha = alpha * 0.08;
+      ctx.shadowColor = "transparent";
+      ctx.fill();
+      // Stroke outline with glow
+      ctx.globalAlpha = alpha * 0.35;
+      ctx.shadowColor = glowColor;
+      ctx.shadowBlur = 12;
+      ctx.stroke();
+      // Second pass for bloom
+      ctx.shadowBlur = 24;
+      ctx.globalAlpha = alpha * 0.15;
+      ctx.stroke();
+      ctx.restore();
     }
 
     // Clean up expired timestamps

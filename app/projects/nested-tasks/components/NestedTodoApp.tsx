@@ -453,10 +453,10 @@ export default function NestedTodoApp() {
             <div>
               <h1
                 style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  color: "var(--nt-text-muted)",
-                  letterSpacing: "0.02em",
+                  fontSize: 24,
+                  fontWeight: 600,
+                  color: "var(--nt-text-primary)",
+                  letterSpacing: "-0.01em",
                   margin: 0,
                 }}
               >
@@ -486,7 +486,7 @@ export default function NestedTodoApp() {
             value={note}
             onChange={handleNoteChange}
             placeholder="What's on your mind today..."
-            rows={1}
+            rows={3}
             style={{
               width: "100%",
               maxWidth: 480,

@@ -883,7 +883,7 @@ export default function TodoItemComponent({
             color: item.checked
               ? "var(--nt-text-muted)"
               : "var(--nt-text-primary)",
-            textDecoration: item.checked ? "line-through" : "none",
+            textDecoration: "none",
             opacity: item.checked ? 0.6 : 1,
             fontFamily: "inherit",
             padding: "4px 2px",

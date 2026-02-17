@@ -9,21 +9,10 @@ import LiquidCheckbox from "./LiquidCheckbox";
 
 // ─── Animation ────────────────────────────────────────────────
 
-const itemVariants = {
-  hidden: { opacity: 0, height: 0, marginBottom: 0 },
-  visible: {
-    opacity: 1,
-    height: "auto" as const,
-    marginBottom: 2,
-    transition: { duration: 0.15, ease: "easeOut" as const },
-  },
-  exit: {
-    opacity: 0,
-    height: 0,
-    marginBottom: 0,
-    transition: { duration: 0.1, ease: "easeIn" as const },
-  },
-};
+/** Per-item stagger interval for cascading fade (ms). */
+const CASCADE_STAGGER = 30;
+const CASCADE_FADE_IN = 0.08;
+const CASCADE_FADE_OUT = 0.06;
 
 // ─── Checkbox SVG ─────────────────────────────────────────────
 
@@ -748,16 +737,12 @@ export default function TodoItemComponent({
     <motion.div
       ref={itemElRef}
       data-item-id={item.id}
-      variants={reducedMotion ? undefined : itemVariants}
-      initial="hidden"
       animate={{
         opacity: isDraggedAway ? 0.35 : 1,
-        height: "auto",
-        marginBottom: 2,
       }}
-      exit="exit"
-      layout={reducedMotion ? false : "position"}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+      transition={{
+        opacity: { duration: 0.15, ease: "easeOut" },
+      }}
       style={{
         display: "flex",
         alignItems: "flex-start",

@@ -577,14 +577,24 @@ export default function HabitTracker() {
         </div>
       )}
 
-      {/* Preview: previous day */}
-      {hasPrev && renderPreviewRow(prevDayCards, "top")}
-
-      {/* Side peek cards for mobile user navigation */}
+      {/* Side peek buttons for mobile user navigation */}
       {renderUserPeek("left")}
       {renderUserPeek("right")}
 
-      {/* Cards area */}
+      {/* Preview: previous day (fixed position, fades quickly with date change) */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`prev-${currentDate}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reducedMotion ? 0 : 0.1, ease: "easeOut" }}
+        >
+          {hasPrev && renderPreviewRow(prevDayCards, "top")}
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Main cards area */}
       <div className="ht-cards-viewport">
         <AnimatePresence mode="wait" custom={dayDirection}>
           <motion.div
@@ -622,13 +632,22 @@ export default function HabitTracker() {
                 </div>
               );
             })}
-
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Preview: next day (shows dotted placeholder if no cards exist yet) */}
-      {renderPreviewRow(nextDayCards, "bottom")}
+      {/* Preview: next day (fixed position, fades quickly with date change) */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`next-${currentDate}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: reducedMotion ? 0 : 0.1, ease: "easeOut" }}
+        >
+          {renderPreviewRow(nextDayCards, "bottom")}
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 }

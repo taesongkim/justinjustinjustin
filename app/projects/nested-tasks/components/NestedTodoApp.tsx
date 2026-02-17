@@ -30,6 +30,7 @@ import {
   GridPosition,
   setPutAsideRecursive,
   hasAnyPutAside,
+  MAX_COLUMNS,
 } from "../lib/types";
 import TodoItemComponent from "./TodoItem";
 import ConnectingLines from "./ConnectingLines";
@@ -149,6 +150,9 @@ export default function NestedTodoApp() {
   const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [dragState, setDragState] = useState<DragState | null>(null);
   const dragStateRef = useRef<DragState | null>(null);
+  // Track whether items are collapsing (fewer visible) or expanding (more visible)
+  const prevItemCountRef = useRef(0);
+  const isCollapsingRef = useRef(false);
 
   // ─── Load ─────────────────────────────────────────────────
 
@@ -186,6 +190,13 @@ export default function NestedTodoApp() {
     () => computeColumns(todos, expandedIds),
     [todos, expandedIds]
   );
+
+  // Track expand/collapse direction for layout animation timing
+  const totalVisibleItems = columns.reduce((sum, col) => sum + col.length, 0);
+  if (totalVisibleItems !== prevItemCountRef.current) {
+    isCollapsingRef.current = totalVisibleItems < prevItemCountRef.current;
+    prevItemCountRef.current = totalVisibleItems;
+  }
 
   // ─── Actions ──────────────────────────────────────────────
 
@@ -816,7 +827,7 @@ export default function NestedTodoApp() {
               ref={containerRef}
               style={{
                 display: "grid",
-                gridTemplateColumns: `repeat(${columns.length}, minmax(340px, 440px))`,
+                gridTemplateColumns: `repeat(${MAX_COLUMNS}, minmax(340px, 440px))`,
                 gridAutoRows: "min-content",
                 position: "relative",
                 overflowX: "auto",
@@ -842,8 +853,34 @@ export default function NestedTodoApp() {
                     const pos = gridAssignments.get(entry.item.id);
                     if (!pos) return null;
                     return (
-                      <div
+                      <motion.div
                         key={entry.item.id}
+                        layout={reducedMotion ? false : "position"}
+                        initial={reducedMotion ? false : { opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={reducedMotion ? undefined : { opacity: 0 }}
+                        transition={{
+                          opacity: {
+                            duration: 0.08,
+                            ease: "easeOut",
+                            delay: reducedMotion ? 0 : itemIndex * 0.03,
+                          },
+                          layout: {
+                            duration: 0.12,
+                            ease: "easeOut",
+                            delay: isCollapsingRef.current ? 0.08 : 0,
+                          },
+                        }}
+                        {...(!reducedMotion && {
+                          exit: {
+                            opacity: 0,
+                            transition: {
+                              duration: 0.06,
+                              ease: "easeIn",
+                              delay: (column.length - 1 - itemIndex) * 0.03,
+                            },
+                          },
+                        })}
                         style={{
                           gridRow: pos.gridRow,
                           gridColumn: pos.gridColumn,
@@ -857,7 +894,7 @@ export default function NestedTodoApp() {
                           columnLength={column.length}
                           reducedMotion={reducedMotion}
                         />
-                      </div>
+                      </motion.div>
                     );
                   })
                 )}

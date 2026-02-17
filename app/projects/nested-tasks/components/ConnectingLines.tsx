@@ -301,6 +301,8 @@ export default function ConnectingLines({
   const signaledArrivalsRef = useRef<Set<string>>(new Set());
   /** Track which parent IDs have already signaled border trace completion. */
   const signaledCompleteRef = useRef<Set<string>>(new Set());
+  /** Track parent IDs where an auto-check callback actually fired (confirmed becoming checked). */
+  const confirmedAutoCheckRef = useRef<Set<string>>(new Set());
 
   // ─── Sync props into refs so draw/startSettle stay stable ──
 
@@ -607,13 +609,16 @@ export default function ConnectingLines({
     // ─── Traveling glow for brackets with recently-touched children ──
 
     const glowColor = "#ffffff";
+    const containerEl = containerRef.current;
+    const rootEl = containerEl?.closest(".nt") || document.documentElement;
+    const checkedColor = getComputedStyle(rootEl).getPropertyValue("--nt-checkbox-checked").trim() || "#60a5fa";
 
     const allBrackets = [...stableBrackets, ...staggered.filter(
       (d): d is BracketDrawable => d.type === "bracket"
     )];
 
     // Track parent glow state: alpha + perimeter progress (0=right, 1=left complete)
-    const parentGlowState = new Map<string, { alpha: number; progress: number }>();
+    const parentGlowState = new Map<string, { alpha: number; progress: number; becomingChecked: boolean }>();
 
     for (const bd of allBrackets) {
       for (const path of bd.childPaths) {
@@ -688,10 +693,11 @@ export default function ConnectingLines({
               const rampAlpha = Math.min(1, (headProgress - 0.7) / 0.3);
               // Perimeter progress: during ramp phase, go from 0 to 0.5
               const rampProgress = rampAlpha * 0.5;
-              const prev = parentGlowState.get(bd.parentId) ?? { alpha: 0, progress: 0 };
+              const prev = parentGlowState.get(bd.parentId) ?? { alpha: 0, progress: 0, becomingChecked: false };
               parentGlowState.set(bd.parentId, {
                 alpha: Math.max(prev.alpha, rampAlpha),
                 progress: Math.max(prev.progress, rampProgress),
+                becomingChecked: prev.becomingChecked || confirmedAutoCheckRef.current.has(bd.parentId),
               });
 
               // Signal glow arrival for liquid checkbox sync
@@ -717,13 +723,17 @@ export default function ConnectingLines({
 
             if (alpha <= 0) continue;
 
+            // Use blue when parent is confirmed becoming checked
+            const parentState = parentGlowState.get(bd.parentId);
+            const pathColor = (parentState && parentState.progress >= 1 && parentState.becomingChecked) ? checkedColor : glowColor;
+
             ctx.save();
-            ctx.strokeStyle = glowColor;
+            ctx.strokeStyle = pathColor;
             ctx.lineWidth = 1;
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
             ctx.globalAlpha = alpha * 0.7;
-            ctx.shadowColor = glowColor;
+            ctx.shadowColor = pathColor;
             ctx.shadowBlur = 8;
             drawPathSegment(ctx, path, 0, path.totalLength);
             ctx.shadowBlur = 16;
@@ -735,10 +745,11 @@ export default function ConnectingLines({
             const holdProgress = afterTravel < GLOW_HOLD_MS
               ? 0.5 + 0.5 * (afterTravel / GLOW_HOLD_MS)
               : 1;
-            const prev = parentGlowState.get(bd.parentId) ?? { alpha: 0, progress: 0 };
+            const prev = parentGlowState.get(bd.parentId) ?? { alpha: 0, progress: 0, becomingChecked: false };
             parentGlowState.set(bd.parentId, {
               alpha: Math.max(prev.alpha, alpha),
               progress: Math.max(prev.progress, holdProgress),
+              becomingChecked: prev.becomingChecked || confirmedAutoCheckRef.current.has(bd.parentId),
             });
           }
         }
@@ -783,6 +794,7 @@ export default function ConnectingLines({
         const autoTouchCb = pendingAutoTouch.current.get(parentId);
         if (autoTouchCb) {
           pendingAutoTouch.current.delete(parentId);
+          confirmedAutoCheckRef.current.add(parentId);
           // Write touch timestamp directly (visual glow starts next frame)
           const touched = touchedTimestamps.current;
           const existingTs = touched.get(parentId);
@@ -883,10 +895,13 @@ export default function ConnectingLines({
         ctx.stroke();
       };
 
-      // Fill with white when perimeter is complete
+      // Determine glow color: blue when perimeter completes AND item is becoming checked
+      const perimColor = (progress >= 1 && state.becomingChecked) ? checkedColor : glowColor;
+
+      // Fill when perimeter is complete
       if (progress >= 1) {
         ctx.save();
-        ctx.fillStyle = glowColor;
+        ctx.fillStyle = perimColor;
         ctx.globalAlpha = alpha * 0.12;
         ctx.beginPath();
         ctx.moveTo(bx + r, by);
@@ -905,14 +920,14 @@ export default function ConnectingLines({
 
       // Draw top and bottom half-perimeters with glow
       ctx.save();
-      ctx.strokeStyle = glowColor;
+      ctx.strokeStyle = perimColor;
       ctx.lineWidth = 1;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
 
       // First pass: main glow
       ctx.globalAlpha = alpha * 0.9;
-      ctx.shadowColor = glowColor;
+      ctx.shadowColor = perimColor;
       ctx.shadowBlur = 10;
       drawHalfPerimeter(true, progress);
       drawHalfPerimeter(false, progress);
@@ -955,6 +970,7 @@ export default function ConnectingLines({
       if (alive.length === 0) {
         completions.delete(id);
         signaledCompleteRef.current.delete(id);
+        confirmedAutoCheckRef.current.delete(id);
       } else if (alive.length < timestamps.length) {
         completions.set(id, alive);
       }

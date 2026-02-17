@@ -58,30 +58,33 @@ const FIRST_LINE_Y_OFFSET = 18;
 
 function drawAngular(ctx: CanvasRenderingContext2D, g: ParentGroup) {
   const { parentRight, parentY, trunkX, children } = g;
+  // Inset endpoints by 1px to avoid overlapping container borders
+  const pRight = parentRight + 1;
 
   ctx.beginPath();
 
   if (children.length === 1) {
     const c = children[0];
+    const cLeft = c.x - 1;
     if (Math.abs(c.y - parentY) < 1) {
-      ctx.moveTo(parentRight, parentY);
-      ctx.lineTo(c.x, c.y);
+      ctx.moveTo(pRight, parentY);
+      ctx.lineTo(cLeft, c.y);
     } else {
-      ctx.moveTo(parentRight, parentY);
+      ctx.moveTo(pRight, parentY);
       ctx.lineTo(trunkX, parentY);
       ctx.lineTo(trunkX, c.y);
-      ctx.lineTo(c.x, c.y);
+      ctx.lineTo(cLeft, c.y);
     }
   } else {
     const stops = [
-      { y: parentY, isParent: true, x: parentRight },
-      ...children.map((c) => ({ y: c.y, isParent: false, x: c.x })),
+      { y: parentY, isParent: true, x: pRight },
+      ...children.map((c) => ({ y: c.y, isParent: false, x: c.x - 1 })),
     ].sort((a, b) => a.y - b.y);
 
     const topY = Math.min(parentY, ...children.map((c) => c.y));
     const bottomY = Math.max(parentY, ...children.map((c) => c.y));
 
-    ctx.moveTo(parentRight, parentY);
+    ctx.moveTo(pRight, parentY);
     ctx.lineTo(trunkX, parentY);
 
     let curY = parentY;
@@ -147,10 +150,10 @@ function buildChildPath(
   parentRight: number
 ): GlowPath {
   const points = [
-    { x: childX, y: childY },
+    { x: childX - 1, y: childY },
     { x: trunkX, y: childY },
     { x: trunkX, y: parentY },
-    { x: parentRight, y: parentY },
+    { x: parentRight + 1, y: parentY },
   ];
   const cumLengths = [0];
   for (let i = 1; i < points.length; i++) {

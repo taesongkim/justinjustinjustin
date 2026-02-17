@@ -21,6 +21,8 @@ interface ConnectingLinesProps {
   staggerDelay: number;
   /** Item ID → list of performance.now() timestamps for overlapping glows. */
   touchedTimestamps: RefObject<Map<string, number[]>>;
+  /** Parent ID → list of performance.now() timestamps when glow reached parent. */
+  glowArrivals: RefObject<Map<string, number[]>>;
 }
 
 // ─── Constants ────────────────────────────────────────────────
@@ -274,6 +276,7 @@ export default function ConnectingLines({
   expandedIds,
   staggerDelay,
   touchedTimestamps,
+  glowArrivals,
 }: ConnectingLinesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
@@ -287,6 +290,9 @@ export default function ConnectingLines({
   /** Bracket stability tracking. */
   const prevBracketKeysRef = useRef<Set<string>>(new Set());
   const stableBracketKeysRef = useRef<Set<string>>(new Set());
+
+  /** Track which parent+timestamp combos have already triggered a glow arrival. */
+  const signaledArrivalsRef = useRef<Set<string>>(new Set());
 
   // ─── Sync props into refs so draw/startSettle stay stable ──
 
@@ -674,6 +680,19 @@ export default function ConnectingLines({
               const rampAlpha = Math.min(1, (headProgress - 0.7) / 0.3);
               const prev = parentGlowAlpha.get(bd.parentId) ?? 0;
               parentGlowAlpha.set(bd.parentId, Math.max(prev, rampAlpha));
+
+              // Signal glow arrival for liquid checkbox sync
+              const arrivalKey = `${bd.parentId}:${ts}`;
+              if (!signaledArrivalsRef.current.has(arrivalKey)) {
+                signaledArrivalsRef.current.add(arrivalKey);
+                const arrivals = glowArrivals.current;
+                const existing = arrivals.get(bd.parentId);
+                if (existing) {
+                  existing.push(now);
+                } else {
+                  arrivals.set(bd.parentId, [now]);
+                }
+              }
             }
           } else {
             // ── Phase 2 & 3: Hold then fade ──
@@ -765,11 +784,22 @@ export default function ConnectingLines({
       }
     }
 
+    // Clean up expired glow arrivals
+    const arrivals = glowArrivals.current;
+    for (const [id, timestamps] of arrivals) {
+      const alive = timestamps.filter((ts) => now - ts < GLOW_DURATION_MAX);
+      if (alive.length === 0) {
+        arrivals.delete(id);
+      } else if (alive.length < timestamps.length) {
+        arrivals.set(id, alive);
+      }
+    }
+
     // Keep RAF alive if any glow is active
     if (hasActiveGlow && performance.now() >= settleEndRef.current) {
       rafRef.current = requestAnimationFrame(draw);
     }
-  }, [containerRef, itemRefs, touchedTimestamps]);
+  }, [containerRef, itemRefs, touchedTimestamps, glowArrivals]);
 
   // ─── RAF settle loop (stable, reads from refs) ─────────
 

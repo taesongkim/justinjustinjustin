@@ -28,6 +28,8 @@ import {
   collectDescendantIds,
   computeGridAssignments,
   GridPosition,
+  setPutAsideRecursive,
+  hasAnyPutAside,
 } from "../lib/types";
 import TodoItemComponent from "./TodoItem";
 import ConnectingLines from "./ConnectingLines";
@@ -75,6 +77,12 @@ interface TodoActions {
   updateDragDrop: (dropIndex: number) => void;
   updateDragTarget: (targetParentId: string | null, targetGridColumn: number, dropIndex: number, isBlocked?: boolean) => void;
   endDrag: (commit: boolean) => void;
+  /** Check parent, put aside all unchecked children + subtrees. */
+  putAsideUnchecked: (parentId: string) => void;
+  /** Uncheck parent, restore all put-aside children + subtrees. */
+  restorePutAside: (parentId: string) => void;
+  /** Reactivate a single put-aside item (back to unchecked). */
+  reactivatePutAside: (itemId: string) => void;
 }
 
 export const TodoContext = createContext<{
@@ -84,6 +92,8 @@ export const TodoContext = createContext<{
   todos: TodoItem[];
   gridAssignments: Map<string, GridPosition>;
   dragState: DragState | null;
+  touchedTimestamps: React.RefObject<Map<string, number[]>>;
+  glowArrivals: React.RefObject<Map<string, number[]>>;
 } | null>(null);
 
 export function useTodoContext() {
@@ -124,6 +134,8 @@ export default function NestedTodoApp() {
   const containerRef = useRef<HTMLDivElement>(null);
   /** Item ID → list of performance.now() timestamps for overlapping glows. */
   const touchedTimestamps = useRef<Map<string, number[]>>(new Map());
+  /** Parent ID → list of timestamps when glow reached parent (for liquid fill sync). */
+  const glowArrivals = useRef<Map<string, number[]>>(new Map());
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveNoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -230,10 +242,32 @@ export default function NestedTodoApp() {
   const toggleCheck = useCallback(
     (id: string) => {
       setTodos((prev) => {
-        const updated = updateItemInTree(prev, id, (item) => ({
+        // Find the item to determine if we're unchecking
+        const target = findItemInTree(prev, id);
+        const wasChecked = target?.checked ?? false;
+
+        let updated = updateItemInTree(prev, id, (item) => ({
           ...item,
           checked: !item.checked,
         }));
+
+        // If unchecking a child, uncheck any checked ancestors up the chain
+        if (wasChecked) {
+          let currentId: string | null = id;
+          while (currentId) {
+            const parent = findParentInTree(updated, currentId);
+            if (parent && parent.checked) {
+              updated = updateItemInTree(updated, parent.id, (item) => ({
+                ...item,
+                checked: false,
+              }));
+              currentId = parent.id;
+            } else {
+              break;
+            }
+          }
+        }
+
         scheduleSave(updated);
         return updated;
       });
@@ -470,6 +504,66 @@ export default function NestedTodoApp() {
     [reorderInColumn, markTouched, scheduleSave]
   );
 
+  // ─── Put-Aside Actions ──────────────────────────────────────
+
+  const putAsideUnchecked = useCallback(
+    (parentId: string) => {
+      setTodos((prev) => {
+        const updated = updateItemInTree(prev, parentId, (parent) => ({
+          ...parent,
+          checked: true,
+          children: parent.children.map((child) =>
+            child.checked ? child : setPutAsideRecursive(child, true)
+          ),
+        }));
+        scheduleSave(updated);
+        return updated;
+      });
+      markTouched(parentId);
+    },
+    [scheduleSave, markTouched]
+  );
+
+  const restorePutAside = useCallback(
+    (parentId: string) => {
+      setTodos((prev) => {
+        const updated = updateItemInTree(prev, parentId, (parent) => ({
+          ...parent,
+          checked: false,
+          children: parent.children.map((child) =>
+            child.putAside ? setPutAsideRecursive(child, false) : child
+          ),
+        }));
+        scheduleSave(updated);
+        return updated;
+      });
+    },
+    [scheduleSave]
+  );
+
+  const reactivatePutAside = useCallback(
+    (itemId: string) => {
+      setTodos((prev) => {
+        const updated = updateItemInTree(prev, itemId, (item) =>
+          setPutAsideRecursive(item, false)
+        );
+        // Also uncheck the parent that put this item aside
+        const parent = findParentInTree(updated, itemId);
+        if (parent && parent.checked) {
+          const result = updateItemInTree(updated, parent.id, (p) => ({
+            ...p,
+            checked: false,
+          }));
+          scheduleSave(result);
+          return result;
+        }
+        scheduleSave(updated);
+        return updated;
+      });
+    },
+    [scheduleSave]
+  );
+
   // ─── Context Value ────────────────────────────────────────
 
   const actions: TodoActions = useMemo(
@@ -490,6 +584,9 @@ export default function NestedTodoApp() {
       updateDragDrop,
       updateDragTarget,
       endDrag,
+      putAsideUnchecked,
+      restorePutAside,
+      reactivatePutAside,
     }),
     [
       toggleExpandWithCleanup,
@@ -508,6 +605,9 @@ export default function NestedTodoApp() {
       updateDragDrop,
       updateDragTarget,
       endDrag,
+      putAsideUnchecked,
+      restorePutAside,
+      reactivatePutAside,
     ]
   );
 
@@ -517,7 +617,7 @@ export default function NestedTodoApp() {
   );
 
   const contextValue = useMemo(
-    () => ({ actions, expandedIds, columns, todos, gridAssignments, dragState }),
+    () => ({ actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals }),
     [actions, expandedIds, columns, todos, gridAssignments, dragState]
   );
 
@@ -683,6 +783,7 @@ export default function NestedTodoApp() {
                 expandedIds={expandedIds}
                 staggerDelay={staggerDelay}
                 touchedTimestamps={touchedTimestamps}
+                glowArrivals={glowArrivals}
               />
 
               <AnimatePresence mode="sync">

@@ -3,8 +3,9 @@
 import { useCallback, useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useTodoContext } from "./NestedTodoApp";
-import { MAX_COLUMNS, getSubtreeDepth } from "../lib/types";
+import { MAX_COLUMNS, getSubtreeDepth, hasAnyPutAside } from "../lib/types";
 import type { ColumnEntry } from "../lib/types";
+import LiquidCheckbox from "./LiquidCheckbox";
 
 // ─── Animation ────────────────────────────────────────────────
 
@@ -291,7 +292,7 @@ export default function TodoItemComponent({
   columnLength,
   reducedMotion,
 }: TodoItemProps) {
-  const { actions, expandedIds, columns, todos, gridAssignments, dragState } = useTodoContext();
+  const { actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals } = useTodoContext();
   const { item, parentId } = entry;
   const isExpanded = expandedIds.has(item.id);
   const canExpand = colIndex < MAX_COLUMNS - 1;
@@ -313,6 +314,22 @@ export default function TodoItemComponent({
   useEffect(() => {
     autoResize(inputRef.current);
   }, [item.text]);
+
+  // ─── Auto-check/uncheck parent based on children state ────
+  useEffect(() => {
+    if (item.children.length === 0) return;
+    const allChecked = item.children.every((c) => c.checked);
+    const hasPutAside = item.children.some((c) => c.putAside);
+
+    if (!item.checked && allChecked && !hasPutAside) {
+      // All children naturally checked → auto-check parent with glow
+      actions.markTouched(item.id);
+      actions.toggleCheck(item.id);
+    } else if (item.checked && !allChecked && !hasPutAside) {
+      // Parent is checked but not all children are checked → auto-uncheck
+      actions.toggleCheck(item.id);
+    }
+  }, [item.checked, item.children, item.id, actions]);
 
   // ─── Keyboard Handler ───────────────────────────────────
 
@@ -751,58 +768,134 @@ export default function TodoItemComponent({
       {/* Push checkbox + drag handle down to align with first line of text */}
       <div style={{ paddingTop: 5, display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
         <DragHandle onDragStart={handleDragStart} />
-        <Checkbox
-          checked={item.checked}
-          onToggle={() => {
-            actions.markTouched(item.id);
-            actions.toggleCheck(item.id);
-          }}
-        />
+        {item.children.length > 0 ? (
+          <LiquidCheckbox
+            fillLevel={item.children.filter((c) => c.checked).length / item.children.length}
+            isChecked={item.checked}
+            isPutAside={item.putAside}
+            itemId={item.id}
+            isLeaf={false}
+            glowArrivals={glowArrivals}
+            onClick={() => {
+              if (item.putAside) {
+                // Reactivate put-aside item
+                actions.reactivatePutAside(item.id);
+                return;
+              }
+              if (!item.checked) {
+                // Partially filled or empty → put aside unchecked children
+                const hasUnchecked = item.children.some((c) => !c.checked);
+                if (hasUnchecked) {
+                  actions.putAsideUnchecked(item.id);
+                } else {
+                  // All children checked → just check it
+                  actions.markTouched(item.id);
+                  actions.toggleCheck(item.id);
+                }
+              } else if (item.children.some((c) => c.putAside)) {
+                // Manually checked with put-aside children → restore them
+                actions.restorePutAside(item.id);
+              } else if (item.children.every((c) => c.checked)) {
+                // All children checked → uncheck parent + create new empty child
+                actions.markTouched(item.id);
+                actions.toggleCheck(item.id);
+                actions.createFirstChild(item.id);
+              } else {
+                // Fallback
+                actions.markTouched(item.id);
+                actions.toggleCheck(item.id);
+              }
+            }}
+          />
+        ) : (
+          <LiquidCheckbox
+            fillLevel={0}
+            isChecked={item.checked}
+            isPutAside={item.putAside}
+            itemId={item.id}
+            isLeaf={true}
+            glowArrivals={glowArrivals}
+            onClick={() => {
+              if (item.putAside) {
+                actions.reactivatePutAside(item.id);
+                return;
+              }
+              actions.markTouched(item.id);
+              actions.toggleCheck(item.id);
+            }}
+          />
+        )}
       </div>
 
-      <textarea
-        ref={inputRef}
-        value={item.text}
-        onChange={(e) => {
-          actions.markTouched(item.id);
-          actions.updateText(item.id, e.target.value);
-          autoResize(e.target);
-        }}
-        onKeyDown={handleKeyDown}
-        onBlur={() => {
-          // Auto-remove empty items when they lose focus,
-          // but keep at least one root item so the list is never empty
-          if (item.text === "" && item.children.length === 0) {
-            const isOnlyRoot = parentId === null && columnLength <= 1;
-            if (!isOnlyRoot) {
-              actions.deleteItem(item.id);
+      {item.putAside ? (
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            actions.reactivatePutAside(item.id);
+          }}
+          style={{
+            flex: 1,
+            fontSize: 14,
+            color: "var(--nt-text-muted)",
+            opacity: 0.35,
+            fontFamily: "inherit",
+            padding: "4px 2px",
+            lineHeight: "20px",
+            cursor: "pointer",
+            userSelect: "none",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            minWidth: 0,
+            transition: "color 0.15s, opacity 0.15s",
+          }}
+        >
+          {item.text || "Type something..."}
+        </div>
+      ) : (
+        <textarea
+          ref={inputRef}
+          value={item.text}
+          onChange={(e) => {
+            actions.markTouched(item.id);
+            actions.updateText(item.id, e.target.value);
+            autoResize(e.target);
+          }}
+          onKeyDown={handleKeyDown}
+          onBlur={() => {
+            // Auto-remove empty items when they lose focus,
+            // but keep at least one root item so the list is never empty
+            if (item.text === "" && item.children.length === 0) {
+              const isOnlyRoot = parentId === null && columnLength <= 1;
+              if (!isOnlyRoot) {
+                actions.deleteItem(item.id);
+              }
             }
-          }
-        }}
-        placeholder="Type something..."
-        spellCheck={false}
-        rows={1}
-        style={{
-          flex: 1,
-          background: "transparent",
-          border: "none",
-          outline: "none",
-          fontSize: 14,
-          color: item.checked
-            ? "var(--nt-text-muted)"
-            : "var(--nt-text-primary)",
-          textDecoration: item.checked ? "line-through" : "none",
-          opacity: item.checked ? 0.6 : 1,
-          fontFamily: "inherit",
-          padding: "4px 2px",
-          lineHeight: "20px",
-          minWidth: 0,
-          resize: "none",
-          overflow: "hidden",
-          maxHeight: MAX_HEIGHT,
-          transition: "color 0.15s, opacity 0.15s",
-        }}
-      />
+          }}
+          placeholder="Type something..."
+          spellCheck={false}
+          rows={1}
+          style={{
+            flex: 1,
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            fontSize: 14,
+            color: item.checked
+              ? "var(--nt-text-muted)"
+              : "var(--nt-text-primary)",
+            textDecoration: item.checked ? "line-through" : "none",
+            opacity: item.checked ? 0.6 : 1,
+            fontFamily: "inherit",
+            padding: "4px 2px",
+            lineHeight: "20px",
+            minWidth: 0,
+            resize: "none",
+            overflow: "hidden",
+            maxHeight: MAX_HEIGHT,
+            transition: "color 0.15s, opacity 0.15s",
+          }}
+        />
+      )}
 
       {canExpand && (
         <div style={{ paddingTop: 4, flexShrink: 0, display: "flex", alignItems: "center", gap: 2 }}>

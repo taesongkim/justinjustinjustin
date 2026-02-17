@@ -11,6 +11,7 @@ export interface TodoItem {
   checked: boolean;
   children: TodoItem[];
   order: number;
+  putAside?: boolean;
 }
 
 export interface ColumnEntry {
@@ -369,6 +370,25 @@ export function collectDescendantIds(item: TodoItem): string[] {
   }
   return ids;
 }
+
+// ─── Put-Aside Helpers ───────────────────────────────────────
+
+/** Recursively set putAside on an item and all its descendants. */
+export function setPutAsideRecursive(item: TodoItem, value: boolean): TodoItem {
+  return {
+    ...item,
+    putAside: value,
+    children: item.children.map((c) => setPutAsideRecursive(c, value)),
+  };
+}
+
+/** Returns true if item or any descendant has putAside === true. */
+export function hasAnyPutAside(item: TodoItem): boolean {
+  if (item.putAside) return true;
+  return item.children.some(hasAnyPutAside);
+}
+
+// ─── Subtree Helpers ─────────────────────────────────────────
 
 /**
  * Get the maximum nesting depth of an item's subtree.

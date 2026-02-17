@@ -96,6 +96,7 @@ export const TodoContext = createContext<{
   glowArrivals: React.RefObject<Map<string, number[]>>;
   glowComplete: React.RefObject<Map<string, number[]>>;
   pendingAutoTouch: React.RefObject<Map<string, () => void>>;
+  accentColor: string;
 } | null>(null);
 
 export function useTodoContext() {
@@ -123,6 +124,7 @@ export default function NestedTodoApp() {
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [note, setNote] = useState("");
   const [darkMode, setDarkMode] = useState(true);
+  const [accentColor, setAccentColor] = useState("#60a5fa");
   const staggerDelay = 20;
   const [mounted, setMounted] = useState(false);
   const [deletedItem, setDeletedItem] = useState<{
@@ -623,8 +625,8 @@ export default function NestedTodoApp() {
   );
 
   const contextValue = useMemo(
-    () => ({ actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals, glowComplete, pendingAutoTouch }),
-    [actions, expandedIds, columns, todos, gridAssignments, dragState]
+    () => ({ actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals, glowComplete, pendingAutoTouch, accentColor }),
+    [actions, expandedIds, columns, todos, gridAssignments, dragState, accentColor]
   );
 
   // ─── Note ─────────────────────────────────────────────────
@@ -696,6 +698,46 @@ export default function NestedTodoApp() {
               </h1>
             </div>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+              {/* ─── Accent Color Picker ─── */}
+              {[
+                { color: "#60a5fa", label: "Blue" },
+                { color: "#a78bfa", label: "Violet" },
+                { color: "#34d399", label: "Emerald" },
+                { color: "#fb923c", label: "Orange" },
+              ].map((opt) => (
+                <button
+                  key={opt.color}
+                  onClick={() => {
+                    const root = document.querySelector(".nt") as HTMLElement;
+                    if (root) {
+                      root.style.setProperty("--nt-accent", opt.color);
+                    }
+                    setAccentColor(opt.color);
+                  }}
+                  title={opt.label}
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: "50%",
+                    border: "2px solid var(--nt-border)",
+                    background: opt.color,
+                    cursor: "pointer",
+                    padding: 0,
+                    transition: "transform 0.15s, box-shadow 0.15s",
+                    boxShadow: `0 0 0 0px ${opt.color}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.target as HTMLElement).style.transform = "scale(1.2)";
+                    (e.target as HTMLElement).style.boxShadow = `0 0 8px ${opt.color}`;
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.target as HTMLElement).style.transform = "scale(1)";
+                    (e.target as HTMLElement).style.boxShadow = `0 0 0 0px ${opt.color}`;
+                  }}
+                  aria-label={`Set accent color to ${opt.label}`}
+                />
+              ))}
+              <div style={{ width: 1, height: 16, background: "var(--nt-border)", margin: "0 2px" }} />
               <button
                 onClick={() => setDarkMode((d) => !d)}
                 style={{

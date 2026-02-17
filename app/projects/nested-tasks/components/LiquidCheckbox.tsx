@@ -28,6 +28,8 @@ interface LiquidCheckboxProps {
   isLeaf: boolean;
   /** Ref to glow arrival timestamps from ConnectingLines. */
   glowArrivals: RefObject<Map<string, number[]>>;
+  /** Current accent color — triggers canvas redraw when changed. */
+  accentColor: string;
   /** Click handler. */
   onClick: () => void;
 }
@@ -188,14 +190,17 @@ function SparkleOverlay({ trigger }: { trigger: number }) {
 function LeafCheckbox({
   isChecked,
   isPutAside,
+  accentColor,
   onClick,
 }: {
   isChecked: boolean;
   isPutAside?: boolean;
+  accentColor: string;
   onClick: () => void;
 }) {
   const [sparkleTrigger, setSparkleTrigger] = useState(0);
   const prevCheckedRef = useRef(isChecked);
+  const prevAccentRef = useRef(accentColor);
 
   useEffect(() => {
     if (isChecked && !prevCheckedRef.current) {
@@ -203,6 +208,14 @@ function LeafCheckbox({
     }
     prevCheckedRef.current = isChecked;
   }, [isChecked]);
+
+  // Sparkle when accent color changes on a checked checkbox
+  useEffect(() => {
+    if (accentColor !== prevAccentRef.current && isChecked) {
+      setSparkleTrigger((n) => n + 1);
+    }
+    prevAccentRef.current = accentColor;
+  }, [accentColor, isChecked]);
 
   return (
     <button
@@ -267,6 +280,7 @@ function LiquidParentCheckbox({
   isPutAside,
   itemId,
   glowArrivals,
+  accentColor,
   onClick,
 }: {
   fillLevel: number;
@@ -274,6 +288,7 @@ function LiquidParentCheckbox({
   isPutAside?: boolean;
   itemId: string;
   glowArrivals: RefObject<Map<string, number[]>>;
+  accentColor: string;
   onClick: () => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -286,6 +301,8 @@ function LiquidParentCheckbox({
   const [sparkleTrigger, setSparkleTrigger] = useState(0);
   const prevCheckedRef = useRef(isChecked);
 
+  const prevAccentRef = useRef(accentColor);
+
   // Sparkle on check
   useEffect(() => {
     if (isChecked && !prevCheckedRef.current) {
@@ -293,6 +310,14 @@ function LiquidParentCheckbox({
     }
     prevCheckedRef.current = isChecked;
   }, [isChecked]);
+
+  // Sparkle when accent color changes on a checked/filled checkbox
+  useEffect(() => {
+    if (accentColor !== prevAccentRef.current && isChecked) {
+      setSparkleTrigger((n) => n + 1);
+    }
+    prevAccentRef.current = accentColor;
+  }, [accentColor, isChecked, fillLevel]);
 
   // Initialize blob
   if (!blobRef.current) {
@@ -415,7 +440,7 @@ function LiquidParentCheckbox({
     }
   }, [isChecked, fillLevel, startLoop]);
 
-  // Initial draw
+  // Initial draw + redraw when accent color changes
   useEffect(() => {
     const canvas = canvasRef.current;
     const blob = blobRef.current;
@@ -428,7 +453,7 @@ function LiquidParentCheckbox({
       cancelAnimationFrame(rafRef.current);
       isRunningRef.current = false;
     };
-  }, []);
+  }, [accentColor]);
 
   return (
     <button
@@ -506,6 +531,7 @@ export default function LiquidCheckbox(props: LiquidCheckboxProps) {
       <LeafCheckbox
         isChecked={props.isChecked}
         isPutAside={props.isPutAside}
+        accentColor={props.accentColor}
         onClick={props.onClick}
       />
     );
@@ -518,6 +544,7 @@ export default function LiquidCheckbox(props: LiquidCheckboxProps) {
       isPutAside={props.isPutAside}
       itemId={props.itemId}
       glowArrivals={props.glowArrivals}
+      accentColor={props.accentColor}
       onClick={props.onClick}
     />
   );

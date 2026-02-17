@@ -292,7 +292,7 @@ export default function TodoItemComponent({
   columnLength,
   reducedMotion,
 }: TodoItemProps) {
-  const { actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals, pendingAutoTouch } = useTodoContext();
+  const { actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals, pendingAutoTouch, accentColor } = useTodoContext();
   const { item, parentId } = entry;
   const isExpanded = expandedIds.has(item.id);
   const canExpand = colIndex < MAX_COLUMNS - 1;
@@ -809,6 +809,7 @@ export default function TodoItemComponent({
             itemId={item.id}
             isLeaf={false}
             glowArrivals={glowArrivals}
+            accentColor={accentColor}
             onClick={() => {
               if (item.putAside) {
                 // Reactivate put-aside item
@@ -848,6 +849,7 @@ export default function TodoItemComponent({
             itemId={item.id}
             isLeaf={true}
             glowArrivals={glowArrivals}
+            accentColor={accentColor}
             onClick={() => {
               if (item.putAside) {
                 actions.reactivatePutAside(item.id);

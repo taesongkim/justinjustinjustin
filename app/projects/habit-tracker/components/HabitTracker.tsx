@@ -393,17 +393,14 @@ export default function HabitTracker() {
     const targetIdx = direction === "left" ? mobileUserIdx - 1 : mobileUserIdx + 1;
     if (targetIdx < 0 || targetIdx >= users.length) return null;
     const user = users[targetIdx];
-    const card = cards.get(user.id);
-    if (!card) return null;
     return (
-      <div
+      <button
         className={`ht-peek-user ht-peek-user-${direction}`}
         onClick={direction === "left" ? prevUser : nextUser}
+        aria-label={`View ${user.name}'s card`}
       >
-        <div className="ht-peek-user-inner">
-          <PreviewCard card={card} userName={user.name} userGoals={user.goals ?? ""} />
-        </div>
-      </div>
+        <span className="ht-peek-user-label">{user.name}</span>
+      </button>
     );
   }
 

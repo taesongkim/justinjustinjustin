@@ -10,7 +10,7 @@
   --ht-border: #e2e2e2;
   --ht-accent: #333333;
   --ht-checkbox-color: #cccccc;
-  --ht-checkbox-checked: #333333;
+  --ht-checkbox-checked: #4caf50;
   --ht-danger: #d44;
   --ht-radius: 10px;
   --ht-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -27,7 +27,7 @@
     --ht-border: #2a2a2a;
     --ht-accent: #dddddd;
     --ht-checkbox-color: #444444;
-    --ht-checkbox-checked: #dddddd;
+    --ht-checkbox-checked: #4caf50;
     --ht-danger: #e55;
     --ht-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
   }
@@ -43,7 +43,7 @@
   --ht-border: #2a2a2a;
   --ht-accent: #dddddd;
   --ht-checkbox-color: #444444;
-  --ht-checkbox-checked: #dddddd;
+  --ht-checkbox-checked: #4caf50;
   --ht-danger: #e55;
   --ht-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -551,11 +551,17 @@
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  transition: background 0.35s ease, border-color 0.35s ease;
 }
 
 .ht-card-today {
   border-color: var(--ht-accent);
   border-width: 1.5px;
+}
+
+.ht-card-complete {
+  background: rgba(76, 175, 80, 0.08);
+  border-color: #4caf50;
 }
 
 /* ─── Card header ────────────────────────────────────────────────── */
@@ -645,6 +651,7 @@
   position: relative;
   cursor: grab;
   transition: background 0.1s;
+  overflow: visible;
 }
 
 .ht-habit-item:hover {
@@ -691,16 +698,27 @@
   color: var(--ht-card-bg);
 }
 
-.ht-check-pulse {
+/* ─── Spiral dust sparkle ────────────────────────────────────────── */
+
+.ht-spiral-dot {
   position: absolute;
-  left: 14px;
+  left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
   border-radius: 50%;
-  background: var(--ht-checkbox-checked);
+  background: #4caf50;
   pointer-events: none;
+  animation: spiralOut 0.35s var(--spiral-delay, 0s) ease-out forwards;
+}
+
+@keyframes spiralOut {
+  0% {
+    transform: translate(-50%, -50%) translate(var(--spiral-sx), var(--spiral-sy)) scale(1);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--spiral-x), var(--spiral-y)) scale(0.3);
+    opacity: 0;
+  }
 }
 
 /* ─── Habit text ─────────────────────────────────────────────────── */
@@ -896,7 +914,7 @@
   }
 }
 
-/* ─── Side peek cards (mobile user navigation) ──────────────────── */
+/* ─── Side peek buttons (mobile user navigation) ────────────────── */
 
 .ht-peek-user {
   display: none;
@@ -904,51 +922,57 @@
 
 @media (max-width: 767px) {
   .ht-peek-user {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: fixed;
     top: 72px;
     z-index: 25;
-    cursor: pointer;
-    overflow: hidden;
     width: 28px;
     height: calc(100dvh - 144px);
-    opacity: 0.3;
-    transition: opacity 0.15s;
+    border: 1px solid var(--ht-border);
+    background: var(--ht-card-bg);
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.7;
+    transition: opacity 0.15s, background 0.15s;
   }
 
   .ht-peek-user:active {
-    opacity: 0.5;
+    opacity: 1;
+    background: var(--ht-surface);
   }
 
   .ht-peek-user-left {
     left: 0;
+    border-left: none;
+    border-radius: 0 var(--ht-radius) var(--ht-radius) 0;
   }
 
   .ht-peek-user-right {
     right: 0;
+    border-right: none;
+    border-radius: var(--ht-radius) 0 0 var(--ht-radius);
   }
 
-  .ht-peek-user-inner {
-    width: calc(100vw - 112px);
-    height: 100%;
-    pointer-events: none;
+  .ht-peek-user-label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ht-text-secondary);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: calc(100dvh - 164px);
   }
 
-  /* Left peek: show the right edge of the card */
-  .ht-peek-user-left .ht-peek-user-inner {
-    transform: translateX(calc(-100% + 28px));
+  .ht-peek-user-left .ht-peek-user-label {
+    transform: rotate(180deg);
   }
 
-  /* Right peek: card renders from left, only left 28px visible */
-  .ht-peek-user-right .ht-peek-user-inner {
-    /* card starts at left edge, overflow clips the rest */
-  }
-
-  .ht-peek-user .ht-card {
-    height: 100%;
-  }
-
-  /* Give main card horizontal room for side peeks + gap */
+  /* Give main card horizontal room for side buttons + gap */
   .ht-cards-row {
     padding: 0 40px;
   }

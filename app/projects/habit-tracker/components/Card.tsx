@@ -88,7 +88,7 @@ export default function Card({
   }
 
   return (
-    <div className={`ht-card ${isToday ? "ht-card-today" : ""}`}>
+    <div className={`ht-card ${isToday ? "ht-card-today" : ""} ${card.habits.length > 0 && card.habits.every((h) => h.checked) ? "ht-card-complete" : ""}`}>
       {/* Header */}
       <div className="ht-card-header">
         <span className="ht-card-name">{userName}</span>

@@ -41,6 +41,9 @@ export class ViscousBlob {
   private bulgeVel: number = 0;
   bulgeCenter: number = 0.75;
 
+  /** When true, fill eases toward target at hyper-fast rate. */
+  private rushing: boolean = false;
+
   constructor(config?: Partial<LiquidConfig>) {
     const c = { ...DEFAULT_CONFIG, ...config };
     this.numPoints = c.numPoints;
@@ -104,13 +107,36 @@ export class ViscousBlob {
     }
   }
 
+  /**
+   * Hyper-fast fill: liquid visibly rushes to target level.
+   * Surface waves are dampened aggressively so it fills clean.
+   */
+  rushFill(level: number): void {
+    this.targetFill = Math.max(0, Math.min(1, level));
+    this.rushing = true;
+    // Kill existing surface disturbances so the rush is clean
+    for (let i = 0; i < this.numPoints; i++) {
+      this.velocities[i] *= 0.3;
+      this.heights[i] *= 0.3;
+    }
+    this.bulge *= 0.3;
+    this.bulgeVel *= 0.3;
+  }
+
   /** Run one physics step. Call each animation frame. */
   update(): void {
-    // Ease fill toward target (slower rise for viscous feel)
-    this.fill += (this.targetFill - this.fill) * 0.035;
+    // Ease fill toward target — hyper-fast when rushing
+    const easeRate = this.rushing ? 0.25 : 0.035;
+    this.fill += (this.targetFill - this.fill) * easeRate;
 
-    // Heavier damping for viscous feel
-    const damp = this.damping * 0.985;
+    // Auto-exit rush mode once fill is close enough
+    if (this.rushing && Math.abs(this.fill - this.targetFill) < 0.005) {
+      this.fill = this.targetFill;
+      this.rushing = false;
+    }
+
+    // Heavier damping for viscous feel; extra-heavy during rush
+    const damp = this.rushing ? 0.9 : this.damping * 0.985;
     for (let i = 0; i < this.numPoints; i++) {
       this.velocities[i] += -this.stiffness * this.heights[i];
       this.velocities[i] *= damp;

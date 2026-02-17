@@ -321,7 +321,7 @@ function LiquidParentCheckbox({
             processedArrivalsRef.current.add(ts);
             if (pendingFillRef.current >= 1) {
               // Fill to full — snap instantly, no liquid
-              blob.snapTo(1);
+              blob.rushFill(1);
             } else {
               blob.setTargetFill(pendingFillRef.current);
             }
@@ -370,7 +370,7 @@ function LiquidParentCheckbox({
       const timeout = setTimeout(() => {
         if (pendingFillRef.current !== null && blob) {
           if (pendingFillRef.current >= 1) {
-            blob.snapTo(1);
+            blob.rushFill(1);
           } else {
             blob.setTargetFill(pendingFillRef.current);
           }
@@ -399,7 +399,7 @@ function LiquidParentCheckbox({
 
     if (isChecked && blob.targetFill < 0.99) {
       // Manual check — instant fill, no liquid animation
-      blob.snapTo(1);
+      blob.rushFill(1);
       pendingFillRef.current = null;
       startLoop();
     }

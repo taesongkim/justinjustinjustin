@@ -94,6 +94,8 @@ export const TodoContext = createContext<{
   dragState: DragState | null;
   touchedTimestamps: React.RefObject<Map<string, number[]>>;
   glowArrivals: React.RefObject<Map<string, number[]>>;
+  glowComplete: React.RefObject<Map<string, number[]>>;
+  pendingAutoTouch: React.RefObject<Map<string, () => void>>;
 } | null>(null);
 
 export function useTodoContext() {
@@ -136,6 +138,10 @@ export default function NestedTodoApp() {
   const touchedTimestamps = useRef<Map<string, number[]>>(new Map());
   /** Parent ID → list of timestamps when glow reached parent (for liquid fill sync). */
   const glowArrivals = useRef<Map<string, number[]>>(new Map());
+  /** Parent ID → list of timestamps when border trace completed (for chained auto-check). */
+  const glowComplete = useRef<Map<string, number[]>>(new Map());
+  /** Item IDs that should be auto-touched when their border trace completes. */
+  const pendingAutoTouch = useRef<Map<string, () => void>>(new Map());
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saveNoteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const deleteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -617,7 +623,7 @@ export default function NestedTodoApp() {
   );
 
   const contextValue = useMemo(
-    () => ({ actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals }),
+    () => ({ actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals, glowComplete, pendingAutoTouch }),
     [actions, expandedIds, columns, todos, gridAssignments, dragState]
   );
 
@@ -784,6 +790,8 @@ export default function NestedTodoApp() {
                 staggerDelay={staggerDelay}
                 touchedTimestamps={touchedTimestamps}
                 glowArrivals={glowArrivals}
+                glowComplete={glowComplete}
+                pendingAutoTouch={pendingAutoTouch}
               />
 
               <AnimatePresence mode="sync">

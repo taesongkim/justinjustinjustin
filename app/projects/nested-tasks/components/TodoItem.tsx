@@ -292,7 +292,7 @@ export default function TodoItemComponent({
   columnLength,
   reducedMotion,
 }: TodoItemProps) {
-  const { actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals } = useTodoContext();
+  const { actions, expandedIds, columns, todos, gridAssignments, dragState, touchedTimestamps, glowArrivals, pendingAutoTouch } = useTodoContext();
   const { item, parentId } = entry;
   const isExpanded = expandedIds.has(item.id);
   const canExpand = colIndex < MAX_COLUMNS - 1;
@@ -316,20 +316,53 @@ export default function TodoItemComponent({
   }, [item.text]);
 
   // ─── Auto-check/uncheck parent based on children state ────
+  //
+  // Auto-check registers a callback in pendingAutoTouch that ConnectingLines
+  // calls directly in its draw loop when the border trace completes.
+  // This ensures zero-frame delay: touchedTimestamp write + toggleCheck
+  // both happen in the same draw frame as border completion.
+  // Auto-uncheck fires immediately (no animation to wait for).
+
   useEffect(() => {
     if (item.children.length === 0) return;
     const allChecked = item.children.every((c) => c.checked);
     const hasPutAside = item.children.some((c) => c.putAside);
 
-    if (!item.checked && allChecked && !hasPutAside) {
-      // All children naturally checked → auto-check parent with glow
-      actions.markTouched(item.id);
+    if (item.checked && !allChecked && !hasPutAside) {
+      // Parent is checked but not all children are checked → auto-uncheck immediately
+      pendingAutoTouch.current.delete(item.id);
       actions.toggleCheck(item.id);
-    } else if (item.checked && !allChecked && !hasPutAside) {
-      // Parent is checked but not all children are checked → auto-uncheck
-      actions.toggleCheck(item.id);
+      return;
     }
-  }, [item.checked, item.children, item.id, actions]);
+
+    if (!item.checked && allChecked && !hasPutAside) {
+      // All children checked → register callback for when border trace completes.
+      // ConnectingLines will call this + write touchedTimestamp in the same frame.
+      let fired = false;
+
+      const doAutoCheck = () => {
+        if (fired) return;
+        fired = true;
+        pendingAutoTouch.current.delete(item.id);
+        actions.markTouched(item.id);
+        actions.toggleCheck(item.id);
+      };
+
+      pendingAutoTouch.current.set(item.id, doAutoCheck);
+
+      // Fallback: fire after 800ms if border trace never completes
+      // (e.g. collapsed column, off-screen parent, no connector drawn)
+      const fallbackTimer = setTimeout(doAutoCheck, 800);
+
+      return () => {
+        fired = true;
+        pendingAutoTouch.current.delete(item.id);
+        clearTimeout(fallbackTimer);
+      };
+    } else {
+      pendingAutoTouch.current.delete(item.id);
+    }
+  }, [item.checked, item.children, item.id, actions, pendingAutoTouch]);
 
   // ─── Keyboard Handler ───────────────────────────────────
 

@@ -23,6 +23,10 @@ interface ConnectingLinesProps {
   touchedTimestamps: RefObject<Map<string, number[]>>;
   /** Parent ID → list of performance.now() timestamps when glow reached parent. */
   glowArrivals: RefObject<Map<string, number[]>>;
+  /** Parent ID → list of performance.now() timestamps when border trace completed. */
+  glowComplete: RefObject<Map<string, number[]>>;
+  /** Item IDs that should be auto-touched when their border trace completes. */
+  pendingAutoTouch: RefObject<Map<string, () => void>>;
 }
 
 // ─── Constants ────────────────────────────────────────────────
@@ -277,6 +281,8 @@ export default function ConnectingLines({
   staggerDelay,
   touchedTimestamps,
   glowArrivals,
+  glowComplete,
+  pendingAutoTouch,
 }: ConnectingLinesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
@@ -293,6 +299,8 @@ export default function ConnectingLines({
 
   /** Track which parent+timestamp combos have already triggered a glow arrival. */
   const signaledArrivalsRef = useRef<Set<string>>(new Set());
+  /** Track which parent IDs have already signaled border trace completion. */
+  const signaledCompleteRef = useRef<Set<string>>(new Set());
 
   // ─── Sync props into refs so draw/startSettle stay stable ──
 
@@ -604,8 +612,8 @@ export default function ConnectingLines({
       (d): d is BracketDrawable => d.type === "bracket"
     )];
 
-    // Track max glow alpha per parent for the parent highlight pass
-    const parentGlowAlpha = new Map<string, number>();
+    // Track parent glow state: alpha + perimeter progress (0=right, 1=left complete)
+    const parentGlowState = new Map<string, { alpha: number; progress: number }>();
 
     for (const bd of allBrackets) {
       for (const path of bd.childPaths) {
@@ -678,8 +686,13 @@ export default function ConnectingLines({
             // Parent glow ramps up as head approaches parent (last 30% of travel)
             if (headProgress > 0.7) {
               const rampAlpha = Math.min(1, (headProgress - 0.7) / 0.3);
-              const prev = parentGlowAlpha.get(bd.parentId) ?? 0;
-              parentGlowAlpha.set(bd.parentId, Math.max(prev, rampAlpha));
+              // Perimeter progress: during ramp phase, go from 0 to 0.5
+              const rampProgress = rampAlpha * 0.5;
+              const prev = parentGlowState.get(bd.parentId) ?? { alpha: 0, progress: 0 };
+              parentGlowState.set(bd.parentId, {
+                alpha: Math.max(prev.alpha, rampAlpha),
+                progress: Math.max(prev.progress, rampProgress),
+              });
 
               // Signal glow arrival for liquid checkbox sync
               const arrivalKey = `${bd.parentId}:${ts}`;
@@ -718,58 +731,198 @@ export default function ConnectingLines({
             drawPathSegment(ctx, path, 0, path.totalLength);
             ctx.restore();
 
-            // Track parent glow alpha (max across all children/timestamps)
-            const prev = parentGlowAlpha.get(bd.parentId) ?? 0;
-            parentGlowAlpha.set(bd.parentId, Math.max(prev, alpha));
+            // Track parent glow state — perimeter completes during hold, stays at 1 during fade
+            const holdProgress = afterTravel < GLOW_HOLD_MS
+              ? 0.5 + 0.5 * (afterTravel / GLOW_HOLD_MS)
+              : 1;
+            const prev = parentGlowState.get(bd.parentId) ?? { alpha: 0, progress: 0 };
+            parentGlowState.set(bd.parentId, {
+              alpha: Math.max(prev.alpha, alpha),
+              progress: Math.max(prev.progress, holdProgress),
+            });
           }
         }
       }
     }
 
-    // ─── Parent item glow highlight ──────────────────────────
-    for (const [parentId, alpha] of parentGlowAlpha) {
-      if (alpha <= 0) continue;
+    // ─── Parent item glow highlight (perimeter trace) ─────────
+    //
+    // The glow enters from the right-center of the parent container,
+    // splits into two paths tracing the top and bottom edges,
+    // and meets at the left-center.
+    //
+    // progress: 0 = just arrived at right, 1 = paths meet at left
+    //
+    // Each half-path (top/bottom) is parameterized 0→1:
+    //   0.0 = right center
+    //   → right corner
+    //   → horizontal edge
+    //   → left corner
+    //   1.0 = left center
+
+    for (const [parentId, state] of parentGlowState) {
+      if (state.alpha <= 0) continue;
+
+      // Signal border trace completion when perimeter fully enclosed
+      if (state.progress >= 1) {
+        if (!signaledCompleteRef.current.has(parentId)) {
+          signaledCompleteRef.current.add(parentId);
+          const completions = glowComplete.current;
+          const existing = completions.get(parentId);
+          if (existing) {
+            existing.push(now);
+          } else {
+            completions.set(parentId, [now]);
+          }
+        }
+
+        // If this item has a pending auto-touch callback, fire it immediately.
+        // This handles both: (a) callback registered before border completes,
+        // and (b) callback registered AFTER border already completed (e.g.
+        // last child checked while previous child's liquid was still settling).
+        const autoTouchCb = pendingAutoTouch.current.get(parentId);
+        if (autoTouchCb) {
+          pendingAutoTouch.current.delete(parentId);
+          // Write touch timestamp directly (visual glow starts next frame)
+          const touched = touchedTimestamps.current;
+          const existingTs = touched.get(parentId);
+          if (existingTs) {
+            existingTs.push(now);
+          } else {
+            touched.set(parentId, [now]);
+          }
+          hasActiveGlow = true;
+          // Call the callback (triggers toggleCheck — React batches it)
+          autoTouchCb();
+        }
+      }
+
       const parentEl = itemRefs.current.get(parentId);
       if (!parentEl) continue;
       const rect = parentEl.getBoundingClientRect();
-      const x = rect.left - containerRect.left + scrollLeft;
-      const y = rect.top - containerRect.top + scrollTop;
+      const bx = rect.left - containerRect.left + scrollLeft;
+      const by = rect.top - containerRect.top + scrollTop;
       const pw = rect.width;
       const ph = rect.height;
-      const r = 6; // border-radius to match item styling
+      const r = 6;
+      const { alpha, progress } = state;
 
+      // Build perimeter segments for one half (top or bottom).
+      // Each segment is a fraction of the half-perimeter length.
+      // Half perimeter: rightVerticalHalf + corner + topEdge + corner + leftVerticalHalf
+      const rightVert = ph / 2 - r;   // right center to right corner
+      const cornerArc = (Math.PI / 2) * r; // quarter circle
+      const horizEdge = pw - 2 * r;   // top/bottom straight edge
+      const leftVert = ph / 2 - r;    // left corner to left center
+      const halfPerimeter = rightVert + cornerArc + horizEdge + cornerArc + leftVert;
+
+      // Draw a traced path for a given half (top or bottom) up to `progress` (0→1)
+      const drawHalfPerimeter = (isTop: boolean, prog: number) => {
+        if (prog <= 0) return;
+        const dist = prog * halfPerimeter;
+        let remaining = dist;
+
+        ctx.beginPath();
+        // Start at right center
+        const startY = by + ph / 2;
+        ctx.moveTo(bx + pw, startY);
+
+        // Segment 1: right vertical half (up for top, down for bottom)
+        const seg1 = Math.min(remaining, rightVert);
+        remaining -= seg1;
+        const endY1 = isTop ? startY - seg1 : startY + seg1;
+        ctx.lineTo(bx + pw, endY1);
+
+        if (remaining <= 0) { ctx.stroke(); return; }
+
+        // Segment 2: right corner (quarter arc)
+        const seg2 = Math.min(remaining, cornerArc);
+        remaining -= seg2;
+        const cornerFrac = seg2 / cornerArc;
+        const cornerAngle = cornerFrac * (Math.PI / 2);
+        // Corner center
+        const ccx = bx + pw - r;
+        const ccy = isTop ? by + r : by + ph - r;
+        // Arc from right side toward top/bottom
+        if (isTop) {
+          ctx.arc(ccx, ccy, r, 0, -cornerAngle, true);
+        } else {
+          ctx.arc(ccx, ccy, r, 0, cornerAngle, false);
+        }
+
+        if (remaining <= 0) { ctx.stroke(); return; }
+
+        // Segment 3: horizontal edge (right to left)
+        const seg3 = Math.min(remaining, horizEdge);
+        remaining -= seg3;
+        const edgeY = isTop ? by : by + ph;
+        const edgeEndX = bx + pw - r - seg3;
+        ctx.lineTo(edgeEndX, edgeY);
+
+        if (remaining <= 0) { ctx.stroke(); return; }
+
+        // Segment 4: left corner (quarter arc)
+        const seg4 = Math.min(remaining, cornerArc);
+        remaining -= seg4;
+        const cornerFrac2 = seg4 / cornerArc;
+        const cornerAngle2 = cornerFrac2 * (Math.PI / 2);
+        const ccx2 = bx + r;
+        const ccy2 = isTop ? by + r : by + ph - r;
+        if (isTop) {
+          ctx.arc(ccx2, ccy2, r, -Math.PI / 2, -Math.PI / 2 - cornerAngle2, true);
+        } else {
+          ctx.arc(ccx2, ccy2, r, Math.PI / 2, Math.PI / 2 + cornerAngle2, false);
+        }
+
+        if (remaining <= 0) { ctx.stroke(); return; }
+
+        // Segment 5: left vertical half (down to center for top, up to center for bottom)
+        const seg5 = Math.min(remaining, leftVert);
+        const endY5 = isTop ? by + r + seg5 : by + ph - r - seg5;
+        ctx.lineTo(bx, endY5);
+        ctx.stroke();
+      };
+
+      // Fill with white when perimeter is complete
+      if (progress >= 1) {
+        ctx.save();
+        ctx.fillStyle = glowColor;
+        ctx.globalAlpha = alpha * 0.12;
+        ctx.beginPath();
+        ctx.moveTo(bx + r, by);
+        ctx.lineTo(bx + pw - r, by);
+        ctx.quadraticCurveTo(bx + pw, by, bx + pw, by + r);
+        ctx.lineTo(bx + pw, by + ph - r);
+        ctx.quadraticCurveTo(bx + pw, by + ph, bx + pw - r, by + ph);
+        ctx.lineTo(bx + r, by + ph);
+        ctx.quadraticCurveTo(bx, by + ph, bx, by + ph - r);
+        ctx.lineTo(bx, by + r);
+        ctx.quadraticCurveTo(bx, by, bx + r, by);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Draw top and bottom half-perimeters with glow
       ctx.save();
-      ctx.globalAlpha = alpha * 0.35;
-      ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 12;
       ctx.strokeStyle = glowColor;
       ctx.lineWidth = 1;
-      // Draw rounded rect outline with glow
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.lineTo(x + pw - r, y);
-      ctx.quadraticCurveTo(x + pw, y, x + pw, y + r);
-      ctx.lineTo(x + pw, y + ph - r);
-      ctx.quadraticCurveTo(x + pw, y + ph, x + pw - r, y + ph);
-      ctx.lineTo(x + r, y + ph);
-      ctx.quadraticCurveTo(x, y + ph, x, y + ph - r);
-      ctx.lineTo(x, y + r);
-      ctx.quadraticCurveTo(x, y, x + r, y);
-      ctx.closePath();
-      // Fill with 8% white
-      ctx.fillStyle = glowColor;
-      ctx.globalAlpha = alpha * 0.08;
-      ctx.shadowColor = "transparent";
-      ctx.fill();
-      // Stroke outline with glow
-      ctx.globalAlpha = alpha * 0.35;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+
+      // First pass: main glow
+      ctx.globalAlpha = alpha * 0.9;
       ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 12;
-      ctx.stroke();
-      // Second pass for bloom
-      ctx.shadowBlur = 24;
-      ctx.globalAlpha = alpha * 0.15;
-      ctx.stroke();
+      ctx.shadowBlur = 10;
+      drawHalfPerimeter(true, progress);
+      drawHalfPerimeter(false, progress);
+
+      // Second pass: bloom
+      ctx.globalAlpha = alpha * 0.4;
+      ctx.shadowBlur = 20;
+      drawHalfPerimeter(true, progress);
+      drawHalfPerimeter(false, progress);
+
       ctx.restore();
     }
 
@@ -795,11 +948,23 @@ export default function ConnectingLines({
       }
     }
 
+    // Clean up expired glow completions + signaled keys
+    const completions = glowComplete.current;
+    for (const [id, timestamps] of completions) {
+      const alive = timestamps.filter((ts) => now - ts < GLOW_DURATION_MAX);
+      if (alive.length === 0) {
+        completions.delete(id);
+        signaledCompleteRef.current.delete(id);
+      } else if (alive.length < timestamps.length) {
+        completions.set(id, alive);
+      }
+    }
+
     // Keep RAF alive if any glow is active
     if (hasActiveGlow && performance.now() >= settleEndRef.current) {
       rafRef.current = requestAnimationFrame(draw);
     }
-  }, [containerRef, itemRefs, touchedTimestamps, glowArrivals]);
+  }, [containerRef, itemRefs, touchedTimestamps, glowArrivals, glowComplete, pendingAutoTouch]);
 
   // ─── RAF settle loop (stable, reads from refs) ─────────
 

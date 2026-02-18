@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { AvatarGif, AvatarMood, AvatarMoodEntry, DateString } from "../lib/types";
-import { AVATAR_MOODS } from "../lib/types";
+import { AVATAR_MOODS, DEFAULT_AVATAR_MOOD } from "../lib/types";
 import * as svc from "../lib/service";
 
 interface AvatarDisplayProps {
@@ -27,13 +27,22 @@ export default function AvatarDisplay({
   const userGifs = avatarGifs.filter((g) => g.user_id === userId);
   const gifByMood = new Map(userGifs.map((g) => [g.mood, g]));
   const moodEntry = avatarMoods.find((m) => m.user_id === userId);
-  const activeMood = moodEntry?.mood ?? null;
 
-  // If user has no GIFs uploaded at all, don't show anything
-  if (userGifs.length === 0) return null;
+  // Use explicit mood if set, otherwise fall back to default (walking)
+  const effectiveMood: AvatarMood = moodEntry?.mood ?? DEFAULT_AVATAR_MOOD;
+  const isExplicit = !!moodEntry;
 
-  // If no mood set for this date, show nothing (unless it's today — show a subtle picker prompt)
-  const activeGif = activeMood ? gifByMood.get(activeMood) : null;
+  // TEMP: show placeholder square for sizing
+  if (userGifs.length === 0) {
+    return (
+      <div className="ht-avatar-display">
+        <div style={{ width: 256, height: 256, background: "rgba(255,255,255,0.15)", border: "1px dashed rgba(255,255,255,0.3)", borderRadius: 8 }} />
+      </div>
+    );
+  }
+
+  // Resolve the GIF to display: explicit mood first, then default, then first available
+  const activeGif = gifByMood.get(effectiveMood) ?? null;
   const gifUrl = activeGif ? svc.getAvatarGifUrl(activeGif.storage_path) : null;
 
   // Available moods: only those the user has uploaded a GIF for
@@ -49,13 +58,13 @@ export default function AvatarDisplay({
     }
   }
 
-  async function handleClearMood() {
+  async function handleResetToDefault() {
     setPickerOpen(false);
     try {
       await svc.clearAvatarMood(userId, currentDate);
       onMoodChanged();
     } catch (err) {
-      console.error("Failed to clear avatar mood:", err);
+      console.error("Failed to reset avatar mood:", err);
     }
   }
 
@@ -67,10 +76,10 @@ export default function AvatarDisplay({
           onClick={() => setPickerOpen((v) => !v)}
           aria-label="Change mood"
         >
-          <img src={gifUrl} alt={activeMood ?? ""} className="ht-avatar-gif" />
+          <img src={gifUrl} alt={effectiveMood} className="ht-avatar-gif" />
         </button>
       ) : (
-        currentDate === todayDate && availableMoods.length > 0 && (
+        availableMoods.length > 0 && (
           <button
             className="ht-avatar-set-mood-btn"
             onClick={() => setPickerOpen((v) => !v)}
@@ -85,7 +94,7 @@ export default function AvatarDisplay({
         <div className="ht-avatar-picker">
           {availableMoods.map(({ value, label }) => {
             const gif = gifByMood.get(value)!;
-            const isActive = value === activeMood;
+            const isActive = value === effectiveMood;
             return (
               <button
                 key={value}
@@ -101,11 +110,11 @@ export default function AvatarDisplay({
               </button>
             );
           })}
-          {activeMood && (
+          {isExplicit && (
             <button
               className="ht-avatar-picker-clear"
-              onClick={handleClearMood}
-              title="Clear mood"
+              onClick={handleResetToDefault}
+              title="Reset to default"
             >
               <svg viewBox="0 0 12 12" width="10" height="10" aria-hidden="true">
                 <path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

@@ -189,39 +189,33 @@ function SparkleOverlay({ trigger }: { trigger: number }) {
 
 // ─── Leaf Checkbox ────────────────────────────────────────────
 
-function WaitingRingWrapper({ show }: { show: boolean }) {
+function WaitingDotsWrapper({ show }: { show: boolean }) {
   return (
     <AnimatePresence>
       {show && (
-        <motion.svg
-          key="waiting-ring"
-          width="14"
-          height="14"
-          viewBox="0 0 14 14"
+        <motion.div
+          key="waiting-dots"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
           style={{
             position: "absolute",
-            top: 1,
-            left: 1,
+            top: 0,
+            left: 0,
+            width: 16,
+            height: 16,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 1.5,
             pointerEvents: "none",
           }}
-          className="nt-waiting-ring"
         >
-          <circle
-            cx="7"
-            cy="7"
-            r="5.5"
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            strokeDasharray="26"
-            strokeDashoffset="8"
-          />
-        </motion.svg>
+          <span className="nt-waiting-dot" style={{ animationDelay: "0s" }} />
+          <span className="nt-waiting-dot" style={{ animationDelay: "0.2s" }} />
+          <span className="nt-waiting-dot" style={{ animationDelay: "0.4s" }} />
+        </motion.div>
       )}
     </AnimatePresence>
   );
@@ -284,7 +278,7 @@ function LeafCheckbox({
           padding: 0,
           position: "relative",
           overflow: "visible",
-          opacity: isPutAside ? 0.35 : isWaiting ? 0.4 : 1,
+          opacity: isPutAside ? 0.35 : isWaiting ? 0.2 : 1,
         }}
         aria-label={isChecked ? "Uncheck item" : "Check item"}
       >
@@ -312,7 +306,7 @@ function LeafCheckbox({
           </motion.svg>
         )}
       </button>
-      <WaitingRingWrapper show={!!isWaiting && !isChecked} />
+      <WaitingDotsWrapper show={!!isWaiting && !isChecked} />
     </div>
   );
 }
@@ -524,7 +518,7 @@ function LiquidParentCheckbox({
           padding: 0,
           position: "relative",
           overflow: "visible",
-          opacity: isPutAside ? 0.35 : isWaiting ? 0.4 : 1,
+          opacity: isPutAside ? 0.35 : isWaiting ? 0.2 : 1,
         }}
         aria-label={isChecked ? "Uncheck item" : "Check item"}
       >
@@ -568,7 +562,7 @@ function LiquidParentCheckbox({
           </motion.svg>
         )}
       </button>
-      <WaitingRingWrapper show={!!isWaiting && !isChecked} />
+      <WaitingDotsWrapper show={!!isWaiting && !isChecked} />
     </div>
   );
 }

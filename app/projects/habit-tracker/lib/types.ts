@@ -46,13 +46,15 @@ export type AvatarMood =
   | "dancing_sensual";
 
 export const AVATAR_MOODS: { value: AvatarMood; label: string }[] = [
-  { value: "celebrating", label: "Celebrating" },
+  { value: "celebrating", label: "Winning" },
   { value: "walking", label: "Walking" },
-  { value: "walking_happy", label: "Walking happily" },
+  { value: "walking_happy", label: "Cruising" },
   { value: "dancing", label: "Dancing" },
   { value: "sad", label: "Sad" },
-  { value: "dancing_sensual", label: "Dancing sensually" },
+  { value: "dancing_sensual", label: "Feelin myself" },
 ];
+
+export const DEFAULT_AVATAR_MOOD: AvatarMood = "walking";
 
 export interface AvatarGif {
   id: string;

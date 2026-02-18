@@ -208,18 +208,67 @@ function ThreadPopup({
 }
 
 // ─────────────────────────────────────────
+// Shared scroll velocity tracker
+// ─────────────────────────────────────────
+function useScrollVelocity(scrollRef: React.RefObject<HTMLDivElement | null>) {
+  const velocityRef = useRef(0);
+  const lastScrollTop = useRef(0);
+  const lastTime = useRef(0);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    lastScrollTop.current = el.scrollTop;
+    lastTime.current = performance.now();
+
+    // Decay velocity each frame
+    let raf: number;
+    const decay = () => {
+      velocityRef.current *= 0.95; // friction
+      if (Math.abs(velocityRef.current) < 0.01) velocityRef.current = 0;
+      raf = requestAnimationFrame(decay);
+    };
+    raf = requestAnimationFrame(decay);
+
+    const onScroll = () => {
+      const now = performance.now();
+      const dt = now - lastTime.current;
+      if (dt > 0) {
+        const dy = el.scrollTop - lastScrollTop.current;
+        // Blend new velocity with existing for smoothness
+        velocityRef.current = velocityRef.current * 0.6 + (dy / dt) * 0.4;
+      }
+      lastScrollTop.current = el.scrollTop;
+      lastTime.current = now;
+    };
+
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [scrollRef]);
+
+  return velocityRef;
+}
+
+// ─────────────────────────────────────────
 // Thread segment with unified string + tag physics
 // ─────────────────────────────────────────
 function ThreadSegment({
   entry,
   index,
+  scrollVelocity,
 }: {
   entry: LedgerEntry;
   index: number;
+  scrollVelocity: React.RefObject<number>;
 }) {
   const isAction = entry.type === "action";
   const side = isAction ? "left" : "right";
   const color = isAction ? "rgba(255, 170, 68, 0.7)" : "rgba(100, 180, 255, 0.7)";
+  const solidColor = isAction ? "rgba(255, 170, 68, 1)" : "rgba(100, 180, 255, 1)";
   const glowColor = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
   const tagBg = isAction ? "rgba(255, 170, 68, 0.06)" : "rgba(100, 180, 255, 0.06)";
   const tagBorder = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
@@ -242,24 +291,38 @@ function ThreadSegment({
   const svgHeight = 60;
 
   // Single rAF loop drives both string shape and tag position
+  // Scroll velocity feeds into the physics for realistic swing
+  const swingAngle = useRef(0);
+  const swingVel = useRef(0);
+
   useEffect(() => {
     let raf: number;
     const animate = () => {
       const t = performance.now() / 1000;
       const phase = phaseRef.current;
 
-      // String physics
-      const sway1 = Math.sin(t * 1.2 + phase) * 6;
-      const sway2 = Math.sin(t * 0.8 + phase + 1.5) * 4;
-      const droop = 14 + Math.sin(t * 0.5 + phase) * 3;
+      // Feed scroll velocity into swing physics (spring-damper)
+      const sv = scrollVelocity.current ?? 0;
+      const scrollForce = sv * 8; // scale scroll velocity to swing force
+      const springK = 0.15; // spring stiffness (pulls back to center)
+      const damping = 0.92; // friction
+      swingVel.current = (swingVel.current + scrollForce - swingAngle.current * springK) * damping;
+      swingAngle.current += swingVel.current;
+      // Clamp to prevent wild swings
+      swingAngle.current = Math.max(-25, Math.min(25, swingAngle.current));
+
+      // String physics — scroll adds to sway and droop
+      const sway1 = Math.sin(t * 1.2 + phase) * 6 + swingAngle.current * 0.5;
+      const sway2 = Math.sin(t * 0.8 + phase + 1.5) * 4 + swingAngle.current * 0.3;
+      const droop = 14 + Math.sin(t * 0.5 + phase) * 3 + Math.abs(swingAngle.current) * 0.3;
 
       // Anchor at thread side, endpoint where tag attaches
       const startX = side === "left" ? svgWidth : 0;
       const endX = side === "left" ? 4 : svgWidth - 4;
       const midX = (startX + endX) / 2;
 
-      // Endpoint Y — this is where the string meets the tag
-      const endY = svgHeight / 2 + Math.sin(t * 0.7 + phase + 0.8) * 3;
+      // Endpoint Y — scroll velocity adds vertical lag
+      const endY = svgHeight / 2 + Math.sin(t * 0.7 + phase + 0.8) * 3 + swingAngle.current * 0.4;
 
       const startY = 0;
       const d = `M ${startX} ${startY} C ${startX + (side === "left" ? -10 : 10)} ${droop + sway1}, ${midX} ${droop + sway2}, ${endX} ${endY}`;
@@ -278,7 +341,7 @@ function ThreadSegment({
     };
     raf = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(raf);
-  }, [side, svgHeight]);
+  }, [side, svgHeight, scrollVelocity]);
 
   return (
     <motion.div
@@ -295,7 +358,7 @@ function ThreadSegment({
           width: 8,
           height: 8,
           borderRadius: "50%",
-          background: color,
+          background: `radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, ${color} 40%, ${color} 100%)`,
           boxShadow: `0 0 6px ${color}, 0 0 14px ${glowColor}, 0 0 24px ${glowColor}`,
         }}
       />
@@ -361,6 +424,213 @@ function ThreadSegment({
 }
 
 // ─────────────────────────────────────────
+// Thread notches (days + months)
+// ─────────────────────────────────────────
+function ThreadNotches({
+  entries,
+  scrollRef,
+}: {
+  entries: LedgerEntry[];
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Drive scroll-active state via CSS variable directly on DOM — no React re-render
+  useEffect(() => {
+    const el = scrollRef.current;
+    const container = containerRef.current;
+    if (!el || !container) return;
+
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    const onScrollStart = () => {
+      container.style.setProperty("--scroll-active", "1");
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        container.style.setProperty("--scroll-active", "0");
+      }, 150);
+    };
+
+    el.addEventListener("wheel", onScrollStart, { passive: true });
+    el.addEventListener("touchmove", onScrollStart, { passive: true });
+    el.addEventListener("scroll", onScrollStart, { passive: true });
+    return () => {
+      el.removeEventListener("wheel", onScrollStart);
+      el.removeEventListener("touchmove", onScrollStart);
+      el.removeEventListener("scroll", onScrollStart);
+      if (timer) clearTimeout(timer);
+    };
+  }, [scrollRef]);
+
+  if (entries.length === 0) return null;
+
+  // Entries are newest-first; get date range
+  const dates = entries.map((e) => new Date(e.occurred_at).getTime());
+  const newest = Math.max(...dates);
+  const oldest = Math.min(...dates);
+
+  const entriesHeight = entries.length * 72;
+  const totalMs = newest - oldest || 1;
+  // Pixels per ms — how fast we move through time
+  const pxPerMs = entriesHeight / totalMs;
+
+  // Extend 60 days past the oldest entry for the tail
+  const tailDays = 60;
+  const tailMs = tailDays * 24 * 60 * 60 * 1000;
+  const tailHeight = pxPerMs * tailMs;
+  const totalHeight = entriesHeight + tailHeight;
+
+  // Generate all days from newest down through the tail
+  const startDate = new Date(oldest - tailMs);
+  startDate.setHours(0, 0, 0, 0);
+  const endDate = new Date(newest);
+  endDate.setHours(0, 0, 0, 0);
+
+  const notches: { y: number; isMonth: boolean; label: string; dayNum: number; fade: number }[] = [];
+  const d = new Date(startDate);
+  while (d <= endDate) {
+    const isMonth = d.getDate() === 1;
+    const msFromOldest = d.getTime() - oldest;
+    // Entries are newest-first, so newest is at top (y=0), oldest at bottom
+    const y = entriesHeight - (msFromOldest / totalMs) * entriesHeight;
+    // Fade: 1.0 within entry range, fading to 0 through the tail
+    const fade = y <= entriesHeight ? 1.0 : Math.max(0, 1 - (y - entriesHeight) / tailHeight);
+    const label = isMonth
+      ? d.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+      : String(d.getDate());
+    notches.push({ y, isMonth, label, dayNum: d.getDate(), fade });
+    d.setDate(d.getDate() + 1);
+  }
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute pointer-events-none thread-notches"
+      style={{ left: "66%", top: "50vh", height: totalHeight, ["--scroll-active" as string]: "0" }}
+    >
+      {notches.map((n, i) => {
+        const rx = n.isMonth ? 10 : 6;
+        const ry = n.isMonth ? 3 : 2;
+        const svgW = rx * 2 + 2;
+        const svgH = ry * 2 + 2;
+        const cx = svgW / 2;
+        const cy = svgH / 2;
+        const ringColor = "rgba(160, 140, 255, 0.25)";
+        const ringColorTop = "rgba(160, 140, 255, 0.2)";
+        const ringColorObscured = "rgba(160, 140, 255, 0.1)";
+        const sw = n.isMonth ? 1.2 : 0.8;
+
+        // Thread is 2px wide, centered at cx. Compute ellipse points where thread edges intersect top arc.
+        // Ellipse: ((x-cx)/rx)^2 + ((y-cy)/ry)^2 = 1
+        // At x = cx ± 1: y = cy - ry * sqrt(1 - (1/rx)^2)
+        const threadHalf = 1;
+        const xFrac = threadHalf / rx;
+        const topY = xFrac < 1 ? cy - ry * Math.sqrt(1 - xFrac * xFrac) : cy;
+        const leftEdgeX = cx - threadHalf;
+        const rightEdgeX = cx + threadHalf;
+
+        return (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              top: n.y,
+              left: 0,
+              transform: "translate(-50%, -50%)",
+              opacity: n.fade,
+            }}
+          >
+            {/* 3D ring — bottom (front), top sides (behind), top center (obscured by thread) */}
+            <svg
+              width={svgW}
+              height={svgH}
+              className={`overflow-visible ${n.isMonth ? "notch-month" : "notch-day"}`}
+              style={{ display: "block" }}
+            >
+              {/* Bottom arc (in front of thread) — brightest */}
+              <path
+                d={`M ${cx - rx} ${cy} A ${rx} ${ry} 0 0 0 ${cx + rx} ${cy}`}
+                fill="none"
+                stroke={ringColor}
+                strokeWidth={sw}
+              />
+              {/* Top-left arc (behind thread, visible) */}
+              <path
+                d={`M ${cx - rx} ${cy} A ${rx} ${ry} 0 0 1 ${leftEdgeX} ${topY}`}
+                fill="none"
+                stroke={ringColorTop}
+                strokeWidth={sw}
+              />
+              {/* Top-center arc (obscured by thread) */}
+              <path
+                d={`M ${leftEdgeX} ${topY} A ${rx} ${ry} 0 0 1 ${rightEdgeX} ${topY}`}
+                fill="none"
+                stroke={ringColorObscured}
+                strokeWidth={sw}
+              />
+              {/* Top-right arc (behind thread, visible) */}
+              <path
+                d={`M ${rightEdgeX} ${topY} A ${rx} ${ry} 0 0 1 ${cx + rx} ${cy}`}
+                fill="none"
+                stroke={ringColorTop}
+                strokeWidth={sw}
+              />
+            </svg>
+            {/* Label — positioned to the right of the ring */}
+            <span
+              className={`absolute whitespace-nowrap select-none ${n.isMonth ? "label-month" : "label-day"}`}
+              style={{
+                left: rx + (n.isMonth ? 16 : 12),
+                top: "50%",
+                transform: "translateY(-50%)",
+                fontSize: n.isMonth ? 14 : 11,
+                color: n.isMonth
+                  ? "rgba(160, 140, 255, 0.6)"
+                  : "rgba(160, 140, 255, 0.35)",
+              }}
+            >
+              {n.label}
+            </span>
+          </div>
+        );
+      })}
+      <style>{`
+        .thread-notches svg.notch-month,
+        .thread-notches svg.notch-day {
+          opacity: 0.5;
+          transition: opacity 2.5s ease;
+        }
+        .thread-notches[style*="--scroll-active: 1"] svg.notch-month,
+        .thread-notches[style*="--scroll-active:1"] svg.notch-month,
+        .thread-notches[style*="--scroll-active: 1"] svg.notch-day,
+        .thread-notches[style*="--scroll-active:1"] svg.notch-day {
+          opacity: 0.9;
+          transition: opacity 0s;
+        }
+        .thread-notches .label-month {
+          opacity: 0.7;
+          transition: opacity 2.5s ease;
+        }
+        .thread-notches[style*="--scroll-active: 1"] .label-month,
+        .thread-notches[style*="--scroll-active:1"] .label-month {
+          opacity: 1;
+          transition: opacity 0s;
+        }
+        .thread-notches .label-day {
+          opacity: 0;
+          transition: opacity 2.5s ease;
+        }
+        .thread-notches[style*="--scroll-active: 1"] .label-day,
+        .thread-notches[style*="--scroll-active:1"] .label-day {
+          opacity: 0.8;
+          transition: opacity 0s;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // Main ShrineScreen
 // ─────────────────────────────────────────
 export default function ShrineScreen({
@@ -378,6 +648,8 @@ export default function ShrineScreen({
   const [threadPopup, setThreadPopup] = useState<{ x: number; y: number } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const threadScrollRef = useRef<HTMLDivElement>(null);
+  const scrollVelocity = useScrollVelocity(threadScrollRef);
 
   const currentVision = visions[currentIndex] ?? null;
 
@@ -564,6 +836,7 @@ export default function ShrineScreen({
           <AnimatePresence>
             {threadOpen && (
               <motion.div
+                ref={threadScrollRef}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -581,24 +854,29 @@ export default function ShrineScreen({
                   style={{
                     width: "100%",
                     paddingTop: "50vh",
-                    paddingBottom: "50vh",
+                    paddingBottom: `max(50vh, ${Math.ceil(entries.length * 72 * 0.7)}px)`,
                   }}
                 >
-                  {/* Thread line — spans full height of content, positioned 1/3 from right */}
+                  {/* Thread line — spans full height of content + tail, positioned 1/3 from right */}
                   <div
-                    className="absolute top-0 bottom-0 w-[2px] pointer-events-none"
+                    className="absolute w-[2px] pointer-events-none"
                     style={{
                       left: "66%",
+                      top: 0,
+                      bottom: 0,
                       transform: "translateX(-50%)",
-                      background: "linear-gradient(to bottom, transparent 5%, rgba(160, 140, 255, 0.35) 15%, rgba(160, 140, 255, 0.35) 85%, transparent 95%)",
+                      background: "linear-gradient(to bottom, transparent 5%, rgba(160, 140, 255, 0.35) 10%, rgba(160, 140, 255, 0.35) 50%, transparent 95%)",
                     }}
                   />
+
+                  {/* Day/month notches */}
+                  <ThreadNotches entries={entries} scrollRef={threadScrollRef} />
 
                   {/* Segments */}
                   <div className="relative flex flex-col" style={{ alignItems: "center", paddingLeft: "32%" }}>
                     <AnimatePresence initial={false}>
                       {entries.map((entry, i) => (
-                        <ThreadSegment key={entry.id} entry={entry} index={i} />
+                        <ThreadSegment key={entry.id} entry={entry} index={i} scrollVelocity={scrollVelocity} />
                       ))}
                     </AnimatePresence>
 

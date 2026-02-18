@@ -563,9 +563,10 @@ function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: bo
     style.getPropertyValue("--nt-checkbox-border").trim() || "#3a3a3a";
   const checkedColor =
     style.getPropertyValue("--nt-checkbox-checked").trim() || "#60a5fa";
-  // Partial fill = white glow color, full = blue checked color
-  const liquidColor = isFull ? checkedColor : "#ffffff";
-  const highlightColor = "#ffffff";
+  const glowColor = style.getPropertyValue("--nt-glow-color").trim() || "#ffffff";
+  // Partial fill = glow color, full = blue checked color
+  const liquidColor = isFull ? checkedColor : glowColor;
+  const highlightColor = glowColor;
 
   // Background
   roundedRect(ctx, 0, 0, W, H, BORDER_RADIUS);
@@ -617,8 +618,8 @@ function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: bo
     ctx.fillStyle = liquidColor;
 
     if (!isFull) {
-      // Glow effect for partial fill (white liquid glows like connector)
-      ctx.shadowColor = "#ffffff";
+      // Glow effect for partial fill (glows like connector)
+      ctx.shadowColor = glowColor;
       ctx.shadowBlur = 12 * RES;
       ctx.globalAlpha = 0.6;
       ctx.fill();

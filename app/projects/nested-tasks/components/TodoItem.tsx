@@ -512,6 +512,16 @@ export default function TodoItemComponent({
           }
           break;
         }
+        case "Tab": {
+          if (e.shiftKey) break; // let Shift+Tab behave normally
+          if (!canExpand) break;
+          e.preventDefault();
+          if (!isExpanded) {
+            actions.toggleExpand(item.id);
+          }
+          actions.createFirstChild(item.id);
+          break;
+        }
         case "Backspace": {
           if (item.text === "" && val === "") {
             e.preventDefault();

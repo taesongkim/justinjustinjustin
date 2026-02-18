@@ -4,16 +4,17 @@
 
 /* ─── Light Mode ───────────────────────────────────────────── */
 .nt-light {
-  --nt-bg: #ffffff;
-  --nt-surface: #f5f5f5;
+  --nt-bg: #f3f3f4;
+  --nt-surface: #eaeaec;
   --nt-text-primary: #1a1a1a;
   --nt-text-secondary: #555555;
   --nt-text-muted: #999999;
-  --nt-border: #e8e8e8;
+  --nt-border: #dcdcdc;
   --nt-accent: #3b82f6;
-  --nt-line-color: #dcdcdc;
+  --nt-line-color: #c0c0c0;
+  --nt-glow-color: #666666;
   --nt-checkbox-bg: #ffffff;
-  --nt-checkbox-border: #cccccc;
+  --nt-checkbox-border: #b0b0b0;
   --nt-checkbox-checked: var(--nt-accent);
 }
 
@@ -27,6 +28,7 @@
   --nt-border: #222222;
   --nt-accent: #60a5fa;
   --nt-line-color: #2a2a2a;
+  --nt-glow-color: #ffffff;
   --nt-checkbox-bg: #1a1a1a;
   --nt-checkbox-border: #3a3a3a;
   --nt-checkbox-checked: var(--nt-accent);

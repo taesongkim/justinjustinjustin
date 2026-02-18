@@ -845,6 +845,7 @@ export default function NestedTodoApp() {
                 glowArrivals={glowArrivals}
                 glowComplete={glowComplete}
                 pendingAutoTouch={pendingAutoTouch}
+                themeKey={darkMode ? "dark" : "light"}
               />
 
               <AnimatePresence mode="sync">

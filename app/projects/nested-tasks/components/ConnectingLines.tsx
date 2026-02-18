@@ -27,6 +27,8 @@ interface ConnectingLinesProps {
   glowComplete: RefObject<Map<string, number[]>>;
   /** Item IDs that should be auto-touched when their border trace completes. */
   pendingAutoTouch: RefObject<Map<string, () => void>>;
+  /** Triggers canvas redraw when theme changes. */
+  themeKey?: string;
 }
 
 // ─── Constants ────────────────────────────────────────────────
@@ -286,6 +288,7 @@ export default function ConnectingLines({
   glowArrivals,
   glowComplete,
   pendingAutoTouch,
+  themeKey,
 }: ConnectingLinesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef<number>(0);
@@ -611,10 +614,11 @@ export default function ConnectingLines({
 
     // ─── Traveling glow for brackets with recently-touched children ──
 
-    const glowColor = "#ffffff";
     const containerEl = containerRef.current;
     const rootEl = containerEl?.closest(".nt") || document.documentElement;
-    const checkedColor = getComputedStyle(rootEl).getPropertyValue("--nt-checkbox-checked").trim() || "#60a5fa";
+    const rootStyle = getComputedStyle(rootEl);
+    const glowColor = rootStyle.getPropertyValue("--nt-glow-color").trim() || "#ffffff";
+    const checkedColor = rootStyle.getPropertyValue("--nt-checkbox-checked").trim() || "#60a5fa";
 
     const allBrackets = [...stableBrackets, ...staggered.filter(
       (d): d is BracketDrawable => d.type === "bracket"
@@ -1032,7 +1036,7 @@ export default function ConnectingLines({
     if (performance.now() < settleEndRef.current) return;
     cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(draw);
-  }, [draw, columns]);
+  }, [draw, columns, themeKey]);
 
   // ─── Scroll & resize listeners ─────────────────────────
 

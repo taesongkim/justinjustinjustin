@@ -1,4 +1,11 @@
 import type { Metadata } from "next";
+import { Crimson_Pro } from "next/font/google";
+
+const crimsonPro = Crimson_Pro({
+  subsets: ["latin"],
+  variable: "--font-crimson-pro",
+  weight: ["200"],
+});
 
 export const metadata: Metadata = {
   title: "MindShrine",
@@ -10,5 +17,11 @@ export default function MindShrineLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <div
+      className={crimsonPro.variable}
+    >
+      {children}
+    </div>
+  );
 }

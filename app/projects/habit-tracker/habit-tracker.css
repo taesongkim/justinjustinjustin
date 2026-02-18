@@ -1006,6 +1006,605 @@
   }
 }
 
+/* ─── Settings menu (unified) ────────────────────────────────────── */
+
+.ht-menu-add-btn {
+  display: block;
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 13px;
+  color: var(--ht-text-secondary);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+}
+
+.ht-menu-add-btn:hover {
+  background: rgba(128, 128, 128, 0.08);
+  color: var(--ht-text-primary);
+}
+
+.ht-menu-add-user {
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ht-menu-add-input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid var(--ht-border);
+  border-radius: 6px;
+  background: var(--ht-surface);
+  color: var(--ht-text-primary);
+  outline: none;
+  font-family: inherit;
+}
+
+.ht-menu-add-input:focus {
+  border-color: var(--ht-accent);
+}
+
+.ht-menu-add-input::placeholder {
+  color: var(--ht-text-muted);
+}
+
+.ht-menu-add-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.ht-menu-add-actions button {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--ht-border);
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+  transition: background 0.1s;
+}
+
+.ht-menu-add-actions button:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.ht-menu-add-confirm {
+  background: var(--ht-accent) !important;
+  color: var(--ht-bg) !important;
+  border-color: var(--ht-accent) !important;
+}
+
+.ht-menu-divider {
+  height: 1px;
+  background: var(--ht-border);
+  margin: 6px 0;
+}
+
+.ht-menu-user-section {
+  margin-bottom: 2px;
+}
+
+.ht-menu-user-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0;
+}
+
+.ht-menu-user-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 13px;
+  color: var(--ht-text-primary);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.ht-menu-user-toggle:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.ht-menu-toggle-arrow {
+  font-size: 8px;
+  color: var(--ht-text-muted);
+  transition: transform 0.15s;
+  display: inline-block;
+}
+
+.ht-expanded .ht-menu-toggle-arrow {
+  transform: rotate(90deg);
+}
+
+.ht-menu-user-settings {
+  padding: 4px 8px 8px 22px;
+}
+
+.ht-menu-settings-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ht-text-muted);
+  margin: 0 0 4px;
+}
+
+.ht-menu-delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ─── Journey manager ────────────────────────────────────────────── */
+
+.ht-journey-manager {
+  margin-top: 2px;
+}
+
+.ht-journey-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.ht-journey-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  transition: background 0.1s;
+}
+
+.ht-journey-item:hover {
+  background: rgba(128, 128, 128, 0.06);
+}
+
+.ht-journey-dates {
+  flex: 1;
+  color: var(--ht-text-secondary);
+  font-size: 11px;
+}
+
+.ht-journey-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 3px;
+  background: none;
+  color: var(--ht-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.ht-journey-item:hover .ht-journey-delete-btn {
+  opacity: 1;
+}
+
+.ht-journey-delete-btn:hover {
+  color: var(--ht-danger);
+}
+
+.ht-journey-confirm-text {
+  font-size: 11px;
+  color: var(--ht-text-secondary);
+}
+
+.ht-journey-confirm-yes,
+.ht-journey-confirm-no {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 1px solid var(--ht-border);
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+}
+
+.ht-journey-confirm-yes {
+  background: var(--ht-danger);
+  color: white;
+  border-color: var(--ht-danger);
+}
+
+.ht-journey-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.ht-journey-form-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ht-text-secondary);
+}
+
+.ht-journey-form-label input[type="date"] {
+  flex: 1;
+  font-size: 11px;
+  padding: 2px 4px;
+  border: 1px solid var(--ht-border);
+  border-radius: 4px;
+  background: var(--ht-surface);
+  color: var(--ht-text-primary);
+  outline: none;
+  font-family: inherit;
+}
+
+.ht-journey-form-label input[type="date"]:focus {
+  border-color: var(--ht-accent);
+}
+
+.ht-journey-form-error {
+  font-size: 11px;
+  color: var(--ht-danger);
+  margin: 0;
+}
+
+.ht-journey-form-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.ht-journey-form-actions button {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--ht-border);
+  background: var(--ht-surface);
+  color: var(--ht-text-secondary);
+}
+
+.ht-journey-form-submit {
+  background: var(--ht-accent) !important;
+  color: var(--ht-bg) !important;
+  border-color: var(--ht-accent) !important;
+}
+
+.ht-journey-add-btn {
+  display: block;
+  width: 100%;
+  padding: 3px 4px;
+  font-size: 11px;
+  color: var(--ht-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.1s;
+}
+
+.ht-journey-add-btn:hover {
+  color: var(--ht-text-secondary);
+}
+
+/* ─── Journey progress bar (above card) ──────────────────────────── */
+
+.ht-journey-bar {
+  margin-bottom: 4px;
+  padding: 10px 0;
+}
+
+.ht-journey-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ht-journey-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: visible;
+}
+
+.ht-journey-dot-future {
+  background: var(--ht-checkbox-color);
+  opacity: 0.4;
+}
+
+/* Today's dot is white when it's a future/pending dot */
+.ht-journey-dot-today.ht-journey-dot-future {
+  background: #ffffff;
+  opacity: 0.9;
+}
+
+.ht-journey-dot-completed {
+  background: none;
+  border: 1.5px solid #4caf50;
+}
+
+.ht-journey-dot-missed {
+  background: none;
+  color: var(--ht-danger);
+}
+
+.ht-journey-dot-missed svg {
+  display: block;
+}
+
+/* Triangle arrow above the dot representing the viewed date */
+.ht-journey-arrow {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: block;
+}
+
+/* ─── Timezone picker (settings menu) ────────────────────────────── */
+
+.ht-menu-tz {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+}
+
+.ht-menu-tz-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ht-text-muted);
+  white-space: nowrap;
+}
+
+.ht-menu-tz-select {
+  flex: 1;
+  font-size: 12px;
+  padding: 3px 4px;
+  border: 1px solid var(--ht-border);
+  border-radius: 4px;
+  background: var(--ht-surface);
+  color: var(--ht-text-primary);
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.ht-menu-tz-select:focus {
+  border-color: var(--ht-accent);
+}
+
+/* ─── Avatar display (above progress bar) ────────────────────────── */
+
+.ht-avatar-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-height: 0;
+}
+
+.ht-avatar-gif-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 0;
+  border-radius: 50%;
+  transition: transform 0.15s;
+}
+
+.ht-avatar-gif-btn:hover {
+  transform: scale(1.05);
+}
+
+.ht-avatar-gif {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  display: block;
+}
+
+.ht-avatar-set-mood-btn {
+  font-size: 10px;
+  color: var(--ht-text-muted);
+  background: none;
+  border: 1px dashed var(--ht-border);
+  border-radius: 12px;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.ht-avatar-set-mood-btn:hover {
+  color: var(--ht-text-secondary);
+  border-color: var(--ht-text-muted);
+}
+
+/* Mood picker dropdown (centered above card) */
+.ht-avatar-picker {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: var(--ht-card-bg);
+  border: 1px solid var(--ht-border);
+  border-radius: 8px;
+  box-shadow: var(--ht-card-shadow);
+  margin-top: 4px;
+}
+
+.ht-avatar-picker-item {
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 0;
+  transition: border-color 0.15s;
+}
+
+.ht-avatar-picker-item:hover {
+  border-color: var(--ht-text-muted);
+}
+
+.ht-avatar-picker-active {
+  border-color: var(--ht-accent);
+}
+
+.ht-avatar-picker-thumb {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+}
+
+.ht-avatar-picker-clear {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--ht-text-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.ht-avatar-picker-clear:hover {
+  color: var(--ht-danger);
+}
+
+/* ─── Avatar manager (settings menu) ─────────────────────────────── */
+
+.ht-avatar-manager {
+  margin-top: 4px;
+}
+
+.ht-avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.ht-avatar-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.ht-avatar-slot-label {
+  font-size: 9px;
+  color: var(--ht-text-muted);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.ht-avatar-slot-empty {
+  width: 36px;
+  height: 36px;
+  border: 1.5px dashed var(--ht-border);
+  border-radius: 6px;
+  background: none;
+  color: var(--ht-text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.ht-avatar-slot-empty:hover {
+  border-color: var(--ht-text-secondary);
+  color: var(--ht-text-secondary);
+}
+
+.ht-avatar-slot-filled {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.ht-avatar-thumb {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 6px;
+  display: block;
+}
+
+.ht-avatar-slot-actions {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  display: flex;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.ht-avatar-slot-filled:hover .ht-avatar-slot-actions {
+  opacity: 1;
+}
+
+.ht-avatar-replace-btn,
+.ht-avatar-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 3px;
+  background: var(--ht-surface);
+  color: var(--ht-text-muted);
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+.ht-avatar-replace-btn:hover {
+  color: var(--ht-text-primary);
+}
+
+.ht-avatar-delete-btn:hover {
+  color: var(--ht-danger);
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

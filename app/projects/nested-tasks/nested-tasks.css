@@ -89,6 +89,17 @@
   opacity: 0.4 !important;
 }
 
+/* ─── Waiting Ring Spin ────────────────────────────────────── */
+
+@keyframes nt-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.nt-waiting-ring {
+  animation: nt-ring-spin 1.2s linear infinite;
+}
+
 /* ─── Reduced Motion ───────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

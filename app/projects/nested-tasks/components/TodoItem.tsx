@@ -203,6 +203,68 @@ function ExpandAllButton({ onClick }: { onClick: () => void }) {
   );
 }
 
+// ─── Waiting Button ──────────────────────────────────────────
+
+function WaitingButton({
+  active,
+  onClick,
+}: {
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--nt-surface)";
+        e.currentTarget.style.opacity = "0.9";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "none";
+        e.currentTarget.style.opacity = active ? "0.7" : "0.35";
+      }}
+      tabIndex={-1}
+      style={{
+        width: 20,
+        height: 20,
+        background: "none",
+        border: "none",
+        borderRadius: 4,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        padding: 0,
+        color: active ? "var(--nt-accent)" : "var(--nt-text-muted)",
+        transition: "background 0.15s, opacity 0.15s, color 0.15s",
+        opacity: active ? 0.7 : 0.35,
+      }}
+      aria-label={active ? "Remove waiting status" : "Mark as waiting"}
+    >
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <circle
+          cx="6"
+          cy="6"
+          r="5"
+          stroke="currentColor"
+          strokeWidth="1.3"
+        />
+        <path
+          d="M6 3 L6 6.5 L8 8"
+          stroke="currentColor"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
 /** Check if all expandable descendants of an item are already expanded. */
 function allBranchesExpanded(item: { id: string; children: { id: string; children: any[] }[] }, expandedIds: Set<string>): boolean {
   for (const child of item.children) {
@@ -801,6 +863,7 @@ export default function TodoItemComponent({
             fillLevel={item.children.filter((c) => c.checked).length / item.children.length}
             isChecked={item.checked}
             isPutAside={item.putAside}
+            isWaiting={item.waiting}
             itemId={item.id}
             isLeaf={false}
             glowArrivals={glowArrivals}
@@ -841,6 +904,7 @@ export default function TodoItemComponent({
             fillLevel={0}
             isChecked={item.checked}
             isPutAside={item.putAside}
+            isWaiting={item.waiting}
             itemId={item.id}
             isLeaf={true}
             glowArrivals={glowArrivals}
@@ -910,11 +974,11 @@ export default function TodoItemComponent({
             border: "none",
             outline: "none",
             fontSize: 14,
-            color: item.checked
+            color: (item.checked || item.waiting)
               ? "var(--nt-text-muted)"
               : "var(--nt-text-primary)",
             textDecoration: "none",
-            opacity: item.checked ? 0.6 : 1,
+            opacity: item.checked ? 0.6 : item.waiting ? 0.5 : 1,
             fontFamily: "inherit",
             padding: "4px 2px",
             lineHeight: "20px",
@@ -927,27 +991,35 @@ export default function TodoItemComponent({
         />
       )}
 
-      {canExpand && (
-        <div style={{ paddingTop: 4, flexShrink: 0, display: "flex", alignItems: "center", gap: 2 }}>
-          {item.children.some((c) => c.children.length > 0) &&
-            !allBranchesExpanded(item, expandedIds) && (
-            <ExpandAllButton
-              onClick={() => actions.expandAllDescendants(item.id)}
-            />
-          )}
-          <ExpandArrow
-            expanded={isExpanded}
-            hasChildren={item.children.length > 0}
-            onClick={() => {
-              if (!isExpanded && item.children.length === 0) {
-                actions.createFirstChild(item.id);
-              } else {
-                actions.toggleExpand(item.id);
-              }
-            }}
+      <div style={{ paddingTop: 4, flexShrink: 0, display: "flex", alignItems: "center", gap: 2 }}>
+        {!item.checked && !item.putAside && (
+          <WaitingButton
+            active={!!item.waiting}
+            onClick={() => actions.toggleWaiting(item.id)}
           />
-        </div>
-      )}
+        )}
+        {canExpand && (
+          <>
+            {item.children.some((c) => c.children.length > 0) &&
+              !allBranchesExpanded(item, expandedIds) && (
+              <ExpandAllButton
+                onClick={() => actions.expandAllDescendants(item.id)}
+              />
+            )}
+            <ExpandArrow
+              expanded={isExpanded}
+              hasChildren={item.children.length > 0}
+              onClick={() => {
+                if (!isExpanded && item.children.length === 0) {
+                  actions.createFirstChild(item.id);
+                } else {
+                  actions.toggleExpand(item.id);
+                }
+              }}
+            />
+          </>
+        )}
+      </div>
     </motion.div>
   );
 }

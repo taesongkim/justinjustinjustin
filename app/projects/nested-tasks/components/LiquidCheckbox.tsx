@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useCallback, useState, RefObject } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ViscousBlob } from "../lib/liquid-physics";
 
 // ─── Constants ────────────────────────────────────────────────
@@ -22,6 +22,8 @@ interface LiquidCheckboxProps {
   isChecked: boolean;
   /** Whether this item is put-aside (dimmed). */
   isPutAside?: boolean;
+  /** Whether this item is in waiting state (dimmed + spinning ring). */
+  isWaiting?: boolean;
   /** Item ID — used to detect glow arrivals. */
   itemId: string;
   /** If true, render as a simple solid checkbox (no liquid). */
@@ -187,14 +189,54 @@ function SparkleOverlay({ trigger }: { trigger: number }) {
 
 // ─── Leaf Checkbox ────────────────────────────────────────────
 
+function WaitingRingWrapper({ show }: { show: boolean }) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.svg
+          key="waiting-ring"
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          style={{
+            position: "absolute",
+            top: 1,
+            left: 1,
+            pointerEvents: "none",
+          }}
+          className="nt-waiting-ring"
+        >
+          <circle
+            cx="7"
+            cy="7"
+            r="5.5"
+            fill="none"
+            stroke="#ffffff"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            strokeDasharray="26"
+            strokeDashoffset="8"
+          />
+        </motion.svg>
+      )}
+    </AnimatePresence>
+  );
+}
+
 function LeafCheckbox({
   isChecked,
   isPutAside,
+  isWaiting,
   accentColor,
   onClick,
 }: {
   isChecked: boolean;
   isPutAside?: boolean;
+  isWaiting?: boolean;
   accentColor: string;
   onClick: () => void;
 }) {
@@ -218,57 +260,60 @@ function LeafCheckbox({
   }, [accentColor, isChecked]);
 
   return (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      tabIndex={-1}
-      style={{
-        width: 16,
-        height: 16,
-        borderRadius: 3,
-        border: "none",
-        background: isChecked
-          ? "var(--nt-checkbox-checked)"
-          : "var(--nt-checkbox-border)",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        transition: "all 0.15s",
-        padding: 0,
-        position: "relative",
-        overflow: "visible",
-        opacity: isPutAside ? 0.35 : 1,
-      }}
-      aria-label={isChecked ? "Uncheck item" : "Check item"}
-    >
-      <SparkleOverlay trigger={sparkleTrigger} />
-      {isChecked && (
-        <motion.svg
-          width="10"
-          height="10"
-          viewBox="0 0 10 10"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          <motion.path
-            d="M2 5 L4.5 7.5 L8 3"
-            fill="none"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+    <div style={{ position: "relative", width: 16, height: 16, flexShrink: 0 }}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
+        tabIndex={-1}
+        style={{
+          width: 16,
+          height: 16,
+          borderRadius: 3,
+          border: "none",
+          background: isChecked
+            ? "var(--nt-checkbox-checked)"
+            : "var(--nt-checkbox-border)",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          transition: "all 0.15s",
+          padding: 0,
+          position: "relative",
+          overflow: "visible",
+          opacity: isPutAside ? 0.35 : isWaiting ? 0.4 : 1,
+        }}
+        aria-label={isChecked ? "Uncheck item" : "Check item"}
+      >
+        <SparkleOverlay trigger={sparkleTrigger} />
+        {isChecked && (
+          <motion.svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 0.2 }}
-          />
-        </motion.svg>
-      )}
-    </button>
+          >
+            <motion.path
+              d="M2 5 L4.5 7.5 L8 3"
+              fill="none"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.2 }}
+            />
+          </motion.svg>
+        )}
+      </button>
+      <WaitingRingWrapper show={!!isWaiting && !isChecked} />
+    </div>
   );
 }
 
@@ -278,6 +323,7 @@ function LiquidParentCheckbox({
   fillLevel,
   isChecked,
   isPutAside,
+  isWaiting,
   itemId,
   glowArrivals,
   accentColor,
@@ -286,6 +332,7 @@ function LiquidParentCheckbox({
   fillLevel: number;
   isChecked: boolean;
   isPutAside?: boolean;
+  isWaiting?: boolean;
   itemId: string;
   glowArrivals: RefObject<Map<string, number[]>>;
   accentColor: string;
@@ -456,70 +503,73 @@ function LiquidParentCheckbox({
   }, [accentColor]);
 
   return (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      tabIndex={-1}
-      style={{
-        width: 16,
-        height: 16,
-        borderRadius: 3,
-        border: "none",
-        background: "transparent",
-        cursor: "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        padding: 0,
-        position: "relative",
-        overflow: "visible",
-        opacity: isPutAside ? 0.35 : 1,
-      }}
-      aria-label={isChecked ? "Uncheck item" : "Check item"}
-    >
-      <SparkleOverlay trigger={sparkleTrigger} />
-      <canvas
-        ref={canvasRef}
-        width={W}
-        height={H}
-        style={{
-          width: SIZE,
-          height: SIZE,
-          borderRadius: 3,
+    <div style={{ position: "relative", width: 16, height: 16, flexShrink: 0 }}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
         }}
-      />
-      {isChecked && (
-        <motion.svg
-          width="10"
-          height="10"
-          viewBox="0 0 10 10"
+        tabIndex={-1}
+        style={{
+          width: 16,
+          height: 16,
+          borderRadius: 3,
+          border: "none",
+          background: "transparent",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          padding: 0,
+          position: "relative",
+          overflow: "visible",
+          opacity: isPutAside ? 0.35 : isWaiting ? 0.4 : 1,
+        }}
+        aria-label={isChecked ? "Uncheck item" : "Check item"}
+      >
+        <SparkleOverlay trigger={sparkleTrigger} />
+        <canvas
+          ref={canvasRef}
+          width={W}
+          height={H}
           style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
+            width: SIZE,
+            height: SIZE,
+            borderRadius: 3,
           }}
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 0.2 }}
-        >
-          <motion.path
-            d="M2 5 L4.5 7.5 L8 3"
-            fill="none"
-            stroke="white"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        />
+        {isChecked && (
+          <motion.svg
+            width="10"
+            height="10"
+            viewBox="0 0 10 10"
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{ duration: 0.2 }}
-          />
-        </motion.svg>
-      )}
-    </button>
+          >
+            <motion.path
+              d="M2 5 L4.5 7.5 L8 3"
+              fill="none"
+              stroke="white"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.2 }}
+            />
+          </motion.svg>
+        )}
+      </button>
+      <WaitingRingWrapper show={!!isWaiting && !isChecked} />
+    </div>
   );
 }
 
@@ -531,6 +581,7 @@ export default function LiquidCheckbox(props: LiquidCheckboxProps) {
       <LeafCheckbox
         isChecked={props.isChecked}
         isPutAside={props.isPutAside}
+        isWaiting={props.isWaiting}
         accentColor={props.accentColor}
         onClick={props.onClick}
       />
@@ -542,6 +593,7 @@ export default function LiquidCheckbox(props: LiquidCheckboxProps) {
       fillLevel={props.fillLevel}
       isChecked={props.isChecked}
       isPutAside={props.isPutAside}
+      isWaiting={props.isWaiting}
       itemId={props.itemId}
       glowArrivals={props.glowArrivals}
       accentColor={props.accentColor}

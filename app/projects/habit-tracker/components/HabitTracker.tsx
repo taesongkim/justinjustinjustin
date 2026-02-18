@@ -2,9 +2,13 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import type { User, Card as CardType } from "../lib/types";
+import type { User, Card as CardType, Journey, AvatarGif, AvatarMoodEntry } from "../lib/types";
 import * as svc from "../lib/service";
 import Card from "./Card";
+import JourneyManager from "./JourneyManager";
+import JourneyProgressBar from "./JourneyProgressBar";
+import AvatarManager from "./AvatarManager";
+import AvatarDisplay from "./AvatarDisplay";
 
 // ─── Reduced motion helper ──────────────────────────────────────────
 
@@ -80,18 +84,36 @@ export default function HabitTracker() {
 
   // State
   const [users, setUsers] = useState<User[]>([]);
-  const [currentDate, setCurrentDate] = useState(svc.today());
+  const [timezone, setTimezoneState] = useState(svc.getTimezone());
+  const [currentDate, setCurrentDate] = useState(svc.today(timezone));
   const [cards, setCards] = useState<Map<string, CardType>>(new Map());
   const [prevDayCards, setPrevDayCards] = useState<Map<string, CardType>>(new Map());
   const [nextDayCards, setNextDayCards] = useState<Map<string, CardType>>(new Map());
+  const [journeys, setJourneys] = useState<Journey[]>([]);
+  const [journeyRefreshKey, setJourneyRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [mobileUserIdx, setMobileUserIdx] = useState(0);
-  const [dayDirection, setDayDirection] = useState(0); // -1 past, 1 future
+  const [dayDirection, setDayDirection] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [addingUser, setAddingUser] = useState(false);
   const [newUserName, setNewUserName] = useState("");
   const newUserInputRef = useRef<HTMLInputElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [avatarGifs, setAvatarGifs] = useState<AvatarGif[]>([]);
+  const [avatarMoods, setAvatarMoods] = useState<AvatarMoodEntry[]>([]);
+
+  const todayDate = svc.today(timezone);
+
+  function handleTimezoneChange(tz: string) {
+    svc.setTimezone(tz);
+    setTimezoneState(tz);
+    const newToday = svc.today(tz);
+    // If user was viewing today, shift to new today
+    if (currentDate === svc.today(timezone)) {
+      setCurrentDate(newToday);
+    }
+  }
 
   // ── Data fetching ───────────────────────────────────────────────
 
@@ -123,7 +145,6 @@ export default function HabitTracker() {
     [users]
   );
 
-  // Load adjacent day cards (read-only, no lazy creation — just fetch what exists)
   const loadAdjacentCards = useCallback(
     async (date: string) => {
       const prevDate = svc.shiftDate(date, -1);
@@ -148,6 +169,33 @@ export default function HabitTracker() {
     []
   );
 
+  const loadJourneys = useCallback(async () => {
+    try {
+      const j = await svc.getAllJourneys();
+      setJourneys(j);
+    } catch (e) {
+      console.error("Failed to load journeys:", e);
+    }
+  }, []);
+
+  const loadAvatarGifs = useCallback(async () => {
+    try {
+      const gifs = await svc.getAllAvatarGifs();
+      setAvatarGifs(gifs);
+    } catch (e) {
+      console.error("Failed to load avatar gifs:", e);
+    }
+  }, []);
+
+  const loadAvatarMoods = useCallback(async (date: string) => {
+    try {
+      const moods = await svc.getAvatarMoodsForDate(date);
+      setAvatarMoods(moods);
+    } catch (e) {
+      console.error("Failed to load avatar moods:", e);
+    }
+  }, []);
+
   // Initial load
   useEffect(() => {
     (async () => {
@@ -157,7 +205,7 @@ export default function HabitTracker() {
       if (u.length > 0) {
         await loadCardsForDate(currentDate, u);
       }
-      await loadAdjacentCards(currentDate);
+      await Promise.all([loadAdjacentCards(currentDate), loadJourneys(), loadAvatarGifs(), loadAvatarMoods(currentDate)]);
       setLoading(false);
     })();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -168,6 +216,7 @@ export default function HabitTracker() {
       loadCardsForDate(currentDate);
       loadAdjacentCards(currentDate);
     }
+    loadAvatarMoods(currentDate);
   }, [currentDate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Real-time subscriptions ─────────────────────────────────────
@@ -177,18 +226,28 @@ export default function HabitTracker() {
       () => {
         loadCardsForDate(currentDate);
         loadAdjacentCards(currentDate);
+        setJourneyRefreshKey((k) => k + 1);
       },
       () => {
         loadCardsForDate(currentDate);
         loadAdjacentCards(currentDate);
+        setJourneyRefreshKey((k) => k + 1);
       },
       () => loadUsers().then(() => {
         loadCardsForDate(currentDate);
         loadAdjacentCards(currentDate);
-      })
+      }),
+      () => {
+        loadJourneys();
+        setJourneyRefreshKey((k) => k + 1);
+      },
+      () => {
+        loadAvatarGifs();
+        loadAvatarMoods(currentDate);
+      }
     );
     return unsub;
-  }, [currentDate, loadCardsForDate, loadUsers, loadAdjacentCards]);
+  }, [currentDate, loadCardsForDate, loadUsers, loadAdjacentCards, loadJourneys, loadAvatarGifs, loadAvatarMoods]);
 
   // ── Day navigation ──────────────────────────────────────────────
 
@@ -203,7 +262,7 @@ export default function HabitTracker() {
   }
 
   function goToToday() {
-    const t = svc.today();
+    const t = svc.today(timezone);
     setDayDirection(currentDate > t ? -1 : 1);
     setCurrentDate(t);
   }
@@ -218,7 +277,6 @@ export default function HabitTracker() {
     setMobileUserIdx((i) => Math.min(users.length - 1, i + 1));
   }
 
-  // Clamp mobile index when users change
   useEffect(() => {
     if (mobileUserIdx >= users.length) {
       setMobileUserIdx(Math.max(0, users.length - 1));
@@ -245,6 +303,7 @@ export default function HabitTracker() {
       return next;
     });
     await svc.toggleHabit(habitId, checked);
+    setJourneyRefreshKey((k) => k + 1);
   }
 
   async function handleAddHabit(cardId: string, text: string) {
@@ -259,6 +318,7 @@ export default function HabitTracker() {
       }
       return next;
     });
+    setJourneyRefreshKey((k) => k + 1);
   }
 
   async function handleRemoveHabit(habitId: string) {
@@ -276,6 +336,7 @@ export default function HabitTracker() {
       return next;
     });
     await svc.removeHabit(habitId);
+    setJourneyRefreshKey((k) => k + 1);
   }
 
   async function handleReorderHabits(cardId: string, orderedIds: string[]) {
@@ -318,6 +379,7 @@ export default function HabitTracker() {
       next.delete(userId);
       return next;
     });
+    setJourneys((prev) => prev.filter((j) => j.user_id !== userId));
   }
 
   async function handleCreateUser() {
@@ -333,6 +395,18 @@ export default function HabitTracker() {
       next.set(user.id, card);
       return next;
     });
+  }
+
+  // ── Journey handlers ──────────────────────────────────────────
+
+  function handleJourneyCreated(journey: Journey) {
+    setJourneys((prev) => [...prev, journey]);
+    setJourneyRefreshKey((k) => k + 1);
+  }
+
+  function handleJourneyDeleted(journeyId: string) {
+    setJourneys((prev) => prev.filter((j) => j.id !== journeyId));
+    setJourneyRefreshKey((k) => k + 1);
   }
 
   // ── Day slide variants ──────────────────────────────────────────
@@ -351,12 +425,11 @@ export default function HabitTracker() {
 
   // ── Render helpers ────────────────────────────────────────────────
 
-  const isToday = currentDate === svc.today();
+  const isToday = currentDate === todayDate;
   const hasPrev = prevDayCards.size > 0;
 
   function renderPreviewRow(dayCards: Map<string, CardType>, position: "top" | "bottom") {
     const isEmpty = dayCards.size === 0;
-    // For bottom (future) position, show dotted placeholder if no cards exist
     if (isEmpty && position === "top") return null;
     return (
       <div
@@ -416,53 +489,96 @@ export default function HabitTracker() {
 
   return (
     <div className="ht-container">
-      {/* Top-right toolbar */}
+      {/* Unified settings menu (desktop only) */}
       <div className="ht-toolbar">
-        <button
-          className="ht-toolbar-btn"
-          onClick={() => { setAddingUser(true); setMenuOpen(false); }}
-          aria-label="Add person"
-        >
-          <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
         <div className="ht-menu-wrapper">
           <button
             className="ht-toolbar-btn"
-            onClick={() => { setMenuOpen((v) => !v); setAddingUser(false); }}
-            aria-label="Menu"
+            onClick={() => {
+              setMenuOpen((v) => !v);
+              setAddingUser(false);
+              setConfirmDeleteId(null);
+              setExpandedUserId(null);
+            }}
+            aria-label="Settings"
           >
-            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
-              <circle cx="8" cy="3" r="1.2" fill="currentColor" />
-              <circle cx="8" cy="8" r="1.2" fill="currentColor" />
-              <circle cx="8" cy="13" r="1.2" fill="currentColor" />
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7z" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" strokeWidth="1.5" fill="none" />
             </svg>
           </button>
           {menuOpen && (
             <div className="ht-menu-dropdown">
-              <p className="ht-menu-heading">Remove person</p>
+              {/* Add person section */}
+              {addingUser ? (
+                <div className="ht-menu-add-user">
+                  <input
+                    ref={newUserInputRef}
+                    type="text"
+                    className="ht-menu-add-input"
+                    value={newUserName}
+                    onChange={(e) => setNewUserName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleCreateUser();
+                      if (e.key === "Escape") {
+                        setAddingUser(false);
+                        setNewUserName("");
+                      }
+                    }}
+                    placeholder="Name"
+                    autoFocus
+                  />
+                  <div className="ht-menu-add-actions">
+                    <button
+                      onClick={() => { setAddingUser(false); setNewUserName(""); }}
+                    >
+                      Cancel
+                    </button>
+                    <button className="ht-menu-add-confirm" onClick={handleCreateUser}>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  className="ht-menu-add-btn"
+                  onClick={() => setAddingUser(true)}
+                >
+                  + Add person
+                </button>
+              )}
+
+              {/* Per-user sections */}
+              {users.length > 0 && <div className="ht-menu-divider" />}
+
               {users.map((u) => (
-                <div key={u.id} className="ht-menu-user-row">
-                  {confirmDeleteId === u.id ? (
-                    <>
-                      <span className="ht-menu-confirm-text">Delete {u.name}?</span>
-                      <button
-                        className="ht-menu-confirm-yes"
-                        onClick={() => { handleDeleteUser(u.id); setConfirmDeleteId(null); setMenuOpen(false); }}
-                      >
-                        Yes
-                      </button>
-                      <button
-                        className="ht-menu-confirm-no"
-                        onClick={() => setConfirmDeleteId(null)}
-                      >
-                        No
-                      </button>
-                    </>
-                  ) : (
-                    <>
+                <div key={u.id} className="ht-menu-user-section">
+                  <div className="ht-menu-user-header">
+                    <button
+                      className={`ht-menu-user-toggle ${expandedUserId === u.id ? "ht-expanded" : ""}`}
+                      onClick={() =>
+                        setExpandedUserId((prev) => (prev === u.id ? null : u.id))
+                      }
+                    >
+                      <span className="ht-menu-toggle-arrow">▶</span>
                       <span className="ht-menu-user-name">{u.name}</span>
+                    </button>
+                    {confirmDeleteId === u.id ? (
+                      <span className="ht-menu-delete-confirm">
+                        <button
+                          className="ht-menu-confirm-yes"
+                          onClick={() => { handleDeleteUser(u.id); setConfirmDeleteId(null); }}
+                        >
+                          Delete
+                        </button>
+                        <button
+                          className="ht-menu-confirm-no"
+                          onClick={() => setConfirmDeleteId(null)}
+                        >
+                          No
+                        </button>
+                      </span>
+                    ) : (
                       <button
                         className="ht-menu-delete-btn"
                         onClick={() => setConfirmDeleteId(u.id)}
@@ -472,50 +588,67 @@ export default function HabitTracker() {
                           <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                         </svg>
                       </button>
-                    </>
+                    )}
+                  </div>
+
+                  {expandedUserId === u.id && (
+                    <div className="ht-menu-user-settings">
+                      <p className="ht-menu-settings-label">Journeys</p>
+                      <JourneyManager
+                        userId={u.id}
+                        journeys={journeys}
+                        onCreated={handleJourneyCreated}
+                        onDeleted={handleJourneyDeleted}
+                      />
+                      <p className="ht-menu-settings-label" style={{ marginTop: 8 }}>Avatar GIFs</p>
+                      <AvatarManager
+                        userId={u.id}
+                        avatarGifs={avatarGifs}
+                        onChanged={loadAvatarGifs}
+                      />
+                    </div>
                   )}
                 </div>
               ))}
+
               {users.length === 0 && (
                 <p className="ht-menu-empty">No users yet</p>
               )}
+
+              {/* Timezone setting */}
+              <div className="ht-menu-divider" />
+              <div className="ht-menu-tz">
+                <label className="ht-menu-tz-label" htmlFor="ht-tz-select">
+                  Timezone
+                </label>
+                <select
+                  id="ht-tz-select"
+                  className="ht-menu-tz-select"
+                  value={timezone}
+                  onChange={(e) => handleTimezoneChange(e.target.value)}
+                >
+                  <option value="Pacific/Honolulu">Hawaii</option>
+                  <option value="America/Anchorage">Alaska</option>
+                  <option value="America/Los_Angeles">Pacific</option>
+                  <option value="America/Denver">Mountain</option>
+                  <option value="America/Chicago">Central</option>
+                  <option value="America/New_York">Eastern</option>
+                  <option value="America/Sao_Paulo">Brasilia</option>
+                  <option value="Europe/London">London</option>
+                  <option value="Europe/Paris">Central Europe</option>
+                  <option value="Europe/Helsinki">Eastern Europe</option>
+                  <option value="Asia/Dubai">Gulf</option>
+                  <option value="Asia/Kolkata">India</option>
+                  <option value="Asia/Shanghai">China</option>
+                  <option value="Asia/Tokyo">Japan</option>
+                  <option value="Australia/Sydney">Sydney</option>
+                  <option value="Pacific/Auckland">New Zealand</option>
+                </select>
+              </div>
             </div>
           )}
         </div>
       </div>
-
-      {/* Add user popover */}
-      {addingUser && (
-        <div className="ht-add-user-popover">
-          <input
-            ref={newUserInputRef}
-            type="text"
-            className="ht-add-user-input"
-            value={newUserName}
-            onChange={(e) => setNewUserName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleCreateUser();
-              if (e.key === "Escape") {
-                setAddingUser(false);
-                setNewUserName("");
-              }
-            }}
-            placeholder="Name"
-            autoFocus
-          />
-          <div className="ht-add-user-actions">
-            <button
-              className="ht-add-user-cancel"
-              onClick={() => { setAddingUser(false); setNewUserName(""); }}
-            >
-              Cancel
-            </button>
-            <button className="ht-add-user-confirm" onClick={handleCreateUser}>
-              Add
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Day navigation header */}
       <div className="ht-day-nav">
@@ -617,6 +750,21 @@ export default function HabitTracker() {
                     i !== mobileUserIdx ? "ht-card-hidden-mobile" : ""
                   }`}
                 >
+                  <AvatarDisplay
+                    userId={user.id}
+                    currentDate={currentDate}
+                    todayDate={todayDate}
+                    avatarGifs={avatarGifs}
+                    avatarMoods={avatarMoods}
+                    onMoodChanged={() => loadAvatarMoods(currentDate)}
+                  />
+                  <JourneyProgressBar
+                    userId={user.id}
+                    currentDate={currentDate}
+                    todayDate={todayDate}
+                    journeys={journeys}
+                    refreshKey={journeyRefreshKey}
+                  />
                   <Card
                     card={card}
                     userName={user.name}

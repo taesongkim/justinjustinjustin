@@ -84,6 +84,8 @@ interface TodoActions {
   restorePutAside: (parentId: string) => void;
   /** Reactivate a single put-aside item (back to unchecked). */
   reactivatePutAside: (itemId: string) => void;
+  /** Toggle waiting status on an unchecked item. */
+  toggleWaiting: (itemId: string) => void;
 }
 
 export const TodoContext = createContext<{
@@ -268,6 +270,7 @@ export default function NestedTodoApp() {
         let updated = updateItemInTree(prev, id, (item) => ({
           ...item,
           checked: !item.checked,
+          waiting: false,
         }));
 
         // If unchecking a child, uncheck any checked ancestors up the chain
@@ -583,6 +586,22 @@ export default function NestedTodoApp() {
     [scheduleSave]
   );
 
+  const toggleWaiting = useCallback(
+    (itemId: string) => {
+      setTodos((prev) => {
+        const target = findItemInTree(prev, itemId);
+        if (!target || target.checked) return prev;
+        const updated = updateItemInTree(prev, itemId, (item) => ({
+          ...item,
+          waiting: !item.waiting,
+        }));
+        scheduleSave(updated);
+        return updated;
+      });
+    },
+    [scheduleSave]
+  );
+
   // ─── Context Value ────────────────────────────────────────
 
   const actions: TodoActions = useMemo(
@@ -606,6 +625,7 @@ export default function NestedTodoApp() {
       putAsideUnchecked,
       restorePutAside,
       reactivatePutAside,
+      toggleWaiting,
     }),
     [
       toggleExpandWithCleanup,
@@ -627,6 +647,7 @@ export default function NestedTodoApp() {
       putAsideUnchecked,
       restorePutAside,
       reactivatePutAside,
+      toggleWaiting,
     ]
   );
 

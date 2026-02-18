@@ -12,6 +12,7 @@ export interface TodoItem {
   children: TodoItem[];
   order: number;
   putAside?: boolean;
+  waiting?: boolean;
 }
 
 export interface ColumnEntry {

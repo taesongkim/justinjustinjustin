@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { User, Card, Habit, DateString } from "./types";
+import type { User, Card, Habit, Journey, DayStatus, DateString, AvatarMood, AvatarGif, AvatarMoodEntry } from "./types";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -7,10 +7,21 @@ export function toDateString(date: Date): DateString {
   return date.toISOString().split("T")[0];
 }
 
-export function today(): DateString {
-  // Use NYC (Eastern) time to determine "today"
-  const nyc = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
-  return nyc as DateString;
+const TZ_STORAGE_KEY = "ht-timezone";
+const DEFAULT_TZ = "America/New_York";
+
+export function getTimezone(): string {
+  if (typeof window === "undefined") return DEFAULT_TZ;
+  return localStorage.getItem(TZ_STORAGE_KEY) || DEFAULT_TZ;
+}
+
+export function setTimezone(tz: string): void {
+  localStorage.setItem(TZ_STORAGE_KEY, tz);
+}
+
+export function today(tz?: string): DateString {
+  const zone = tz ?? getTimezone();
+  return new Date().toLocaleDateString("en-CA", { timeZone: zone }) as DateString;
 }
 
 export function shiftDate(dateStr: DateString, days: number): DateString {
@@ -257,12 +268,213 @@ export async function updateNote(
   if (error) throw error;
 }
 
+// ─── Journeys ────────────────────────────────────────────────────────
+
+export async function getJourneysForUser(userId: string): Promise<Journey[]> {
+  const { data, error } = await supabase
+    .from("journeys")
+    .select("*")
+    .eq("user_id", userId)
+    .order("start_date", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getAllJourneys(): Promise<Journey[]> {
+  const { data, error } = await supabase
+    .from("journeys")
+    .select("*")
+    .order("start_date", { ascending: true });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function createJourney(
+  userId: string,
+  startDate: DateString,
+  endDate: DateString
+): Promise<Journey> {
+  // Validate no overlap
+  const existing = await getJourneysForUser(userId);
+  for (const j of existing) {
+    if (!(endDate < j.start_date || startDate > j.end_date)) {
+      throw new Error("Journey overlaps with existing journey");
+    }
+  }
+  const { data, error } = await supabase
+    .from("journeys")
+    .insert({ user_id: userId, start_date: startDate, end_date: endDate })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteJourney(journeyId: string): Promise<void> {
+  const { error } = await supabase.from("journeys").delete().eq("id", journeyId);
+  if (error) throw error;
+}
+
+/** Find the journey whose date range contains the given date */
+export function getActiveJourney(
+  journeys: Journey[],
+  date: DateString
+): Journey | null {
+  for (const j of journeys) {
+    if (date >= j.start_date && date <= j.end_date) return j;
+  }
+  return null;
+}
+
+/** Fetch all cards in a journey's date range and compute per-day status */
+export async function getJourneyProgress(
+  userId: string,
+  journey: Journey,
+  todayDate?: DateString
+): Promise<Map<DateString, DayStatus>> {
+  const currentDate = todayDate ?? today();
+  const statuses = new Map<DateString, DayStatus>();
+
+  // Batch-fetch all cards in the date range for this user
+  const { data: cardsData, error } = await supabase
+    .from("cards")
+    .select("*, habits(*)")
+    .eq("user_id", userId)
+    .gte("date", journey.start_date)
+    .lte("date", journey.end_date)
+    .order("date", { ascending: true });
+  if (error) throw error;
+
+  const cardsByDate = new Map<string, Card>();
+  for (const raw of cardsData ?? []) {
+    const card: Card = {
+      ...raw,
+      habits: (raw.habits ?? []).sort(
+        (a: Habit, b: Habit) => a.sort_order - b.sort_order
+      ),
+    };
+    cardsByDate.set(card.date, card);
+  }
+
+  // Walk every day in the journey range
+  const cursor = new Date(journey.start_date + "T12:00:00");
+  const end = new Date(journey.end_date + "T12:00:00");
+
+  while (cursor <= end) {
+    const dateStr = toDateString(cursor) as DateString;
+    if (dateStr > currentDate) {
+      // Future day — grey dot
+      statuses.set(dateStr, "future");
+    } else if (dateStr === currentDate) {
+      // Current day — green ring if all checked, grey dot otherwise
+      // (failure isn't known until the day passes)
+      const card = cardsByDate.get(dateStr);
+      const allChecked = card && card.habits.length > 0 && card.habits.every((h) => h.checked);
+      statuses.set(dateStr, allChecked ? "completed" : "future");
+    } else {
+      // Past day — green ring if all checked, red X if missed
+      const card = cardsByDate.get(dateStr);
+      if (!card || card.habits.length === 0) {
+        statuses.set(dateStr, "missed");
+      } else {
+        statuses.set(
+          dateStr,
+          card.habits.every((h) => h.checked) ? "completed" : "missed"
+        );
+      }
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return statuses;
+}
+
+// ─── Avatars ────────────────────────────────────────────────────────
+
+export async function getAllAvatarGifs(): Promise<AvatarGif[]> {
+  const { data, error } = await supabase
+    .from("avatar_gifs")
+    .select("*")
+    .order("mood", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as AvatarGif[];
+}
+
+export async function uploadAvatarGif(
+  userId: string,
+  mood: AvatarMood,
+  file: File
+): Promise<AvatarGif> {
+  const path = `${userId}/${mood}.gif`;
+
+  // Upload to storage (upsert)
+  const { error: uploadError } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { upsert: true, contentType: "image/gif" });
+  if (uploadError) throw uploadError;
+
+  // Upsert DB row
+  const { data, error } = await supabase
+    .from("avatar_gifs")
+    .upsert(
+      { user_id: userId, mood, storage_path: path },
+      { onConflict: "user_id,mood" }
+    )
+    .select()
+    .single();
+  if (error) throw error;
+  return data as AvatarGif;
+}
+
+export async function deleteAvatarGif(userId: string, mood: AvatarMood): Promise<void> {
+  const path = `${userId}/${mood}.gif`;
+  await supabase.storage.from("avatars").remove([path]);
+  await supabase.from("avatar_gifs").delete().eq("user_id", userId).eq("mood", mood);
+}
+
+export function getAvatarGifUrl(storagePath: string): string {
+  const { data } = supabase.storage.from("avatars").getPublicUrl(storagePath);
+  return data.publicUrl;
+}
+
+export async function getAvatarMoodsForDate(date: DateString): Promise<AvatarMoodEntry[]> {
+  const { data, error } = await supabase
+    .from("avatar_moods")
+    .select("*")
+    .eq("date", date);
+  if (error) throw error;
+  return (data ?? []) as AvatarMoodEntry[];
+}
+
+export async function setAvatarMood(
+  userId: string,
+  date: DateString,
+  mood: AvatarMood
+): Promise<AvatarMoodEntry> {
+  const { data, error } = await supabase
+    .from("avatar_moods")
+    .upsert(
+      { user_id: userId, date, mood },
+      { onConflict: "user_id,date" }
+    )
+    .select()
+    .single();
+  if (error) throw error;
+  return data as AvatarMoodEntry;
+}
+
+export async function clearAvatarMood(userId: string, date: DateString): Promise<void> {
+  await supabase.from("avatar_moods").delete().eq("user_id", userId).eq("date", date);
+}
+
 // ─── Real-time ──────────────────────────────────────────────────────
 
 export function subscribeToChanges(
   onCardsChange: () => void,
   onHabitsChange: () => void,
-  onUsersChange: () => void
+  onUsersChange: () => void,
+  onJourneysChange?: () => void,
+  onAvatarsChange?: () => void
 ) {
   const channel = supabase
     .channel("habit-tracker-realtime")
@@ -280,6 +492,21 @@ export function subscribeToChanges(
       "postgres_changes",
       { event: "*", schema: "public", table: "users" },
       () => onUsersChange()
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "journeys" },
+      () => onJourneysChange?.()
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "avatar_gifs" },
+      () => onAvatarsChange?.()
+    )
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "avatar_moods" },
+      () => onAvatarsChange?.()
     )
     .subscribe();
 

@@ -1311,8 +1311,7 @@
 
 .ht-journey-dots {
   display: flex;
-  flex-wrap: wrap;
-  gap: 3px;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: space-between;
   width: 100%;
@@ -1321,13 +1320,16 @@
 .ht-journey-dot {
   width: 7px;
   height: 7px;
+  min-width: 3px;
+  min-height: 3px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  flex-shrink: 1;
   position: relative;
   overflow: visible;
+  aspect-ratio: 1;
 }
 
 .ht-journey-dot-future {

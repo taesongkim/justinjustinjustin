@@ -182,7 +182,7 @@ export default function JourneyProgressBar({
                 </svg>
               )}
               {d.status === "missed" && (
-                <svg viewBox="0 0 6 6" width="6" height="6" aria-hidden="true">
+                <svg viewBox="0 0 6 6" width="100%" height="100%" aria-hidden="true">
                   <path d="M1.2 1.2l3.6 3.6M4.8 1.2l-3.6 3.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
                 </svg>
               )}

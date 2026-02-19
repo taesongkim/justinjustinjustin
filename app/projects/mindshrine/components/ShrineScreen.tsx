@@ -1036,10 +1036,10 @@ function ThreadEnergyLine({
     // Phase 0: strong pulse (systole "lub") at frame 0
     // Phase 1: softer pulse (diastole "dub") at ~12 frames later (~200ms)
     // Phase 2: rest until next cycle (~55 frames total)
-    const BASE_CYCLE = 55;   // frames per heartbeat (~0.92s = ~65 BPM)
-    const DUB_DELAY = 12;    // frames between lub and dub (~200ms)
+    const BASE_CYCLE = 109;  // frames per heartbeat (~1.82s = ~33 BPM)
+    const DUB_DELAY = 11;    // frames between lub and dub (~180ms)
     let beatFrame = 0;
-    let cycleLength = BASE_CYCLE + Math.round((Math.random() - 0.5) * 6); // ±3 frame jitter per cycle
+    let cycleLength = BASE_CYCLE + Math.round((Math.random() - 0.5) * 10); // ±5 frame jitter per cycle
     let raf: number;
 
     const spawnBeat = (strong: boolean) => {
@@ -1353,6 +1353,7 @@ export default function ShrineScreen({
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingVision, setEditingVision] = useState(false);
+  const [editOverlayPresent, setEditOverlayPresent] = useState(false); // true while overlay is visible or exiting
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editSaving, setEditSaving] = useState(false);
@@ -1505,18 +1506,33 @@ export default function ShrineScreen({
   }, []);
 
   // ── Slide animation variants ──
+  // Enter distance: 150px from the direction of travel
+  // Exit distance: 150px in the opposite direction
+  // Exit: 0.2s linear (darts away, no easing)
+  // Enter: 0.35s with easeOut (decelerates into landing)
+  // First load: 1.5s fade-up from 20px below
+  const ENTER_DISTANCE = 150;   // px — how far entering vision travels
+  const EXIT_DISTANCE = 300;    // px — how far exiting vision travels (2x enter = looks fast)
+  const ENTER_DURATION = 0.2;   // seconds — entering vision
+  const EXIT_DURATION = 0.1;    // seconds — leaving vision
+  const hasNavigated = useRef(false);
   const slideVariants = {
-    enter: (dir: number) => ({
-      x: dir >= 0 ? 120 : -120,
-      opacity: 0,
-    }),
+    enter: (dir: number) => {
+      if (!hasNavigated.current) {
+        return { x: 0, y: 20, opacity: 0 };
+      }
+      return { x: dir >= 0 ? ENTER_DISTANCE : -ENTER_DISTANCE, y: 0, opacity: 0 };
+    },
     center: {
       x: 0,
+      y: 0,
       opacity: 1,
     },
     exit: (dir: number) => ({
-      x: dir >= 0 ? -120 : 120,
+      x: dir >= 0 ? -EXIT_DISTANCE : EXIT_DISTANCE,
+      y: 0,
       opacity: 0,
+      transition: { duration: EXIT_DURATION, ease: [0, 0, 1, 1] as const },
     }),
   };
 
@@ -1672,10 +1688,10 @@ export default function ShrineScreen({
             className="relative z-20 flex flex-col max-w-2xl px-8"
             animate={{
               x: threadOpen ? "-25vw" : 0,
-              opacity: threadOpen ? 0.8 : 1,
+              opacity: editOverlayPresent ? 0 : threadOpen ? 0.8 : 1,
               alignItems: threadOpen ? "flex-start" : "center",
             }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: editOverlayPresent ? 0.3 : 0.5, ease: "easeOut" }}
           >
             {/* Vision title carousel + edit icon */}
             <div className="relative flex items-center gap-3">
@@ -1687,7 +1703,8 @@ export default function ShrineScreen({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  transition={{ duration: hasNavigated.current ? ENTER_DURATION : 1.5, ease: hasNavigated.current ? [0, 0, 0.2, 1] : [0, 0, 0.58, 1] }}
+                  onAnimationComplete={() => { hasNavigated.current = true; }}
                   className="text-xl md:text-2xl font-semibold cursor-pointer select-none leading-tight"
                   style={{
                     textAlign: threadOpen ? "left" : "center",
@@ -1723,6 +1740,7 @@ export default function ShrineScreen({
                     setEditTitle(currentVision.title);
                     setEditDescription(currentVision.description ?? "");
                     setEditingVision(true);
+                    setEditOverlayPresent(true);
                   }}
                   title="Edit vision"
                 >
@@ -1733,21 +1751,28 @@ export default function ShrineScreen({
               )}
             </div>
 
-            {/* Description (fades in on hover) */}
-            <AnimatePresence>
-              {(hovered || threadOpen) && currentVision.description && (
-                <motion.p
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 0.4, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.35 }}
-                  className="text-sm mt-4 leading-relaxed"
-                  style={{ color: "rgba(255, 255, 255, 0.5)", textAlign: threadOpen ? "left" : "center", maxWidth: threadOpen ? "40ch" : "none" }}
-                >
-                  {currentVision.description}
-                </motion.p>
-              )}
-            </AnimatePresence>
+            {/* Description (absolute so it doesn't push title, inherits flex alignment) */}
+            <div className="relative" style={{ height: 0 }}>
+              <AnimatePresence>
+                {(hovered || threadOpen) && currentVision.description && !editOverlayPresent && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 0.4, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    transition={{ duration: 0.35 }}
+                    className="absolute top-4 text-sm leading-relaxed"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.5)",
+                      textAlign: threadOpen ? "left" : "center",
+                      width: 400,
+                      left: threadOpen ? 0 : -200,
+                    }}
+                  >
+                    {currentVision.description}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Fulfilled badge */}
             {currentVision.is_fulfilled && (
@@ -1847,13 +1872,10 @@ export default function ShrineScreen({
             </motion.div>
           )}
 
-          {/* Thread width controls */}
-          {threadOpen && !editingVision && (
-            <ThreadWidthPanel widths={threadWidths} onChange={setThreadWidths} />
-          )}
+          {/* Thread width panel removed — widths locked in */}
 
           {/* ── Vision edit overlay ── */}
-          <AnimatePresence>
+          <AnimatePresence onExitComplete={() => setEditOverlayPresent(false)}>
             {editingVision && currentVision && (
               <>
                 {/* Backdrop — fades everything else away */}
@@ -1866,12 +1888,12 @@ export default function ShrineScreen({
                   style={{ background: "rgba(0, 0, 0, 0.8)", backdropFilter: "blur(8px)" }}
                 />
 
-                {/* Centered edit form */}
+                {/* Centered edit form — delayed so left title fades out first */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.3, delay: 0.25, ease: "easeOut" }}
                   className="absolute inset-0 z-[51] flex items-center justify-center pointer-events-none"
                 >
                   <div className="flex flex-col items-center gap-6 w-full max-w-lg px-8 pointer-events-auto">

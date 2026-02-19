@@ -1424,10 +1424,24 @@
 }
 
 .ht-avatar-gif {
-  width: 256px;
-  height: 256px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
   display: block;
+}
+
+.ht-avatar-placeholder {
+  width: 60px;
+  height: 60px;
+  background: rgba(255,255,255,0.15);
+  border: 1px dashed rgba(255,255,255,0.3);
+  border-radius: 8px;
+}
+
+@media (max-width: 600px) {
+  .ht-avatar-placeholder {
+    display: none;
+  }
 }
 
 .ht-avatar-set-mood-btn {

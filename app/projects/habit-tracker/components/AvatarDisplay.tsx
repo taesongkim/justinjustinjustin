@@ -36,7 +36,7 @@ export default function AvatarDisplay({
   if (userGifs.length === 0) {
     return (
       <div className="ht-avatar-display">
-        <div style={{ width: 256, height: 256, background: "rgba(255,255,255,0.15)", border: "1px dashed rgba(255,255,255,0.3)", borderRadius: 8 }} />
+        <div className="ht-avatar-placeholder" />
       </div>
     );
   }

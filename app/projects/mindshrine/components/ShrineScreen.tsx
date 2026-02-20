@@ -12,6 +12,97 @@ import {
 import NewVisionModal from "./NewVisionModal";
 
 // ─────────────────────────────────────────
+// Radial Grid Background (Three.js)
+// ─────────────────────────────────────────
+import { initRadialGrid, type RadialGridAPI } from "../lib/radialGrid";
+
+// Tuned 3D scene values (from control panel)
+const GRID_3D = {
+  posX: 13, posY: -28, posZ: 11,
+  theta: 0.01, phi: 1.70, radius: 59,
+  opacity: 0.28,
+} as const;
+
+// Thread line sits at 66% of the viewport
+const THREAD_X_PERCENT = 0.66;
+
+function RadialGridBg() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gridRef = useRef<RadialGridAPI | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Init Three.js
+  useEffect(() => {
+    if (gridRef.current) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    try {
+      const grid = initRadialGrid(canvas);
+      gridRef.current = grid;
+      grid.setCamera({ theta: GRID_3D.theta, phi: GRID_3D.phi, radius: GRID_3D.radius });
+      grid.setPosition(GRID_3D.posX, GRID_3D.posY, GRID_3D.posZ);
+      grid.setOpacity(GRID_3D.opacity);
+    } catch (err) {
+      console.error("[RadialGridBg] Failed to init grid", err);
+    }
+
+    return () => {
+      if (gridRef.current) {
+        gridRef.current.destroy();
+        gridRef.current = null;
+      }
+    };
+  }, []);
+
+  // Align grid center to thread line each frame
+  useEffect(() => {
+    let raf: number;
+    let lastOffset = 0;
+    const align = () => {
+      const g = gridRef.current;
+      const container = containerRef.current;
+      if (g && container) {
+        // Where the grid center currently projects to in the canvas (px from left of canvas)
+        const projectedX = g.getProjectedCenterX();
+        // Canvas fills the container which is 100vw wide, so projectedX is in viewport px
+        // Thread target in viewport px
+        const targetX = window.innerWidth * THREAD_X_PERCENT;
+        // Shift the container so the projected center lands on the thread
+        const offset = targetX - projectedX;
+        if (Math.abs(offset - lastOffset) > 0.5) {
+          container.style.left = `${offset}px`;
+          lastOffset = offset;
+        }
+      }
+      raf = requestAnimationFrame(align);
+    };
+    raf = requestAnimationFrame(align);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="absolute pointer-events-none overflow-hidden"
+      style={{
+        top: "50%",
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        transform: "translateY(-50%)",
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        id="radial-grid-bg"
+        className="w-full h-full"
+      />
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────
 // Log Entry Modal (action / synchronicity)
 // ─────────────────────────────────────────
 function LogEntryModal({
@@ -257,94 +348,156 @@ function useScrollVelocity(scrollRef: React.RefObject<HTMLDivElement | null>) {
 // ─────────────────────────────────────────
 // Thread segment with unified string + tag physics
 // ─────────────────────────────────────────
-function ThreadSegment({
-  entry,
-  index,
-  topY,
-  scrollVelocity,
-}: {
-  entry: LedgerEntry;
-  index: number;
-  topY: number;
-  scrollVelocity: React.RefObject<number>;
-}) {
-  const isAction = entry.type === "action";
-  const side = isAction ? "left" : "right";
-  const color = isAction ? "rgba(255, 170, 68, 0.7)" : "rgba(100, 180, 255, 0.7)";
-  const solidColor = isAction ? "rgba(255, 170, 68, 1)" : "rgba(100, 180, 255, 1)";
-  const glowColor = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
-  const tagBg = isAction ? "rgba(255, 170, 68, 0.06)" : "rgba(100, 180, 255, 0.06)";
-  const tagBorder = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
-  const dateColor = isAction ? "rgba(255, 190, 100, 0.5)" : "rgba(130, 200, 255, 0.5)";
+// Stable pseudo-random from entry id — gives each tag a unique but
+// consistent x offset so tags don't line up in a perfect column.
+function hashId(id: string): number {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return h;
+}
 
-  const date = new Date(entry.occurred_at);
-  const weekday = date.toLocaleDateString("en-US", { weekday: "long" });
-  const monthDayYear = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-  const formatted = `${weekday} | ${monthDayYear}`;
+// ── Shared animation loop for all ThreadSegments ──
+// One RAF drives every entry's string physics + tag positioning.
+interface SegmentAnimState {
+  side: "left" | "right";
+  phase: number;
+  xJitter: number;
+  yOffset: number;
+  targetEndY: number;
+  svgWidth: number;
+  swingAngle: number;
+  swingVel: number;
+  pathEl: SVGPathElement | null;
+  dotEl: SVGCircleElement | null;
+  tagEl: HTMLDivElement | null;
+}
 
-  const pathRef = useRef<SVGPathElement>(null);
-  const tagRef = useRef<HTMLDivElement>(null);
-  const phaseRef = useRef(Math.random() * Math.PI * 2);
+const STRING_INSET = 8;
+const SVG_WIDTH = 50;
+const BASE_END_Y = 40;
 
-  const svgWidth = 70;
-  const svgHeight = 60;
-
-  // Single rAF loop drives both string shape and tag position
-  // Scroll velocity feeds into the physics for realistic swing
-  const swingAngle = useRef(0);
-  const swingVel = useRef(0);
-
+function useSegmentLoop(
+  scrollVelocity: React.RefObject<number>,
+  registry: React.RefObject<Map<string, SegmentAnimState>>,
+) {
   useEffect(() => {
     let raf: number;
     const animate = () => {
       const t = performance.now() / 1000;
-      const phase = phaseRef.current;
-
-      // Feed scroll velocity into swing physics (spring-damper)
       const sv = scrollVelocity.current ?? 0;
-      const scrollForce = sv * 8; // scale scroll velocity to swing force
-      const springK = 0.15; // spring stiffness (pulls back to center)
-      const damping = 0.92; // friction
-      swingVel.current = (swingVel.current + scrollForce - swingAngle.current * springK) * damping;
-      swingAngle.current += swingVel.current;
-      // Clamp to prevent wild swings
-      swingAngle.current = Math.max(-25, Math.min(25, swingAngle.current));
+      const scrollForce = sv * 8;
 
-      // String physics — scroll adds to sway and droop
-      const sway1 = Math.sin(t * 1.2 + phase) * 6 + swingAngle.current * 0.5;
-      const sway2 = Math.sin(t * 0.8 + phase + 1.5) * 4 + swingAngle.current * 0.3;
-      const droop = 14 + Math.sin(t * 0.5 + phase) * 3 + Math.abs(swingAngle.current) * 0.3;
+      registry.current.forEach((s) => {
+        // Spring-damper swing
+        s.swingVel = (s.swingVel + scrollForce - s.swingAngle * 0.15) * 0.92;
+        s.swingAngle += s.swingVel;
+        s.swingAngle = Math.max(-25, Math.min(25, s.swingAngle));
 
-      // Anchor at thread side, endpoint where tag attaches
-      const startX = side === "left" ? svgWidth : 0;
-      const endX = side === "left" ? 4 : svgWidth - 4;
-      const midX = (startX + endX) / 2;
+        const lenFactor = 1 + s.yOffset * 0.003;
+        const sway1 = (Math.sin(t * 1.2 + s.phase) * 6 + s.swingAngle * 0.5) * lenFactor;
+        const sway2 = (Math.sin(t * 0.8 + s.phase + 1.5) * 4 + s.swingAngle * 0.3) * lenFactor;
 
-      // Endpoint Y — scroll velocity adds vertical lag
-      const endY = svgHeight / 2 + Math.sin(t * 0.7 + phase + 0.8) * 3 + swingAngle.current * 0.4;
+        // Bob Y — vertical center of the tag
+        const bobY = s.targetEndY + Math.sin(t * 0.7 + s.phase + 0.8) * 3 + s.swingAngle * 0.4;
 
-      const startY = 0;
-      const d = `M ${startX} ${startY} C ${startX + (side === "left" ? -10 : 10)} ${droop + sway1}, ${midX} ${droop + sway2}, ${endX} ${endY}`;
+        // Center tag on bobY
+        const tagH = s.tagEl?.offsetHeight ?? 36;
+        const tagTopY = bobY - tagH / 2;
+        if (s.tagEl) {
+          s.tagEl.style.transform = `translate(${s.xJitter}px, ${tagTopY}px)`;
+        }
 
-      if (pathRef.current) {
-        pathRef.current.setAttribute("d", d);
-      }
+        // String path — orb to tag center
+        const startX = s.side === "left" ? s.svgWidth : 0;
+        const tagNearEdgeX = s.side === "left" ? s.xJitter : s.svgWidth + s.xJitter;
+        const endX = s.side === "left"
+          ? tagNearEdgeX - STRING_INSET
+          : tagNearEdgeX + STRING_INSET;
+        const midX = (startX + endX) / 2;
+        const endY = bobY;
 
-      // Move tag to match string endpoint
-      if (tagRef.current) {
-        const tagY = endY;
-        tagRef.current.style.transform = `translateY(${tagY}px)`;
-      }
+        const droopBase = 14 + s.yOffset * 0.3;
+        const cp1Y = droopBase + sway1;
+        const cp2Y = s.targetEndY * 0.6 + sway2;
+
+        const d = `M ${startX} 0 C ${startX + (s.side === "left" ? -12 : 12)} ${cp1Y}, ${midX} ${cp2Y}, ${endX} ${endY}`;
+        if (s.pathEl) s.pathEl.setAttribute("d", d);
+        if (s.dotEl) {
+          s.dotEl.setAttribute("cx", String(endX));
+          s.dotEl.setAttribute("cy", String(endY));
+        }
+      });
 
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(raf);
-  }, [side, svgHeight, scrollVelocity]);
+  }, [scrollVelocity, registry]);
+}
+
+function ThreadSegment({
+  entry,
+  index,
+  orbY,
+  tagY,
+  registry,
+}: {
+  entry: LedgerEntry;
+  index: number;
+  orbY: number;
+  tagY: number;
+  registry: React.RefObject<Map<string, SegmentAnimState>>;
+}) {
+  const isAction = entry.type === "action";
+  const side = isAction ? "left" : "right";
+  const color = isAction ? "rgba(255, 170, 68, 0.7)" : "rgba(100, 180, 255, 0.7)";
+  const glowColor = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
+  const tagBg = isAction ? "rgba(255, 170, 68, 0.06)" : "rgba(100, 180, 255, 0.06)";
+  const tagBorder = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
+
+  const pathRef = useRef<SVGPathElement>(null);
+  const dotRef = useRef<SVGCircleElement>(null);
+  const tagRef = useRef<HTMLDivElement>(null);
+  const phaseRef = useRef(Math.random() * Math.PI * 2);
+
+  const yOffset = tagY - orbY;
+  const targetEndY = BASE_END_Y + yOffset;
+  const svgHeight = targetEndY + 30;
+
+  const xJitter = useMemo(() => {
+    const h = hashId(entry.id);
+    return ((h % 31) - 15);
+  }, [entry.id]);
+
+  // Register this segment's refs + physics state with the shared loop
+  useEffect(() => {
+    const map = registry.current;
+    const state: SegmentAnimState = {
+      side,
+      phase: phaseRef.current,
+      xJitter,
+      yOffset,
+      targetEndY,
+      svgWidth: SVG_WIDTH,
+      swingAngle: 0,
+      swingVel: 0,
+      pathEl: pathRef.current,
+      dotEl: dotRef.current,
+      tagEl: tagRef.current,
+    };
+    map.set(entry.id, state);
+    return () => { map.delete(entry.id); };
+  }, [entry.id, side, xJitter, yOffset, targetEndY, registry]);
+
+  // Keep DOM refs fresh (they can change after mount)
+  useEffect(() => {
+    const s = registry.current.get(entry.id);
+    if (s) {
+      s.pathEl = pathRef.current;
+      s.dotEl = dotRef.current;
+      s.tagEl = tagRef.current;
+    }
+  });
 
   return (
     <motion.div
@@ -352,9 +505,9 @@ function ThreadSegment({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.06, ease: "easeOut" }}
       className="absolute"
-      style={{ top: topY, left: "66%", width: 0, height: 0 }}
+      style={{ top: orbY, left: "66%", width: 0, height: 0 }}
     >
-      {/* Center glowing orb on the thread */}
+      {/* Glowing orb — anchored at true date position on the thread */}
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{
@@ -366,61 +519,54 @@ function ThreadSegment({
         }}
       />
 
-      {/* Dangling string + floating tag */}
-      <div
-        className="absolute"
+      {/* SVG string — curves from orb down to tag */}
+      <svg
+        className="absolute overflow-visible pointer-events-none"
+        width={SVG_WIDTH}
+        height={svgHeight}
         style={{
-          top: "50%",
-          [side === "left" ? "right" : "left"]: "50%",
-          [side === "left" ? "left" : "right"]: "auto",
-          display: "flex",
-          flexDirection: side === "left" ? "row-reverse" : "row",
-          alignItems: "flex-start",
-          marginLeft: side === "right" ? 2 : undefined,
-          marginRight: side === "left" ? 2 : undefined,
+          top: 0,
+          [side === "left" ? "right" : "left"]: 0,
+          filter: `drop-shadow(0 0 3px ${glowColor})`,
         }}
       >
-        {/* SVG dangling string */}
-        <svg
-          width={svgWidth}
-          height={svgHeight}
-          className="overflow-visible"
-          style={{ filter: `drop-shadow(0 0 3px ${glowColor})`, flexShrink: 0 }}
-        >
-          <path
-            ref={pathRef}
-            fill="none"
-            stroke={color}
-            strokeWidth="1.2"
-            strokeLinecap="round"
-            opacity={0.6}
-          />
-        </svg>
+        <path
+          ref={pathRef}
+          fill="none"
+          stroke={color}
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity={0.6}
+        />
+        <circle
+          ref={dotRef}
+          r="2"
+          fill={color}
+          opacity={0.8}
+        />
+      </svg>
 
-        {/* Floating tag — Y driven by string endpoint */}
-        <div
-          ref={tagRef}
-          style={{
-            width: 220,
-            flexShrink: 0,
-            padding: "8px 11px",
-            borderRadius: 4,
-            background: tagBg,
-            border: `0.5px solid ${tagBorder}`,
-            boxShadow: `0 0 6px ${glowColor}`,
-            willChange: "transform",
-          }}
-        >
-          <p className="text-[9px]" style={{ color: dateColor, textAlign: side === "left" ? "right" : "left" }}>
-            {formatted}
-          </p>
-          <p className="text-[9px] my-1" style={{ color: dateColor, textAlign: side === "left" ? "right" : "left" }}>
-            -
-          </p>
-          <p className="text-xs leading-snug" style={{ color: isAction ? "rgba(255, 190, 100, 0.9)" : "rgba(130, 200, 255, 0.9)", textAlign: side === "left" ? "right" : "left" }}>
-            {entry.note}
-          </p>
-        </div>
+      {/* Tag — absolutely positioned, Y driven by shared loop */}
+      <div
+        ref={tagRef}
+        className="absolute"
+        style={{
+          top: 0,
+          [side === "left" ? "right" : "left"]: SVG_WIDTH,
+          width: 220,
+          padding: "8px 11px",
+          borderRadius: 4,
+          backdropFilter: "blur(1px)",
+          WebkitBackdropFilter: "blur(1px)",
+          background: tagBg,
+          border: `0.5px solid ${tagBorder}`,
+          boxShadow: `0 0 6px ${glowColor}`,
+          willChange: "transform",
+        }}
+      >
+        <p className="text-xs leading-snug" style={{ color: isAction ? "rgba(255, 190, 100, 0.9)" : "rgba(130, 200, 255, 0.9)", textAlign: side === "left" ? "right" : "left" }}>
+          {entry.note}
+        </p>
       </div>
     </motion.div>
   );
@@ -589,14 +735,14 @@ function ThreadNotches({
         }
         .thread-notches .label-month,
         .thread-notches .label-day {
-          opacity: 0.3;
+          opacity: 0.5;
           transition: opacity 2.5s ease;
         }
         .thread-notches[style*="--scroll-active: 1"] .label-month,
         .thread-notches[style*="--scroll-active:1"] .label-month,
         .thread-notches[style*="--scroll-active: 1"] .label-day,
         .thread-notches[style*="--scroll-active:1"] .label-day {
-          opacity: 0.8;
+          opacity: 0.9;
           transition: opacity 0.3s ease-out;
         }
       `}</style>
@@ -650,11 +796,13 @@ function ThreadParticles({
   scrollRef,
   config,
   threadLength,
+  debugCountRef,
 }: {
   mode: ParticleMode;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   config: ParticleConfig;
   threadLength: number;
+  debugCountRef?: React.RefObject<HTMLSpanElement | null>;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
@@ -739,7 +887,9 @@ function ThreadParticles({
       const visibleTop = scroll - padTop - 30;
       const visibleBot = scroll - padTop + viewH + 30;
 
-      for (const p of particlesRef.current) {
+      const particles = particlesRef.current;
+      for (let pi = 0; pi < particles.length; pi++) {
+        const p = particles[pi];
         p.life++;
 
         const lifeRatio = p.life / p.maxLife;
@@ -766,18 +916,27 @@ function ThreadParticles({
         }
 
         // Draw directly at content-space coords — canvas scrolls natively
-        const bokehBlur = p.isBokeh ? 3 + p.size * 2 : 0;
-        ctx.shadowBlur = bokehBlur || 6;
-        ctx.shadowColor = `hsla(${p.hue}, 70%, 75%, ${p.opacity * twinkle * 0.2})`;
+        // Only 10% of particles get shadow blur (expensive) — the rest draw plain
+        const hasGlow = pi % 10 === 0;
+        if (hasGlow) {
+          const bokehBlur = p.isBokeh ? 3 + p.size * 2 : 0;
+          ctx.shadowBlur = bokehBlur || 6;
+          ctx.shadowColor = `hsla(${p.hue}, 70%, 75%, ${p.opacity * twinkle * 0.2})`;
+        }
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fillStyle = `hsla(${p.hue}, 70%, 75%, ${p.opacity * twinkle * (p.isBokeh ? 0.2 : 0.4)})`;
         ctx.fill();
-        ctx.shadowBlur = 0;
+        if (hasGlow) ctx.shadowBlur = 0;
 
         if (p.life >= p.maxLife) {
           Object.assign(p, spawnParticle(cfg));
         }
+      }
+
+      // Write live particle count to debug element
+      if (debugCountRef?.current) {
+        debugCountRef.current.textContent = String(particles.length);
       }
 
       raf = requestAnimationFrame(animate);
@@ -788,7 +947,7 @@ function ThreadParticles({
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
     };
-  }, [mode, scrollRef, config.count, config.tinyRatio, threadLength]);
+  }, [mode, scrollRef, config.count, config.tinyRatio, threadLength, debugCountRef]);
 
   if (mode === "off") return null;
 
@@ -1017,7 +1176,7 @@ function ThreadEnergyLine({
     const pulses: Pulse[] = [];
     const spawnPulse = (): Pulse => ({
       y: tTop,
-      speed: 3.5 + Math.random() * 0.5,
+      speed: 1 + Math.random() * 0.1,
       length: 20 + Math.random() * 50,
       opacity: 0.4 + Math.random() * 0.5,
       width: pulseLineWidth,
@@ -1036,10 +1195,10 @@ function ThreadEnergyLine({
     // Phase 0: strong pulse (systole "lub") at frame 0
     // Phase 1: softer pulse (diastole "dub") at ~12 frames later (~200ms)
     // Phase 2: rest until next cycle (~55 frames total)
-    const BASE_CYCLE = 55;   // frames per heartbeat (~0.92s = ~65 BPM)
-    const DUB_DELAY = 12;    // frames between lub and dub (~200ms)
+    const BASE_CYCLE = 450;  // frames per heartbeat (~7.5s = ~8 BPM)
+    const DUB_DELAY = 33;    // frames between lub and dub (~550ms)
     let beatFrame = 0;
-    let cycleLength = BASE_CYCLE + Math.round((Math.random() - 0.5) * 6); // ±3 frame jitter per cycle
+    let cycleLength = BASE_CYCLE + Math.round((Math.random() - 0.5) * 10); // ±5 frame jitter per cycle
     let raf: number;
 
     const spawnBeat = (strong: boolean) => {
@@ -1353,6 +1512,7 @@ export default function ShrineScreen({
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingVision, setEditingVision] = useState(false);
+  const [editOverlayPresent, setEditOverlayPresent] = useState(false); // true while overlay is visible or exiting
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editSaving, setEditSaving] = useState(false);
@@ -1366,6 +1526,13 @@ export default function ShrineScreen({
   });
   const threadScrollRef = useRef<HTMLDivElement>(null);
   const scrollVelocity = useScrollVelocity(threadScrollRef);
+
+  // Debug: live particle count
+  const particleCountRef = useRef<HTMLSpanElement>(null);
+
+  // Shared animation loop for all thread segment strings
+  const segmentRegistry = useRef<Map<string, SegmentAnimState>>(new Map());
+  useSegmentLoop(scrollVelocity, segmentRegistry);
 
   const currentVision = visions[currentIndex] ?? null;
 
@@ -1398,6 +1565,41 @@ export default function ShrineScreen({
 
     return { threadLength: length, totalDays: days, dayToY: toY };
   }, [entries]);
+
+  // Resolve overlapping same-type tags — entries on the same side of the
+  // thread need vertical spacing so their tags don't stack on top of each
+  // other. We group by type (action=left, synchronicity=right), sort by
+  // raw Y, then nudge any entries closer than MIN_TAG_GAP apart.
+  const resolvedPositions = useMemo(() => {
+    const MIN_TAG_GAP = 55; // px — note-only tag height + breathing room
+    const map = new Map<string, number>();
+
+    // Split into two groups by type (each type hangs on its own side)
+    const groups: Record<string, { id: string; rawY: number }[]> = {
+      action: [],
+      synchronicity: [],
+    };
+
+    for (const entry of entries) {
+      const rawY = dayToY(entry.occurred_at);
+      groups[entry.type]?.push({ id: entry.id, rawY });
+    }
+
+    // For each group, sort by rawY (ascending = closer to today first)
+    // then walk downward, pushing any entry that's too close to the
+    // previous one further down the thread.
+    for (const group of Object.values(groups)) {
+      group.sort((a, b) => a.rawY - b.rawY);
+      let prevY = -Infinity;
+      for (const item of group) {
+        const resolvedY = Math.max(item.rawY, prevY + MIN_TAG_GAP);
+        map.set(item.id, resolvedY);
+        prevY = resolvedY;
+      }
+    }
+
+    return map;
+  }, [entries, dayToY]);
 
   // Load visions
   const loadVisions = useCallback(async () => {
@@ -1505,24 +1707,41 @@ export default function ShrineScreen({
   }, []);
 
   // ── Slide animation variants ──
+  // Enter distance: 150px from the direction of travel
+  // Exit distance: 150px in the opposite direction
+  // Exit: 0.2s linear (darts away, no easing)
+  // Enter: 0.35s with easeOut (decelerates into landing)
+  // First load: 1.5s fade-up from 20px below
+  const ENTER_DISTANCE = 150;   // px — how far entering vision travels
+  const EXIT_DISTANCE = 300;    // px — how far exiting vision travels (2x enter = looks fast)
+  const ENTER_DURATION = 0.2;   // seconds — entering vision
+  const EXIT_DURATION = 0.1;    // seconds — leaving vision
+  const hasNavigated = useRef(false);
   const slideVariants = {
-    enter: (dir: number) => ({
-      x: dir >= 0 ? 120 : -120,
-      opacity: 0,
-    }),
+    enter: (dir: number) => {
+      if (!hasNavigated.current) {
+        return { x: 0, y: 10, opacity: 0 };
+      }
+      return { x: dir >= 0 ? ENTER_DISTANCE : -ENTER_DISTANCE, y: 0, opacity: 0 };
+    },
     center: {
       x: 0,
+      y: 0,
       opacity: 1,
     },
     exit: (dir: number) => ({
-      x: dir >= 0 ? -120 : 120,
+      x: dir >= 0 ? -EXIT_DISTANCE : EXIT_DISTANCE,
+      y: 0,
       opacity: 0,
+      transition: { duration: EXIT_DURATION, ease: [0, 0, 1, 1] as const },
     }),
   };
 
   // ── Render ──
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+      {/* RadialGridBg moved into threadOpen block below */}
+
       {/* ── Title / MindShrine ── */}
       <motion.h1
         initial={{ opacity: 0 }}
@@ -1590,6 +1809,22 @@ export default function ShrineScreen({
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
 
+          {/* ── Radial grid bg (timeline only) ── */}
+          <AnimatePresence>
+            {threadOpen && (
+              <motion.div
+                key="radial-grid-wrap"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8 }}
+                className="absolute inset-0 z-[1] pointer-events-none"
+              >
+                <RadialGridBg />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* ── Scrollable thread area (only when open) ── */}
           <AnimatePresence>
             {threadOpen && (
@@ -1604,7 +1839,6 @@ export default function ShrineScreen({
                   scrollbarWidth: "none",
                   msOverflowStyle: "none",
                 }}
-                onClick={handleThreadClick}
               >
                 {/* Scroll container — today at 25vh, past extends down */}
                 <div
@@ -1617,11 +1851,37 @@ export default function ShrineScreen({
                 >
                   {/* Inner thread area — date-proportional layout */}
                   <div className="relative" style={{ height: threadLength }}>
+                    {/* ── Add entry button above thread ── */}
+                    <div
+                      className="absolute flex items-center justify-center"
+                      style={{ left: "66%", top: -44, transform: "translateX(-50%)", zIndex: 30 }}
+                    >
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setThreadPopup({ x: e.clientX, y: e.clientY });
+                        }}
+                        className="group relative flex items-center justify-center w-7 h-7 rounded-full cursor-pointer transition-all duration-200 hover:scale-110"
+                        style={{
+                          background: "rgba(255,255,255,0.06)",
+                          border: "1px solid rgba(255,255,255,0.12)",
+                          boxShadow: "0 0 12px rgba(255,255,255,0.04)",
+                        }}
+                      >
+                        <span
+                          className="text-sm font-light leading-none transition-colors duration-200"
+                          style={{ color: "rgba(255,255,255,0.35)" }}
+                        >
+                          +
+                        </span>
+                      </button>
+                    </div>
+
                     {/* Pulsing disc at today (termination point) */}
                     <TodayDisc />
 
                     {/* Canvas overlays — absolute inside content, scroll natively with DOM */}
-                    <ThreadParticles mode={particleMode} scrollRef={threadScrollRef} config={particleConfig} threadLength={threadLength} />
+                    <ThreadParticles mode={particleMode} scrollRef={threadScrollRef} config={particleConfig} threadLength={threadLength} debugCountRef={particleCountRef} />
                     <ThreadEnergyLine scrollRef={threadScrollRef} threadLength={threadLength} baseGlowWidth={threadWidths.baseGlow} pulseLineWidth={threadWidths.pulseLine} pulseGlowWidth={threadWidths.pulseGlow} />
 
                     {/* Thread line — from today (top) into the past (bottom) */}
@@ -1647,8 +1907,9 @@ export default function ShrineScreen({
                           key={entry.id}
                           entry={entry}
                           index={i}
-                          topY={dayToY(entry.occurred_at)}
-                          scrollVelocity={scrollVelocity}
+                          orbY={dayToY(entry.occurred_at)}
+                          tagY={resolvedPositions.get(entry.id) ?? dayToY(entry.occurred_at)}
+                          registry={segmentRegistry}
                         />
                       ))}
                     </AnimatePresence>
@@ -1672,10 +1933,10 @@ export default function ShrineScreen({
             className="relative z-20 flex flex-col max-w-2xl px-8"
             animate={{
               x: threadOpen ? "-25vw" : 0,
-              opacity: threadOpen ? 0.8 : 1,
+              opacity: editOverlayPresent ? 0 : threadOpen ? 0.8 : 1,
               alignItems: threadOpen ? "flex-start" : "center",
             }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: editOverlayPresent ? 0.3 : 0.5, ease: "easeOut" }}
           >
             {/* Vision title carousel + edit icon */}
             <div className="relative flex items-center gap-3">
@@ -1687,7 +1948,8 @@ export default function ShrineScreen({
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  transition={{ duration: hasNavigated.current ? ENTER_DURATION : 0.75, ease: hasNavigated.current ? [0, 0, 0.2, 1] : [0, 0, 0.58, 1] }}
+                  onAnimationComplete={() => { hasNavigated.current = true; }}
                   className="text-xl md:text-2xl font-semibold cursor-pointer select-none leading-tight"
                   style={{
                     textAlign: threadOpen ? "left" : "center",
@@ -1723,6 +1985,7 @@ export default function ShrineScreen({
                     setEditTitle(currentVision.title);
                     setEditDescription(currentVision.description ?? "");
                     setEditingVision(true);
+                    setEditOverlayPresent(true);
                   }}
                   title="Edit vision"
                 >
@@ -1733,21 +1996,28 @@ export default function ShrineScreen({
               )}
             </div>
 
-            {/* Description (fades in on hover) */}
-            <AnimatePresence>
-              {(hovered || threadOpen) && currentVision.description && (
-                <motion.p
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 0.4, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.35 }}
-                  className="text-sm mt-4 leading-relaxed"
-                  style={{ color: "rgba(255, 255, 255, 0.5)", textAlign: threadOpen ? "left" : "center", maxWidth: threadOpen ? "40ch" : "none" }}
-                >
-                  {currentVision.description}
-                </motion.p>
-              )}
-            </AnimatePresence>
+            {/* Description (absolute so it doesn't push title, inherits flex alignment) */}
+            <div className="relative" style={{ height: 0 }}>
+              <AnimatePresence>
+                {(hovered || threadOpen) && currentVision.description && !editOverlayPresent && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 0.4, y: 0 }}
+                    exit={{ opacity: 0, y: 4 }}
+                    transition={{ duration: 0.35 }}
+                    className="absolute top-4 text-sm leading-relaxed"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.5)",
+                      textAlign: threadOpen ? "left" : "center",
+                      width: 400,
+                      left: threadOpen ? 0 : -200,
+                    }}
+                  >
+                    {currentVision.description}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
 
             {/* Fulfilled badge */}
             {currentVision.is_fulfilled && (
@@ -1847,13 +2117,10 @@ export default function ShrineScreen({
             </motion.div>
           )}
 
-          {/* Thread width controls */}
-          {threadOpen && !editingVision && (
-            <ThreadWidthPanel widths={threadWidths} onChange={setThreadWidths} />
-          )}
+          {/* Thread width panel removed — widths locked in */}
 
           {/* ── Vision edit overlay ── */}
-          <AnimatePresence>
+          <AnimatePresence onExitComplete={() => setEditOverlayPresent(false)}>
             {editingVision && currentVision && (
               <>
                 {/* Backdrop — fades everything else away */}
@@ -1866,12 +2133,12 @@ export default function ShrineScreen({
                   style={{ background: "rgba(0, 0, 0, 0.8)", backdropFilter: "blur(8px)" }}
                 />
 
-                {/* Centered edit form */}
+                {/* Centered edit form — delayed so left title fades out first */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.97 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.98 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.3, delay: 0.25, ease: "easeOut" }}
                   className="absolute inset-0 z-[51] flex items-center justify-center pointer-events-none"
                 >
                   <div className="flex flex-col items-center gap-6 w-full max-w-lg px-8 pointer-events-auto">
@@ -2021,6 +2288,19 @@ export default function ShrineScreen({
         onClose={() => setModalOpen(false)}
         onCreated={handleCreated}
       />
+
+      {/* Debug: live particle count */}
+      <div
+        className="fixed bottom-4 right-4 pointer-events-none"
+        style={{
+          fontSize: 10,
+          color: "rgba(255,255,255,0.35)",
+          fontFamily: "monospace",
+          zIndex: 9999,
+        }}
+      >
+        particles: <span ref={particleCountRef}>0</span>
+      </div>
 
     </div>
   );

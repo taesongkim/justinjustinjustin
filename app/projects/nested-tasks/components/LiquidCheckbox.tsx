@@ -339,6 +339,7 @@ function LiquidParentCheckbox({
   const processedArrivalsRef = useRef<Set<number>>(new Set());
   const pendingFillRef = useRef<number | null>(null);
   const isRunningRef = useRef(false);
+  const flashStartRef = useRef<number>(0);
   const [sparkleTrigger, setSparkleTrigger] = useState(0);
   const prevCheckedRef = useRef(isChecked);
 
@@ -385,6 +386,7 @@ function LiquidParentCheckbox({
         for (const ts of arrivals) {
           if (!processedArrivalsRef.current.has(ts)) {
             processedArrivalsRef.current.add(ts);
+            flashStartRef.current = performance.now();
             if (pendingFillRef.current >= 1) {
               // Fill to full — snap instantly, no liquid
               blob.rushFill(1);
@@ -405,9 +407,13 @@ function LiquidParentCheckbox({
         return;
       }
 
-      drawLiquid(ctx, blob, blob.fill >= 0.999);
+      drawLiquid(ctx, blob, blob.fill >= 0.999, flashStartRef.current);
 
-      if (blob.isSettled() && pendingFillRef.current === null) {
+      // Keep running during flash fade-back (0.5s hold + 1s fade = 1.5s total)
+      const flashElapsed = performance.now() - flashStartRef.current;
+      const flashActive = flashStartRef.current > 0 && flashElapsed < 1500;
+
+      if (blob.isSettled() && pendingFillRef.current === null && !flashActive) {
         isRunningRef.current = false;
       } else {
         rafRef.current = requestAnimationFrame(loop);
@@ -430,11 +436,13 @@ function LiquidParentCheckbox({
     if (fillLevel > prev) {
       // Fill increasing — queue it to apply on glow arrival
       pendingFillRef.current = fillLevel;
+      flashStartRef.current = performance.now();
       startLoop();
 
       // Fallback: if no glow arrives within 500ms, apply anyway
       const timeout = setTimeout(() => {
         if (pendingFillRef.current !== null && blob) {
+          flashStartRef.current = performance.now();
           if (pendingFillRef.current >= 1) {
             blob.rushFill(1);
           } else {
@@ -447,6 +455,7 @@ function LiquidParentCheckbox({
       return () => clearTimeout(timeout);
     } else {
       // Fill decreasing — apply immediately (drain)
+      flashStartRef.current = performance.now();
       if (fillLevel <= 0) {
         // Drain to empty: instant flush, no settling
         blob.flush();
@@ -465,12 +474,14 @@ function LiquidParentCheckbox({
 
     if (isChecked && blob.targetFill < 0.99) {
       // Manual check — instant fill, no liquid animation
+      flashStartRef.current = performance.now();
       blob.rushFill(1);
       pendingFillRef.current = null;
       startLoop();
     }
 
     if (!isChecked && blob.targetFill > fillLevel + 0.01) {
+      flashStartRef.current = performance.now();
       if (fillLevel <= 0) {
         blob.flush();
       } else {
@@ -488,7 +499,7 @@ function LiquidParentCheckbox({
     if (!canvas || !blob) return;
 
     const ctx = canvas.getContext("2d");
-    if (ctx) drawLiquid(ctx, blob, blob.fill >= 0.999);
+    if (ctx) drawLiquid(ctx, blob, blob.fill >= 0.999, flashStartRef.current);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
@@ -598,8 +609,29 @@ export default function LiquidCheckbox(props: LiquidCheckboxProps) {
 
 // ─── Canvas Drawing ───────────────────────────────────────────
 
-function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: boolean) {
+/** Parse a hex color string into [r, g, b]. */
+function hexToRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  const n = parseInt(h.length === 3 ? h.split("").map(c => c + c).join("") : h, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** Linearly interpolate between two hex colors. t=0→a, t=1→b. */
+function lerpColor(a: string, b: string, t: number): string {
+  const [r1, g1, b1] = hexToRgb(a);
+  const [r2, g2, b2] = hexToRgb(b);
+  const r = Math.round(r1 + (r2 - r1) * t);
+  const g = Math.round(g1 + (g2 - g1) * t);
+  const bl = Math.round(b1 + (b2 - b1) * t);
+  return `rgb(${r},${g},${bl})`;
+}
+
+function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: boolean, flashStart: number) {
   ctx.clearRect(0, 0, W, H);
+  // Reset all state that persists between frames
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.globalAlpha = 1;
 
   const canvas = ctx.canvas;
   const root = canvas.closest(".nt") || document.documentElement;
@@ -610,8 +642,28 @@ function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: bo
   const checkedColor =
     style.getPropertyValue("--nt-checkbox-checked").trim() || "#60a5fa";
   const glowColor = style.getPropertyValue("--nt-glow-color").trim() || "#ffffff";
-  // Partial fill = glow color, full = blue checked color
-  const liquidColor = isFull ? checkedColor : glowColor;
+  const liquidBaseColor = style.getPropertyValue("--nt-liquid-base").trim() || "#9a9a9a";
+
+  // Compute flash interpolation: flash to glow, then fade back to base over 1s after 0.5s hold
+  let flashT = 0; // 0 = base gray, 1 = full glow white
+  if (flashStart > 0) {
+    const elapsed = performance.now() - flashStart;
+    if (elapsed < 500) {
+      // Hold at full glow
+      flashT = 1;
+    } else if (elapsed < 1500) {
+      // Fade back from glow to base over 1s
+      flashT = 1 - (elapsed - 500) / 1000;
+    } else {
+      flashT = 0;
+    }
+  }
+
+  // Partial fill = interpolated base↔glow, full = blue checked color
+  const partialColor = flashT > 0.001
+    ? lerpColor(liquidBaseColor, glowColor, flashT)
+    : liquidBaseColor;
+  const liquidColor = isFull ? checkedColor : partialColor;
   const highlightColor = glowColor;
 
   // Background
@@ -627,7 +679,7 @@ function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: bo
 
   if (blob.fill > 0.001) {
     ctx.save();
-    roundedRect(ctx, inset, inset, innerW, innerH, BORDER_RADIUS - 1);
+    roundedRect(ctx, inset, inset, innerW, innerH, BORDER_RADIUS - CHECK_INSET);
     ctx.clip();
 
     const surface = blob.getSurface();
@@ -664,15 +716,17 @@ function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: bo
     ctx.fillStyle = liquidColor;
 
     if (!isFull) {
-      // Glow effect for partial fill (glows like connector)
-      ctx.shadowColor = glowColor;
-      ctx.shadowBlur = 12 * RES;
-      ctx.globalAlpha = 0.6;
-      ctx.fill();
-      // Second pass for bloom
-      ctx.shadowBlur = 24 * RES;
-      ctx.globalAlpha = 0.25;
-      ctx.fill();
+      if (flashT > 0.01) {
+        // Glow effect scaled by flash intensity
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = 12 * RES;
+        ctx.globalAlpha = 0.6 * flashT;
+        ctx.fill();
+        // Second pass for bloom
+        ctx.shadowBlur = 24 * RES;
+        ctx.globalAlpha = 0.25 * flashT;
+        ctx.fill();
+      }
       // Final solid pass
       ctx.shadowColor = "transparent";
       ctx.shadowBlur = 0;
@@ -682,10 +736,11 @@ function drawLiquid(ctx: CanvasRenderingContext2D, blob: ViscousBlob, isFull: bo
       ctx.fill();
     }
 
-    // Surface highlight
+    // Surface highlight (only visible during flash or when full)
+    const highlightAlpha = isFull ? 0.12 : 0.25 * flashT;
     ctx.strokeStyle = highlightColor;
     ctx.lineWidth = 2 * RES;
-    ctx.globalAlpha = isFull ? 0.12 : 0.25;
+    ctx.globalAlpha = highlightAlpha;
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
     ctx.beginPath();

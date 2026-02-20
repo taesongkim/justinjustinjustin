@@ -13,6 +13,8 @@ export interface TodoItem {
   order: number;
   putAside?: boolean;
   waiting?: boolean;
+  caution?: boolean;
+  duration?: number; // elapsed stopwatch time in seconds
 }
 
 export interface ColumnEntry {
@@ -35,6 +37,28 @@ export function createTodoItem(text: string = "", order: number = 0): TodoItem {
     children: [],
     order,
   };
+}
+
+// ─── Tab Model ───────────────────────────────────────────────
+
+export interface Tab {
+  id: string;
+  name: string;
+  todos: TodoItem[];
+  note: string;
+  expandedIds: string[]; // serialized Set<string> for JSON storage
+}
+
+// ─── Formatting Helpers ──────────────────────────────────────
+
+/** Format seconds into MM:SS or H:MM:SS when ≥ 1 hour. */
+export function formatDuration(totalSeconds: number): string {
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  if (h > 0)
+    return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 // ─── Column Computation ───────────────────────────────────────
@@ -379,6 +403,8 @@ export function setPutAsideRecursive(item: TodoItem, value: boolean): TodoItem {
   return {
     ...item,
     putAside: value,
+    waiting: value ? false : item.waiting,
+    caution: value ? false : item.caution,
     children: item.children.map((c) => setPutAsideRecursive(c, value)),
   };
 }

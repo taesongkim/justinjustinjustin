@@ -14,9 +14,11 @@ import { localStorageAdapter } from "../lib/storage";
 import type { TodoStorage } from "../lib/storage";
 import {
   TodoItem,
+  Tab,
   ColumnEntry,
   computeColumns,
   createTodoItem,
+  generateId,
   updateItemInTree,
   deleteItemFromTree,
   addSiblingAfterInTree,
@@ -34,6 +36,7 @@ import {
 } from "../lib/types";
 import TodoItemComponent from "./TodoItem";
 import ConnectingLines from "./ConnectingLines";
+import FocusModal from "./FocusModal";
 
 // ─── Context ──────────────────────────────────────────────────
 
@@ -86,6 +89,14 @@ interface TodoActions {
   reactivatePutAside: (itemId: string) => void;
   /** Toggle waiting status on an unchecked item. */
   toggleWaiting: (itemId: string) => void;
+  /** Toggle caution status on an item. */
+  toggleCaution: (itemId: string) => void;
+  /** Update stopwatch duration for an item (in seconds). */
+  updateDuration: (itemId: string, seconds: number) => void;
+  /** Open focus modal for an item. */
+  openFocusModal: (itemId: string) => void;
+  /** Close focus modal. */
+  closeFocusModal: () => void;
 }
 
 export const TodoContext = createContext<{
@@ -130,6 +141,11 @@ export default function NestedTodoApp() {
   const [accentColor, setAccentColor] = useState("#60a5fa");
   const staggerDelay = 20;
   const [mounted, setMounted] = useState(false);
+  const [tabs, setTabs] = useState<Tab[]>([]);
+  const [activeTabId, setActiveTabId] = useState("");
+  const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
+  const tabsRef = useRef<Tab[]>([]);
+
   const [deletedItem, setDeletedItem] = useState<{
     item: TodoItem;
     parentId: string | null;
@@ -159,9 +175,29 @@ export default function NestedTodoApp() {
   // ─── Load ─────────────────────────────────────────────────
 
   useEffect(() => {
-    const loaded = storage.loadTodos();
-    setTodos(loaded.length > 0 ? loaded : [createTodoItem("", 0)]);
-    setNote(storage.loadNote());
+    let loadedTabs = storage.loadTabs();
+    if (loadedTabs.length === 0) {
+      // Fresh start: create one default tab
+      const defaultTab: Tab = {
+        id: generateId(),
+        name: "Tasks",
+        todos: [createTodoItem("", 0)],
+        note: "",
+        expandedIds: [],
+      };
+      loadedTabs = [defaultTab];
+    }
+
+    setTabs(loadedTabs);
+    tabsRef.current = loadedTabs;
+
+    // Restore active tab or default to first
+    const savedActiveId = storage.loadActiveTabId();
+    const activeTab = loadedTabs.find((t) => t.id === savedActiveId) || loadedTabs[0];
+    setActiveTabId(activeTab.id);
+    setTodos(activeTab.todos.length > 0 ? activeTab.todos : [createTodoItem("", 0)]);
+    setNote(activeTab.note);
+    setExpandedIds(new Set(activeTab.expandedIds));
 
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
@@ -172,19 +208,54 @@ export default function NestedTodoApp() {
 
   // ─── Debounced Save ───────────────────────────────────────
 
+  // Helper to persist current state into the tabs array and save
+  const saveTabsWithCurrentState = useCallback(
+    (overrideTodos?: TodoItem[], overrideNote?: string) => {
+      setTabs((prev) => {
+        const updated = prev.map((t) =>
+          t.id === activeTabId
+            ? {
+                ...t,
+                todos: overrideTodos ?? todos,
+                note: overrideNote ?? note,
+                expandedIds: Array.from(expandedIds),
+              }
+            : t
+        );
+        tabsRef.current = updated;
+        storage.saveTabs(updated);
+        return updated;
+      });
+    },
+    [activeTabId, todos, note, expandedIds]
+  );
+
   const scheduleSave = useCallback((newTodos: TodoItem[]) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      storage.saveTodos(newTodos);
+      saveTabsWithCurrentState(newTodos, undefined);
     }, 500);
-  }, []);
+  }, [saveTabsWithCurrentState]);
 
   const scheduleNoteSave = useCallback((newNote: string) => {
     if (saveNoteTimeoutRef.current) clearTimeout(saveNoteTimeoutRef.current);
     saveNoteTimeoutRef.current = setTimeout(() => {
-      storage.saveNote(newNote);
+      saveTabsWithCurrentState(undefined, newNote);
     }, 500);
-  }, []);
+  }, [saveTabsWithCurrentState]);
+
+  // Save expanded state changes (debounced, so expand/collapse persists on refresh)
+  const expandSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (!mounted) return;
+    if (expandSaveRef.current) clearTimeout(expandSaveRef.current);
+    expandSaveRef.current = setTimeout(() => {
+      saveTabsWithCurrentState();
+    }, 500);
+    return () => {
+      if (expandSaveRef.current) clearTimeout(expandSaveRef.current);
+    };
+  }, [expandedIds]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Computed ─────────────────────────────────────────────
 
@@ -271,6 +342,7 @@ export default function NestedTodoApp() {
           ...item,
           checked: !item.checked,
           waiting: false,
+          caution: false,
         }));
 
         // If unchecking a child, uncheck any checked ancestors up the chain
@@ -534,6 +606,8 @@ export default function NestedTodoApp() {
         const updated = updateItemInTree(prev, parentId, (parent) => ({
           ...parent,
           checked: true,
+          waiting: false,
+          caution: false,
           children: parent.children.map((child) =>
             child.checked ? child : setPutAsideRecursive(child, true)
           ),
@@ -602,6 +676,156 @@ export default function NestedTodoApp() {
     [scheduleSave]
   );
 
+  const toggleCaution = useCallback(
+    (itemId: string) => {
+      setTodos((prev) => {
+        const updated = updateItemInTree(prev, itemId, (item) => ({
+          ...item,
+          caution: !item.caution,
+        }));
+        scheduleSave(updated);
+        return updated;
+      });
+    },
+    [scheduleSave]
+  );
+
+  const updateDuration = useCallback(
+    (itemId: string, seconds: number) => {
+      setTodos((prev) => {
+        const updated = updateItemInTree(prev, itemId, (item) => ({
+          ...item,
+          duration: seconds,
+        }));
+        scheduleSave(updated);
+        return updated;
+      });
+    },
+    [scheduleSave]
+  );
+
+  const [focusModalItemId, setFocusModalItemId] = useState<string | null>(null);
+
+  const openFocusModal = useCallback((itemId: string) => {
+    setFocusModalItemId(itemId);
+  }, []);
+
+  const closeFocusModal = useCallback(() => {
+    setFocusModalItemId(null);
+  }, []);
+
+  // ─── Tab Management ─────────────────────────────────────
+
+  const clearTransientState = useCallback(() => {
+    touchedTimestamps.current.clear();
+    glowArrivals.current.clear();
+    glowComplete.current.clear();
+    pendingAutoTouch.current.clear();
+    setDragState(null);
+    dragStateRef.current = null;
+    setFocusModalItemId(null);
+    setDeletedItem(null);
+  }, []);
+
+  const switchTab = useCallback(
+    (targetTabId: string) => {
+      if (targetTabId === activeTabId) return;
+
+      // Snapshot current tab state into tabs array
+      const snapshotTabs = tabsRef.current.map((t) =>
+        t.id === activeTabId
+          ? { ...t, todos, note, expandedIds: Array.from(expandedIds) }
+          : t
+      );
+      tabsRef.current = snapshotTabs;
+      setTabs(snapshotTabs);
+      storage.saveTabs(snapshotTabs);
+
+      // Load target tab
+      const target = snapshotTabs.find((t) => t.id === targetTabId);
+      if (!target) return;
+
+      setActiveTabId(targetTabId);
+      storage.saveActiveTabId(targetTabId);
+      setTodos(target.todos.length > 0 ? target.todos : [createTodoItem("", 0)]);
+      setNote(target.note);
+      setExpandedIds(new Set(target.expandedIds));
+      clearTransientState();
+    },
+    [activeTabId, todos, note, expandedIds, clearTransientState]
+  );
+
+  const createTab = useCallback(() => {
+    // Snapshot current tab first
+    const snapshotTabs = tabsRef.current.map((t) =>
+      t.id === activeTabId
+        ? { ...t, todos, note, expandedIds: Array.from(expandedIds) }
+        : t
+    );
+
+    const newTab: Tab = {
+      id: generateId(),
+      name: "New Tab",
+      todos: [createTodoItem("", 0)],
+      note: "",
+      expandedIds: [],
+    };
+
+    const updatedTabs = [...snapshotTabs, newTab];
+    tabsRef.current = updatedTabs;
+    setTabs(updatedTabs);
+    storage.saveTabs(updatedTabs);
+
+    // Switch to the new tab
+    setActiveTabId(newTab.id);
+    storage.saveActiveTabId(newTab.id);
+    setTodos(newTab.todos);
+    setNote(newTab.note);
+    setExpandedIds(new Set());
+    clearTransientState();
+
+    // Auto-start renaming
+    setRenamingTabId(newTab.id);
+  }, [activeTabId, todos, note, expandedIds, clearTransientState]);
+
+  const renameTab = useCallback(
+    (tabId: string, newName: string) => {
+      const trimmed = newName.trim() || "Untitled";
+      const updatedTabs = tabsRef.current.map((t) =>
+        t.id === tabId ? { ...t, name: trimmed } : t
+      );
+      tabsRef.current = updatedTabs;
+      setTabs(updatedTabs);
+      storage.saveTabs(updatedTabs);
+      setRenamingTabId(null);
+    },
+    []
+  );
+
+  const deleteTab = useCallback(
+    (tabId: string) => {
+      if (tabsRef.current.length <= 1) return; // Can't delete last tab
+
+      const idx = tabsRef.current.findIndex((t) => t.id === tabId);
+      const updatedTabs = tabsRef.current.filter((t) => t.id !== tabId);
+      tabsRef.current = updatedTabs;
+      setTabs(updatedTabs);
+      storage.saveTabs(updatedTabs);
+
+      // If we deleted the active tab, switch to an adjacent one
+      if (tabId === activeTabId) {
+        const newActive = updatedTabs[Math.min(idx, updatedTabs.length - 1)];
+        setActiveTabId(newActive.id);
+        storage.saveActiveTabId(newActive.id);
+        setTodos(newActive.todos.length > 0 ? newActive.todos : [createTodoItem("", 0)]);
+        setNote(newActive.note);
+        setExpandedIds(new Set(newActive.expandedIds));
+        clearTransientState();
+      }
+    },
+    [activeTabId, clearTransientState]
+  );
+
   // ─── Context Value ────────────────────────────────────────
 
   const actions: TodoActions = useMemo(
@@ -626,6 +850,10 @@ export default function NestedTodoApp() {
       restorePutAside,
       reactivatePutAside,
       toggleWaiting,
+      toggleCaution,
+      updateDuration,
+      openFocusModal,
+      closeFocusModal,
     }),
     [
       toggleExpandWithCleanup,
@@ -648,6 +876,10 @@ export default function NestedTodoApp() {
       restorePutAside,
       reactivatePutAside,
       toggleWaiting,
+      toggleCaution,
+      updateDuration,
+      openFocusModal,
+      closeFocusModal,
     ]
   );
 
@@ -806,6 +1038,155 @@ export default function NestedTodoApp() {
               lineHeight: 1.5,
             }}
           />
+
+          {/* ─── Tab Bar ──────────────────────────────────── */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+              marginTop: 12,
+              overflowX: "auto",
+              paddingBottom: 4,
+            }}
+          >
+            {tabs.map((tab) => {
+              const isActive = tab.id === activeTabId;
+              const isRenaming = tab.id === renamingTabId;
+
+              return (
+                <div
+                  key={tab.id}
+                  style={{
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                    flexShrink: 0,
+                  }}
+                  onMouseEnter={(e) => {
+                    const x = e.currentTarget.querySelector("[data-tab-close]") as HTMLElement | null;
+                    if (x && tabs.length > 1) x.style.opacity = "0.5";
+                  }}
+                  onMouseLeave={(e) => {
+                    const x = e.currentTarget.querySelector("[data-tab-close]") as HTMLElement | null;
+                    if (x) x.style.opacity = "0";
+                  }}
+                >
+                  {isRenaming ? (
+                    <input
+                      autoFocus
+                      defaultValue={tab.name}
+                      onBlur={(e) => renameTab(tab.id, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          renameTab(tab.id, (e.target as HTMLInputElement).value);
+                        }
+                        if (e.key === "Escape") {
+                          setRenamingTabId(null);
+                        }
+                      }}
+                      onFocus={(e) => e.target.select()}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        borderBottom: `2px solid var(--nt-accent)`,
+                        outline: "none",
+                        fontSize: 13,
+                        fontFamily: "inherit",
+                        color: "var(--nt-text-primary)",
+                        padding: "4px 8px",
+                        minWidth: 40,
+                        maxWidth: 160,
+                      }}
+                    />
+                  ) : (
+                    <button
+                      onClick={() => switchTab(tab.id)}
+                      onDoubleClick={() => setRenamingTabId(tab.id)}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        borderBottom: isActive
+                          ? `2px solid var(--nt-accent)`
+                          : "2px solid transparent",
+                        padding: "4px 8px",
+                        fontSize: 13,
+                        fontFamily: "inherit",
+                        color: isActive
+                          ? "var(--nt-text-primary)"
+                          : "var(--nt-text-muted)",
+                        cursor: "pointer",
+                        transition: "color 0.15s, border-color 0.15s",
+                        whiteSpace: "nowrap",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) e.currentTarget.style.color = "var(--nt-text-secondary)";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) e.currentTarget.style.color = "var(--nt-text-muted)";
+                      }}
+                    >
+                      {tab.name}
+                    </button>
+                  )}
+
+                  {/* Delete × button (visible on hover, hidden for last tab) */}
+                  <button
+                    data-tab-close
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteTab(tab.id);
+                    }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: "0 2px",
+                      fontSize: 12,
+                      color: "var(--nt-text-muted)",
+                      cursor: "pointer",
+                      opacity: 0,
+                      transition: "opacity 0.15s",
+                      lineHeight: 1,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = "1";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = "0.5";
+                    }}
+                    aria-label={`Delete tab "${tab.name}"`}
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+
+            {/* New tab button */}
+            <button
+              onClick={createTab}
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: "4px 8px",
+                fontSize: 16,
+                color: "var(--nt-text-muted)",
+                cursor: "pointer",
+                transition: "color 0.15s",
+                flexShrink: 0,
+                lineHeight: 1,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--nt-text-secondary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--nt-text-muted)";
+              }}
+              aria-label="Create new tab"
+            >
+              +
+            </button>
+          </div>
         </header>
 
         {/* ─── Columns (CSS Grid) ────────────────────────── */}
@@ -953,6 +1334,19 @@ export default function NestedTodoApp() {
                   ? (columns[0] || [])
                   : (targetCol ? targetCol.filter((e) => e.parentId === targetParentId) : []);
 
+                // Find the max grid row used by an item and all its visible descendants
+                const getSubtreeMaxRow = (item: TodoItem): number => {
+                  const pos = gridAssignments.get(item.id);
+                  let maxRow = pos ? pos.gridRow : 0;
+                  if (expandedIds.has(item.id)) {
+                    for (const child of item.children) {
+                      const childMax = getSubtreeMaxRow(child);
+                      if (childMax > maxRow) maxRow = childMax;
+                    }
+                  }
+                  return maxRow;
+                };
+
                 // Determine which grid row to place the indicator at
                 let indicatorRow: number;
                 if (siblings.length === 0) {
@@ -964,8 +1358,9 @@ export default function NestedTodoApp() {
                   indicatorRow = pos ? pos.gridRow : 1;
                 } else {
                   const prev = siblings[Math.min(dropIndex - 1, siblings.length - 1)];
-                  const pos = prev ? gridAssignments.get(prev.item.id) : null;
-                  indicatorRow = pos ? pos.gridRow + 1 : 1;
+                  // Use the max row of the previous item's full subtree + 1
+                  const subtreeMax = getSubtreeMaxRow(prev.item);
+                  indicatorRow = subtreeMax > 0 ? subtreeMax + 1 : 1;
                 }
 
                 const lineColor = isBlocked ? "var(--nt-text-muted)" : "var(--nt-accent)";
@@ -1128,6 +1523,23 @@ export default function NestedTodoApp() {
           check &middot; Alt+&uarr;&darr; to reorder
         </div>
       </div>
+
+      {/* Focus Modal (disabled — styling preserved in FocusModal.tsx for later) */}
+      {/* <AnimatePresence>
+        {focusModalItemId != null && findItemInTree(todos, focusModalItemId) && (
+          <FocusModal
+            item={findItemInTree(todos, focusModalItemId)!}
+            onToggleCaution={() => actions.toggleCaution(focusModalItemId)}
+            onUpdateDuration={(seconds) => actions.updateDuration(focusModalItemId!, seconds)}
+            onComplete={() => {
+              actions.markTouched(focusModalItemId!);
+              actions.toggleCheck(focusModalItemId!);
+              closeFocusModal();
+            }}
+            onClose={closeFocusModal}
+          />
+        )}
+      </AnimatePresence> */}
     </TodoContext.Provider>
   );
 }

@@ -471,18 +471,16 @@ export default function ConnectingLines({
         gwk.bracketKey = gwk.bracketKey.replace("__GC__", String(gc));
       }
 
-      // Compute trunk X staggering
+      // Compute trunk X — midpoint of the gap between parent and children
       const allGroups = groupsWithKeys.map((g) => g.group);
       const gapLeft = Math.max(...allGroups.map((g) => g.parentRight));
       const gapRight = Math.min(
         ...allGroups.flatMap((g) => g.children.map((c) => c.x))
       );
-      const gapWidth = Math.max(gapRight - gapLeft, MIN_GAP);
-      const numGroups = allGroups.length;
-      const spacing = gapWidth / (numGroups + 1);
+      const midX = gapLeft + Math.max(gapRight - gapLeft, MIN_GAP) / 2;
 
-      for (let gi = 0; gi < numGroups; gi++) {
-        allGroups[gi].trunkX = gapLeft + spacing * (numGroups - gi);
+      for (let gi = 0; gi < allGroups.length; gi++) {
+        allGroups[gi].trunkX = midX;
 
         const g = allGroups[gi];
         const minX = g.parentRight;

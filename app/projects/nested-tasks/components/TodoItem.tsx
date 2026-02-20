@@ -3,7 +3,7 @@
 import { useCallback, useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useTodoContext } from "./NestedTodoApp";
-import { MAX_COLUMNS, getSubtreeDepth, hasAnyPutAside } from "../lib/types";
+import { MAX_COLUMNS, getSubtreeDepth, hasAnyPutAside, formatDuration } from "../lib/types";
 import type { ColumnEntry } from "../lib/types";
 import LiquidCheckbox from "./LiquidCheckbox";
 
@@ -203,6 +203,51 @@ function ExpandAllButton({ onClick }: { onClick: () => void }) {
   );
 }
 
+// ─── More Button (opens focus modal) ─────────────────────────
+
+function MoreButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--nt-surface)";
+        e.currentTarget.style.opacity = "0.9";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "none";
+        e.currentTarget.style.opacity = "0.35";
+      }}
+      tabIndex={-1}
+      style={{
+        width: 20,
+        height: 20,
+        background: "none",
+        border: "none",
+        borderRadius: 4,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        padding: 0,
+        color: "var(--nt-text-muted)",
+        transition: "background 0.15s, opacity 0.15s",
+        opacity: 0.35,
+      }}
+      aria-label="More options"
+    >
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+        <circle cx="2" cy="6" r="1.2" />
+        <circle cx="6" cy="6" r="1.2" />
+        <circle cx="10" cy="6" r="1.2" />
+      </svg>
+    </button>
+  );
+}
+
 // ─── Waiting Button ──────────────────────────────────────────
 
 function WaitingButton({
@@ -259,6 +304,67 @@ function WaitingButton({
           strokeWidth="1.3"
           strokeLinecap="round"
           strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+// ─── Caution Button ─────────────────────────────────────────
+
+function CautionButton({
+  active,
+  onClick,
+}: {
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--nt-surface)";
+        e.currentTarget.style.opacity = "0.9";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "none";
+        e.currentTarget.style.opacity = active ? "0.7" : "0.35";
+      }}
+      tabIndex={-1}
+      style={{
+        width: 20,
+        height: 20,
+        background: "none",
+        border: "none",
+        borderRadius: 4,
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        flexShrink: 0,
+        padding: 0,
+        color: "var(--nt-text-muted)",
+        transition: "background 0.15s, opacity 0.15s",
+        opacity: active ? 0.7 : 0.35,
+      }}
+      aria-label={active ? "Remove caution" : "Mark as caution"}
+    >
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path
+          d="M2 1v10"
+          stroke={active ? "#fb923c" : "currentColor"}
+          strokeWidth="1.3"
+          strokeLinecap="round"
+        />
+        <path
+          d="M2 1.5 L9.5 1.5 L7 4 L9.5 6.5 L2 6.5 Z"
+          stroke={active ? "#fb923c" : "currentColor"}
+          strokeWidth="1.2"
+          strokeLinejoin="round"
+          fill={active ? "rgba(251, 146, 60, 0.15)" : "none"}
         />
       </svg>
     </button>
@@ -809,6 +915,7 @@ export default function TodoItemComponent({
     <motion.div
       ref={itemElRef}
       data-item-id={item.id}
+      className={item.caution ? "nt-item-caution" : undefined}
       animate={{
         opacity: isDraggedAway ? 0.35 : 1,
       }}
@@ -974,11 +1081,11 @@ export default function TodoItemComponent({
             border: "none",
             outline: "none",
             fontSize: 14,
-            color: (item.checked || item.waiting)
+            color: item.checked
               ? "var(--nt-text-muted)"
               : "var(--nt-text-primary)",
             textDecoration: "none",
-            opacity: item.checked ? 0.6 : item.waiting ? 0.5 : 1,
+            opacity: item.checked ? 0.6 : item.waiting ? 0.7 : 1,
             fontFamily: "inherit",
             padding: "4px 2px",
             lineHeight: "20px",
@@ -991,7 +1098,28 @@ export default function TodoItemComponent({
         />
       )}
 
+      {/* Duration badge */}
+      {item.duration != null && item.duration > 0 && (
+        <span
+          style={{
+            fontSize: 11,
+            color: "var(--nt-text-muted)",
+            opacity: 0.5,
+            fontFamily: "'SF Mono', 'Fira Code', 'Cascadia Code', monospace",
+            whiteSpace: "nowrap",
+            paddingTop: 6,
+            flexShrink: 0,
+          }}
+        >
+          {formatDuration(item.duration)}
+        </span>
+      )}
+
       <div style={{ paddingTop: 4, flexShrink: 0, display: "flex", alignItems: "center", gap: 2 }}>
+        <CautionButton
+          active={!!item.caution}
+          onClick={() => actions.toggleCaution(item.id)}
+        />
         {!item.checked && !item.putAside && (
           <WaitingButton
             active={!!item.waiting}

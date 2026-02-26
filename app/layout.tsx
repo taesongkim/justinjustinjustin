@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 
-import Scene from "./components/Scene";
+// Nav and Scene removed from global layout — homepage manages its own background
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,13 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body suppressHydrationWarning className={`${inter.variable} ${interTight.variable} antialiased font-sans`}>
-        {/* 3D background — persists across page navigations */}
-        <Scene />
-
-        {/* Page content */}
-        <main className="relative z-10 min-h-screen">
-          {children}
-        </main>
+        {children}
       </body>
     </html>
   );

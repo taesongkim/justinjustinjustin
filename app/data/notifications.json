@@ -1,0 +1,20 @@
+[
+  {
+    "id": "8",
+    "category": "update",
+    "message": "published working version of productivity tool: nested tasks",
+    "timestamp": "2026-02-18T22:05:00.000Z"
+  },
+  {
+    "id": "7",
+    "category": "note",
+    "message": "lots more updates coming. just setting up environment and workflows (and finishing therapy homework).",
+    "timestamp": "2026-02-26T22:01:00.000Z"
+  },
+  {
+    "id": "6",
+    "category": "update",
+    "message": "quick update to homepage content",
+    "timestamp": "2026-02-26T22:01:00.000Z"
+  }
+]

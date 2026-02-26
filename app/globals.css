@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #ededed;
+  --background: #0a0a0a;
+  --foreground: #e0e0e0;
 }
 
 @theme inline {
@@ -38,4 +38,115 @@ body {
 ::selection {
   background: rgba(255, 255, 255, 0.15);
   color: #ffffff;
+}
+
+/* ─── Homepage Layout ─────────────────────────────────────── */
+
+.home-root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #0a0a0a;
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.13) 1px, transparent 1px),
+    radial-gradient(ellipse 60% 70% at 75% 50%, rgba(30, 20, 60, 0.6) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 20% 60%, rgba(10, 30, 50, 0.4) 0%, transparent 60%);
+  background-size: 36px 36px, 100% 100%, 100% 100%;
+  overflow: hidden;
+}
+
+.home-content {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  padding: 0 48px 48px;
+  gap: 64px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.home-welcome {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding-left: clamp(24px, 8.33%, 120px); /* ~1 col on a 12-col grid */
+}
+
+.home-feed {
+  width: 360px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0 0;
+  min-height: 0;
+}
+
+.home-feed-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding-right: 4px;
+  padding-bottom: 16px;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: #222222 transparent;
+}
+
+.home-feed-inner::-webkit-scrollbar       { width: 4px; }
+.home-feed-inner::-webkit-scrollbar-track { background: transparent; }
+.home-feed-inner::-webkit-scrollbar-thumb { background: #222222; border-radius: 2px; }
+.home-feed-inner::-webkit-scrollbar-thumb:hover { background: #2e2e2e; }
+
+@media (max-width: 720px) {
+  .home-root {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .home-content {
+    flex-direction: column;
+    overflow: visible;
+    padding: 8px 24px 48px;
+    gap: 36px;
+    align-items: flex-start;
+  }
+
+  .home-welcome {
+    flex: none;
+    padding-top: 8px;
+    padding-left: 0;
+  }
+
+  .home-feed {
+    width: 100%;
+  }
+
+  .home-feed-inner {
+    overflow-y: visible;
+    max-height: none;
+    padding-right: 0;
+  }
+}
+
+/* ─── Notification Feed Scrollbar ─────────────────────────── */
+.notification-feed {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a transparent;
+}
+.notification-feed::-webkit-scrollbar {
+  width: 4px;
+}
+.notification-feed::-webkit-scrollbar-track {
+  background: transparent;
+}
+.notification-feed::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+.notification-feed::-webkit-scrollbar-thumb:hover {
+  background: #3a3a3a;
 }

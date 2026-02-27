@@ -7,6 +7,57 @@ import { MAX_COLUMNS, getSubtreeDepth, hasAnyPutAside, formatDuration } from "..
 import type { ColumnEntry } from "../lib/types";
 import LiquidCheckbox from "./LiquidCheckbox";
 
+// ─── Tooltip ──────────────────────────────────────────────────
+
+function Tooltip({ label, children }: { label: string; children: React.ReactNode }) {
+  const [state, setState] = useState<"hidden" | "visible" | "hiding">("hidden");
+  const showTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function show() {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    showTimer.current = setTimeout(() => setState("visible"), 450);
+  }
+  function hide() {
+    if (showTimer.current) clearTimeout(showTimer.current);
+    setState((s) => s === "visible" ? "hiding" : "hidden");
+    hideTimer.current = setTimeout(() => setState("hidden"), 120);
+  }
+
+  return (
+    <div
+      style={{ position: "relative", display: "inline-flex" }}
+      onMouseEnter={show}
+      onMouseLeave={hide}
+    >
+      {children}
+      {state !== "hidden" && (
+        <div style={{
+          position:      "absolute",
+          bottom:        "calc(100% + 6px)",
+          left:          "50%",
+          transform:     "translateX(-50%)",
+          background:    "rgba(20, 20, 20, 0.95)",
+          border:        "1px solid rgba(255,255,255,0.08)",
+          borderRadius:  5,
+          padding:       "4px 8px",
+          fontSize:      11,
+          color:         "#bbb",
+          whiteSpace:    "nowrap",
+          pointerEvents: "none",
+          zIndex:        100,
+          letterSpacing: "0.02em",
+          boxShadow:     "0 2px 8px rgba(0,0,0,0.4)",
+          opacity:       state === "visible" ? 1 : 0,
+          transition:    state === "visible" ? "opacity 0.1s ease" : "opacity 0.12s ease",
+        }}>
+          {label}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Animation ────────────────────────────────────────────────
 
 /** Per-item stagger interval for cascading fade (ms). */
@@ -1116,35 +1167,43 @@ export default function TodoItemComponent({
       )}
 
       <div style={{ paddingTop: 4, flexShrink: 0, display: "flex", alignItems: "center", gap: 2 }}>
-        <CautionButton
-          active={!!item.caution}
-          onClick={() => actions.toggleCaution(item.id)}
-        />
-        {!item.checked && !item.putAside && (
-          <WaitingButton
-            active={!!item.waiting}
-            onClick={() => actions.toggleWaiting(item.id)}
+        <Tooltip label="Mark as Needing Attention">
+          <CautionButton
+            active={!!item.caution}
+            onClick={() => actions.toggleCaution(item.id)}
           />
+        </Tooltip>
+        {!item.checked && !item.putAside && (
+          <Tooltip label="Mark as Waiting On Someone Else">
+            <WaitingButton
+              active={!!item.waiting}
+              onClick={() => actions.toggleWaiting(item.id)}
+            />
+          </Tooltip>
         )}
         {canExpand && (
           <>
             {item.children.some((c) => c.children.length > 0) &&
               !allBranchesExpanded(item, expandedIds) && (
-              <ExpandAllButton
-                onClick={() => actions.expandAllDescendants(item.id)}
-              />
+              <Tooltip label="Expand Entire Task Tree">
+                <ExpandAllButton
+                  onClick={() => actions.expandAllDescendants(item.id)}
+                />
+              </Tooltip>
             )}
-            <ExpandArrow
-              expanded={isExpanded}
-              hasChildren={item.children.length > 0}
-              onClick={() => {
-                if (!isExpanded && item.children.length === 0) {
-                  actions.createFirstChild(item.id);
-                } else {
-                  actions.toggleExpand(item.id);
-                }
-              }}
-            />
+            <Tooltip label={item.children.length > 0 ? (isExpanded ? "Collapse" : "Expand") : "Create Sub-Task"}>
+              <ExpandArrow
+                expanded={isExpanded}
+                hasChildren={item.children.length > 0}
+                onClick={() => {
+                  if (!isExpanded && item.children.length === 0) {
+                    actions.createFirstChild(item.id);
+                  } else {
+                    actions.toggleExpand(item.id);
+                  }
+                }}
+              />
+            </Tooltip>
           </>
         )}
       </div>

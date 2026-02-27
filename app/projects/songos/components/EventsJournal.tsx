@@ -599,7 +599,7 @@ function NotesPanel({
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       style={{
-        padding: "24px 28px",
+        padding: "24px 32px",
         display: "flex",
         flexDirection: "column",
         height: "100%",
@@ -897,7 +897,7 @@ export default function EventsJournal({
           style={{
             flexShrink: 0,
             borderBottom: "1px solid var(--nt-border)",
-            padding: "10px 20px",
+            padding: "10px 32px",
             display: "flex",
             alignItems: "center",
             gap: 16,
@@ -1084,7 +1084,7 @@ export default function EventsJournal({
           {/* Header */}
           <div
             style={{
-              padding: "20px 20px 12px",
+              padding: "24px 32px 16px",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
@@ -1132,7 +1132,7 @@ export default function EventsJournal({
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "12px 12px",
+              padding: "12px 32px",
               display: "flex",
               flexDirection: "column",
               gap: 8,

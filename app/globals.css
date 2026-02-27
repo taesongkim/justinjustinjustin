@@ -48,7 +48,7 @@ body {
   flex-direction: column;
   background-color: #0a0a0a;
   background-image:
-    radial-gradient(circle, rgba(255, 255, 255, 0.13) 1px, transparent 1px),
+    radial-gradient(circle, transparent 1px, transparent 1px),
     radial-gradient(ellipse 60% 70% at 75% 50%, rgba(30, 20, 60, 0.6) 0%, transparent 70%),
     radial-gradient(ellipse 40% 50% at 20% 60%, rgba(10, 30, 50, 0.4) 0%, transparent 60%);
   background-size: 36px 36px, 100% 100%, 100% 100%;
@@ -69,8 +69,10 @@ body {
 .home-welcome {
   flex: 1;
   display: flex;
-  align-items: center;
-  padding-left: clamp(24px, 8.33%, 120px); /* ~1 col on a 12-col grid */
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding-left: clamp(24px, 25%, 360px); /* ~3 cols on a 12-col grid */
 }
 
 .home-feed {

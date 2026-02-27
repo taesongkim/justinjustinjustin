@@ -1,5 +1,17 @@
 [
   {
+    "id": "10",
+    "category": "learned",
+    "message": "Learned I can export visual creations from unicorn.studio via video format AND apply video in web in blend modes. Crazy.",
+    "timestamp": "2026-02-27T01:48:00.000Z"
+  },
+  {
+    "id": "9",
+    "category": "update",
+    "message": "trying out a new, over-the-top, matrix-y background animation",
+    "timestamp": "2026-02-27T01:47:00.000Z"
+  },
+  {
     "id": "8",
     "category": "update",
     "message": "published working version of productivity tool: nested tasks",

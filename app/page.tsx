@@ -207,6 +207,27 @@ export default function Home() {
 
   return (
     <div className="home-root">
+      {/* Overlay video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          position:       "fixed",
+          inset:          0,
+          width:          "100%",
+          height:         "100%",
+          objectFit:      "cover",
+          mixBlendMode:   "screen",
+          pointerEvents:  "none",
+          zIndex:         10,
+          opacity:        0.8,
+        }}
+      >
+        <source src="/overlay.webm" type="video/webm" />
+      </video>
+
       {/* Top bar */}
       <div style={{
         display:        "flex",
@@ -234,8 +255,21 @@ export default function Home() {
               lineHeight:    1.2,
             }}
           >
-            Hey, welcome<br />to the lab.
+            Hi, welcome to<br />my nerd lab.
           </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut", delay: 0.15 }}
+            style={{
+              fontSize:   16,
+              color:      "#888",
+              marginTop:  12,
+              lineHeight: 1.6,
+            }}
+          >
+            Cooking up some fun stuff,<br />so check back soon.<br /><span style={{ display: "block", textAlign: "right" }}>♡J</span>
+          </motion.p>
         </div>
 
         {/* Right: notification feed */}

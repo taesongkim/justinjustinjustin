@@ -1001,7 +1001,8 @@ export default function NestedTodoApp() {
                   aria-label={`Set accent color to ${opt.label}`}
                 />
               ))}
-              <div style={{ width: 1, height: 16, background: "var(--nt-border)", margin: "0 2px" }} />
+              {/* Theme toggle — hidden until light mode styling is complete */}
+              {/* <div style={{ width: 1, height: 16, background: "var(--nt-border)", margin: "0 2px" }} />
               <button
                 onClick={() => setDarkMode((d) => !d)}
                 style={{
@@ -1017,7 +1018,7 @@ export default function NestedTodoApp() {
                 aria-label="Toggle dark mode"
               >
                 {darkMode ? "Light" : "Dark"}
-              </button>
+              </button> */}
             </div>
           </div>
           <textarea

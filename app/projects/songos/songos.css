@@ -1,0 +1,169 @@
+/* ─── Nested Tasks Theme ─────────────────────────────────────── */
+/* All colors are CSS custom properties for easy theming.         */
+/* Swap the values below (or override them) to retheme the app.  */
+
+/* ─── Light Mode ───────────────────────────────────────────── */
+.nt-light {
+  --nt-bg: #f3f3f4;
+  --nt-surface: #eaeaec;
+  --nt-text-primary: #1a1a1a;
+  --nt-text-secondary: #555555;
+  --nt-text-muted: #999999;
+  --nt-border: #dcdcdc;
+  --nt-accent: #3b82f6;
+  --nt-line-color: #c0c0c0;
+  --nt-glow-color: #666666;
+  --nt-liquid-base: #6b6b6b;
+  --nt-checkbox-bg: #ffffff;
+  --nt-checkbox-border: #b0b0b0;
+  --nt-checkbox-checked: var(--nt-accent);
+}
+
+/* ─── Dark Mode ────────────────────────────────────────────── */
+.nt-dark {
+  --nt-bg: #0a0a0a;
+  --nt-surface: #161616;
+  --nt-text-primary: #e0e0e0;
+  --nt-text-secondary: #888888;
+  --nt-text-muted: #4a4a4a;
+  --nt-border: #222222;
+  --nt-accent: #60a5fa;
+  --nt-line-color: #2a2a2a;
+  --nt-glow-color: #ffffff;
+  --nt-liquid-base: #7a7a7a;
+  --nt-checkbox-bg: #1a1a1a;
+  --nt-checkbox-border: #3a3a3a;
+  --nt-checkbox-checked: var(--nt-accent);
+}
+
+/* ─── Base Styles ──────────────────────────────────────────── */
+
+.nt {
+  /* Smooth transitions when switching themes */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nt *::selection {
+  background: var(--nt-accent);
+  color: white;
+}
+
+.nt input::placeholder,
+.nt textarea::placeholder {
+  color: var(--nt-text-muted);
+  opacity: 0.7;
+}
+
+/* ─── Focus Styles ─────────────────────────────────────────── */
+
+.nt input:focus {
+  background: var(--nt-surface) !important;
+  border-radius: 4px;
+}
+
+/* ─── Scrollbar Styling ────────────────────────────────────── */
+
+.nt::-webkit-scrollbar,
+.nt *::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.nt::-webkit-scrollbar-track,
+.nt *::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nt::-webkit-scrollbar-thumb,
+.nt *::-webkit-scrollbar-thumb {
+  background: var(--nt-border);
+  border-radius: 3px;
+}
+
+.nt::-webkit-scrollbar-thumb:hover,
+.nt *::-webkit-scrollbar-thumb:hover {
+  background: var(--nt-text-muted);
+}
+
+/* ─── Drag Handle Hover ────────────────────────────────────── */
+
+.nt [data-item-id]:hover .drag-handle {
+  opacity: 0.4 !important;
+}
+
+/* ─── Waiting Dots ────────────────────────────────────────── */
+
+@keyframes nt-dot-bounce {
+  0%, 60%, 100% { opacity: 0.6; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+
+.nt-waiting-dot {
+  display: block;
+  width: 2.5px;
+  height: 2.5px;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: nt-dot-bounce 1.2s ease-in-out infinite;
+}
+
+/* ─── Caution Pulse ───────────────────────────────────────── */
+
+@keyframes nt-caution-pulse {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 0 0.5px rgba(251, 146, 60, 0.9),
+      0 0 8px rgba(251, 146, 60, 0.3);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 0.5px rgba(251, 146, 60, 0.1),
+      0 0 2px rgba(251, 146, 60, 0);
+  }
+}
+
+.nt-item-caution {
+  animation: nt-caution-pulse 1s ease-in-out infinite;
+  animation-delay: -0.5s;
+  border-radius: 6px;
+}
+
+/* ─── SongOS Shell ────────────────────────────────────────── */
+
+/* Scrollbar styling for areas outside the .nt wrapper */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--nt-border, #222222);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--nt-text-muted, #4a4a4a);
+}
+
+/* datetime-local inputs in dark mode */
+input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+select {
+  color-scheme: dark;
+}
+
+/* ─── Reduced Motion ───────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .nt,
+  .nt * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

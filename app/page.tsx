@@ -27,6 +27,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const PROJECTS = [
+  { label: "SongOS",            href: "/projects/songos" },
   { label: "Nested Tasks",      href: "/projects/nested-tasks" },
   { label: "CE Lineage Visual", href: "/projects/ce-lineage-visual" },
 ];

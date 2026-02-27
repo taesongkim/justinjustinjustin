@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Liquid Checkbox – Physics Variations</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #111;
+    color: #ccc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    padding: 32px;
+    min-height: 100vh;
+  }
+  h1 { font-size: 18px; font-weight: 500; margin-bottom: 24px; color: #eee; }
+  .variations {
+    display: flex;
+    gap: 48px;
+    flex-wrap: wrap;
+  }
+  .variation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .preview-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .true-size-label {
+    font-size: 10px;
+    color: #444;
+    text-align: center;
+  }
+  .zoomed canvas {
+    image-rendering: pixelated;
+  }
+  .variation h2 {
+    font-size: 13px;
+    font-weight: 400;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .variation p {
+    font-size: 11px;
+    color: #555;
+    max-width: 180px;
+    text-align: center;
+    line-height: 1.5;
+  }
+  canvas {
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  button {
+    background: #222;
+    color: #aaa;
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  button:hover { background: #2a2a2a; color: #eee; }
+  .label {
+    font-size: 11px;
+    color: #555;
+  }
+  .global-controls {
+    margin-bottom: 32px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .slider-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .slider-group label {
+    font-size: 11px;
+    color: #666;
+    min-width: 70px;
+  }
+  input[type="range"] {
+    width: 120px;
+    accent-color: #666;
+  }
+  .slider-val {
+    font-size: 11px;
+    color: #888;
+    min-width: 36px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Liquid Checkbox Physics – Test Variations</h1>
+
+<div class="global-controls">
+  <button id="addAll">+ Add 25% to all</button>
+  <button id="resetAll">Reset all</button>
+  <button id="fillAll">Fill all to 100%</button>
+  <div class="slider-group">
+    <label>Impact force</label>
+    <input type="range" id="forceSlider" min="0.2" max="3" step="0.1" value="0.6" />
+    <span class="slider-val" id="forceVal">0.6</span>
+  </div>
+  <div class="slider-group">
+    <label>Damping</label>
+    <input type="range" id="dampSlider" min="0.9" max="0.995" step="0.005" value="0.975" />
+    <span class="slider-val" id="dampVal">0.975</span>
+  </div>
+</div>
+
+<div class="variations" id="container"></div>
+
+<script>
+// ──────────────────────────────────────────────────────────────
+// Config
+// ──────────────────────────────────────────────────────────────
+
+const SIZE = 16;         // actual checkbox size in px
+const RES = 8;           // resolution multiplier for crisp rendering at tiny size
+const W = SIZE * RES;
+const H = SIZE * RES;
+const LIQUID_COLOR = "#e0e0e0";
+const LIQUID_HIGHLIGHT = "#ffffff";
+const BG_COLOR = "#1a1a1a";
+const BORDER_COLOR = "#333";
+const BORDER_RADIUS = 3 * RES;
+const CHECK_INSET = 1 * RES;  // visual inset inside border
+
+let globalForce = 0.6;
+let globalDamp = 0.975;
+
+// ──────────────────────────────────────────────────────────────
+// Variation 1: Wave Surface
+// Sine-wave surface with splash on impact, wall bouncing
+// ──────────────────────────────────────────────────────────────
+
+class WaveSurface {
+  constructor() {
+    this.name = "Wave Surface";
+    this.desc = "Spring-connected surface points. Liquid enters with a wave splash that bounces off walls and dampens.";
+    this.fill = 0;
+    this.targetFill = 0;
+    this.numPoints = 32;
+    this.heights = new Float32Array(this.numPoints);
+    this.velocities = new Float32Array(this.numPoints);
+    this.stiffness = 0.025;
+    this.spread = 0.15;
+  }
+
+  addFill(amount) {
+    this.targetFill = Math.min(1, this.targetFill + amount);
+    // Splash: disturb surface points
+    const force = globalForce * amount * 4;
+    const center = Math.floor(this.numPoints * 0.5);
+    for (let i = 0; i < this.numPoints; i++) {
+      const dist = Math.abs(i - center) / this.numPoints;
+      this.velocities[i] += force * (1 - dist * 2) * (Math.random() * 0.5 + 0.75);
+    }
+  }
+
+  reset() {
+    this.fill = 0;
+    this.targetFill = 0;
+    this.heights.fill(0);
+    this.velocities.fill(0);
+  }
+
+  update() {
+    // Ease fill toward target
+    this.fill += (this.targetFill - this.fill) * 0.06;
+
+    // Spring physics on surface
+    const damp = globalDamp;
+    for (let i = 0; i < this.numPoints; i++) {
+      this.velocities[i] += -this.stiffness * this.heights[i];
+      this.velocities[i] *= damp;
+      this.heights[i] += this.velocities[i];
+    }
+
+    // Spread to neighbors
+    const deltas = new Float32Array(this.numPoints);
+    for (let j = 0; j < 4; j++) {
+      for (let i = 0; i < this.numPoints; i++) {
+        if (i > 0) {
+          deltas[i] = this.spread * (this.heights[i] - this.heights[i - 1]);
+          this.velocities[i - 1] += deltas[i];
+        }
+        if (i < this.numPoints - 1) {
+          deltas[i] = this.spread * (this.heights[i] - this.heights[i + 1]);
+          this.velocities[i + 1] += deltas[i];
+        }
+      }
+    }
+  }
+
+  draw(ctx) {
+    const inset = CHECK_INSET;
+    const innerW = W - inset * 2;
+    const innerH = H - inset * 2;
+    const baseY = inset + innerH * (1 - this.fill);
+
+    ctx.save();
+    // Clip to rounded inner rect
+    roundedRect(ctx, inset, inset, innerW, innerH, BORDER_RADIUS - 2);
+    ctx.clip();
+
+    // Draw liquid body
+    ctx.beginPath();
+    ctx.moveTo(inset, H - inset);
+
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.15;
+      if (i === 0) ctx.lineTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.15;
+        const cx = (px + x) / 2;
+        ctx.quadraticCurveTo(px, py, cx, (py + y) / 2);
+      }
+    }
+    const lastX = inset + innerW;
+    const lastY = baseY + this.heights[this.numPoints - 1] * innerH * 0.15;
+    ctx.lineTo(lastX, lastY);
+    ctx.lineTo(lastX, H - inset);
+    ctx.closePath();
+
+    ctx.fillStyle = LIQUID_COLOR;
+    ctx.fill();
+
+    // Surface highlight
+    ctx.strokeStyle = LIQUID_HIGHLIGHT;
+    ctx.lineWidth = 1.5 * RES;
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.15;
+      if (i === 0) ctx.moveTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.15;
+        const cx = (px + x) / 2;
+        ctx.quadraticCurveTo(px, py, cx, (py + y) / 2);
+      }
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Variation 2: Splash Droplets
+// Liquid rises with droplets that fly up and fall back
+// ──────────────────────────────────────────────────────────────
+
+class SplashDroplets {
+  constructor() {
+    this.name = "Splash Impact";
+    this.desc = "Rising liquid with energetic droplets that launch from the surface on impact and splash back down.";
+    this.fill = 0;
+    this.targetFill = 0;
+    this.numPoints = 32;
+    this.heights = new Float32Array(this.numPoints);
+    this.velocities = new Float32Array(this.numPoints);
+    this.stiffness = 0.03;
+    this.spread = 0.18;
+    this.droplets = [];
+  }
+
+  addFill(amount) {
+    this.targetFill = Math.min(1, this.targetFill + amount);
+    const force = globalForce * amount * 5;
+
+    // Big central splash
+    const center = Math.floor(this.numPoints / 2);
+    for (let i = 0; i < this.numPoints; i++) {
+      const dist = Math.abs(i - center) / (this.numPoints / 2);
+      const impulse = force * Math.max(0, 1 - dist * 1.5);
+      this.velocities[i] -= impulse * (0.8 + Math.random() * 0.4);
+    }
+
+    // Spawn droplets
+    const numDroplets = Math.floor(4 + globalForce * 6 * amount);
+    const inset = CHECK_INSET;
+    const innerW = W - inset * 2;
+    const innerH = H - inset * 2;
+    const baseY = inset + innerH * (1 - this.fill);
+    for (let i = 0; i < numDroplets; i++) {
+      this.droplets.push({
+        x: inset + Math.random() * innerW,
+        y: baseY,
+        vx: (Math.random() - 0.5) * force * 2.5,
+        vy: -(2 + Math.random() * 4) * force,
+        radius: (1.5 + Math.random() * 2.5) * RES,
+        life: 1,
+      });
+    }
+  }
+
+  reset() {
+    this.fill = 0;
+    this.targetFill = 0;
+    this.heights.fill(0);
+    this.velocities.fill(0);
+    this.droplets = [];
+  }
+
+  update() {
+    this.fill += (this.targetFill - this.fill) * 0.06;
+
+    const damp = globalDamp;
+    for (let i = 0; i < this.numPoints; i++) {
+      this.velocities[i] += -this.stiffness * this.heights[i];
+      this.velocities[i] *= damp;
+      this.heights[i] += this.velocities[i];
+    }
+
+    const deltas = new Float32Array(this.numPoints);
+    for (let j = 0; j < 4; j++) {
+      for (let i = 0; i < this.numPoints; i++) {
+        if (i > 0) {
+          deltas[i] = this.spread * (this.heights[i] - this.heights[i - 1]);
+          this.velocities[i - 1] += deltas[i];
+        }
+        if (i < this.numPoints - 1) {
+          deltas[i] = this.spread * (this.heights[i] - this.heights[i + 1]);
+          this.velocities[i + 1] += deltas[i];
+        }
+      }
+    }
+
+    // Update droplets
+    const inset = CHECK_INSET;
+    const innerH = H - inset * 2;
+    const baseY = inset + innerH * (1 - this.fill);
+    for (const d of this.droplets) {
+      d.vy += 0.35 * RES; // gravity
+      d.x += d.vx;
+      d.y += d.vy;
+      if (d.y > baseY) {
+        d.life -= 0.15;
+        d.vy *= -0.3;
+        d.y = baseY;
+        // Ripple where droplet lands
+        const idx = Math.floor(((d.x - inset) / (W - inset * 2)) * this.numPoints);
+        if (idx >= 0 && idx < this.numPoints) {
+          this.velocities[idx] -= d.radius * 0.02;
+        }
+      }
+      d.life -= 0.008;
+    }
+    this.droplets = this.droplets.filter(d => d.life > 0);
+  }
+
+  draw(ctx) {
+    const inset = CHECK_INSET;
+    const innerW = W - inset * 2;
+    const innerH = H - inset * 2;
+    const baseY = inset + innerH * (1 - this.fill);
+
+    ctx.save();
+    roundedRect(ctx, inset, inset, innerW, innerH, BORDER_RADIUS - 2);
+    ctx.clip();
+
+    // Liquid body
+    ctx.beginPath();
+    ctx.moveTo(inset, H - inset);
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.12;
+      if (i === 0) ctx.lineTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.12;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+    ctx.lineTo(inset + innerW, baseY + this.heights[this.numPoints - 1] * innerH * 0.12);
+    ctx.lineTo(inset + innerW, H - inset);
+    ctx.closePath();
+    ctx.fillStyle = LIQUID_COLOR;
+    ctx.fill();
+
+    // Surface line
+    ctx.strokeStyle = LIQUID_HIGHLIGHT;
+    ctx.lineWidth = 1.5 * RES;
+    ctx.globalAlpha = 0.25;
+    ctx.beginPath();
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.12;
+      if (i === 0) ctx.moveTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.12;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+
+    // Droplets (drawn outside clip so they can fly above)
+    ctx.save();
+    // Clip to full inner box for droplets
+    roundedRect(ctx, inset - 2, inset - 2, innerW + 4, innerH + 4, BORDER_RADIUS);
+    ctx.clip();
+    for (const d of this.droplets) {
+      ctx.globalAlpha = d.life * 0.8;
+      ctx.fillStyle = LIQUID_COLOR;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Variation 3: Viscous Blob
+// Thick, gooey liquid that stretches and settles slowly
+// ──────────────────────────────────────────────────────────────
+
+class ViscousBlob {
+  constructor() {
+    this.name = "Viscous Gel";
+    this.desc = "Thick, gooey fluid that stretches upward on impact, bulges, and slowly relaxes with high surface tension.";
+    this.fill = 0;
+    this.targetFill = 0;
+    this.numPoints = 40;
+    this.heights = new Float32Array(this.numPoints);
+    this.velocities = new Float32Array(this.numPoints);
+    this.stiffness = 0.008;
+    this.spread = 0.08;
+    this.bulge = 0;
+    this.bulgeVel = 0;
+    this.bulgeCenter = 0.75;
+  }
+
+  addFill(amount) {
+    this.targetFill = Math.min(1, this.targetFill + amount);
+    const force = globalForce * amount * 3;
+    // Bulge from right side
+    this.bulgeVel -= force * 1.5;
+    this.bulgeCenter = 0.75; // impact origin biased right
+
+    for (let i = 0; i < this.numPoints; i++) {
+      const t = i / (this.numPoints - 1);
+      // Right-biased bell curve (centered at 0.75)
+      const bell = Math.exp(-((t - 0.75) ** 2) / 0.06);
+      this.velocities[i] -= force * bell * (0.7 + Math.random() * 0.3);
+      // Leftward momentum — stronger on the right
+      if (i > 0) {
+        this.velocities[i - 1] -= force * 0.15 * Math.max(0, t - 0.3);
+      }
+    }
+  }
+
+  reset() {
+    this.fill = 0;
+    this.targetFill = 0;
+    this.heights.fill(0);
+    this.velocities.fill(0);
+    this.bulge = 0;
+    this.bulgeVel = 0;
+  }
+
+  update() {
+    this.fill += (this.targetFill - this.fill) * 0.035; // slower rise
+
+    // Much heavier damping for viscous feel
+    const damp = globalDamp * 0.985;
+    for (let i = 0; i < this.numPoints; i++) {
+      this.velocities[i] += -this.stiffness * this.heights[i];
+      this.velocities[i] *= damp;
+      this.heights[i] += this.velocities[i];
+    }
+
+    // Higher spread for surface tension
+    for (let j = 0; j < 6; j++) {
+      for (let i = 0; i < this.numPoints; i++) {
+        if (i > 0) {
+          const d = this.spread * (this.heights[i] - this.heights[i - 1]);
+          this.velocities[i - 1] += d;
+        }
+        if (i < this.numPoints - 1) {
+          const d = this.spread * (this.heights[i] - this.heights[i + 1]);
+          this.velocities[i + 1] += d;
+        }
+      }
+    }
+
+    // Bulge spring
+    this.bulgeVel += -0.01 * this.bulge;
+    this.bulgeVel *= 0.96;
+    this.bulge += this.bulgeVel;
+  }
+
+  draw(ctx) {
+    const inset = CHECK_INSET;
+    const innerW = W - inset * 2;
+    const innerH = H - inset * 2;
+    const baseY = inset + innerH * (1 - this.fill);
+
+    ctx.save();
+    roundedRect(ctx, inset, inset, innerW, innerH, BORDER_RADIUS - 2);
+    ctx.clip();
+
+    ctx.beginPath();
+    ctx.moveTo(inset, H - inset);
+
+    for (let i = 0; i < this.numPoints; i++) {
+      const t = i / (this.numPoints - 1);
+      const x = inset + t * innerW;
+      // Bell-shaped bulge in center
+      const bell = Math.exp(-((t - this.bulgeCenter) ** 2) / 0.06);
+      const y = baseY + this.heights[i] * innerH * 0.2 + this.bulge * bell * innerH * 0.15;
+
+      if (i === 0) {
+        ctx.lineTo(x, y);
+      } else {
+        const pt = (i - 1) / (this.numPoints - 1);
+        const px = inset + pt * innerW;
+        const pBell = Math.exp(-((pt - this.bulgeCenter) ** 2) / 0.06);
+        const py = baseY + this.heights[i - 1] * innerH * 0.2 + this.bulge * pBell * innerH * 0.15;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+
+    const lastT = 1;
+    const lastBell = Math.exp(-((lastT - this.bulgeCenter) ** 2) / 0.06);
+    ctx.lineTo(
+      inset + innerW,
+      baseY + this.heights[this.numPoints - 1] * innerH * 0.2 + this.bulge * lastBell * innerH * 0.15
+    );
+    ctx.lineTo(inset + innerW, H - inset);
+    ctx.closePath();
+
+    ctx.fillStyle = LIQUID_COLOR;
+    ctx.fill();
+
+    // Thick highlight on surface
+    ctx.strokeStyle = LIQUID_HIGHLIGHT;
+    ctx.lineWidth = 2.5 * RES;
+    ctx.globalAlpha = 0.15;
+    ctx.beginPath();
+    for (let i = 0; i < this.numPoints; i++) {
+      const t = i / (this.numPoints - 1);
+      const x = inset + t * innerW;
+      const bell = Math.exp(-((t - this.bulgeCenter) ** 2) / 0.06);
+      const y = baseY + this.heights[i] * innerH * 0.2 + this.bulge * bell * innerH * 0.15;
+      if (i === 0) ctx.moveTo(x, y);
+      else {
+        const pt = (i - 1) / (this.numPoints - 1);
+        const px = inset + pt * innerW;
+        const pBell = Math.exp(-((pt - this.bulgeCenter) ** 2) / 0.06);
+        const py = baseY + this.heights[i - 1] * innerH * 0.2 + this.bulge * pBell * innerH * 0.15;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Variation 4: Turbulent Rise
+// Fast chaotic waves with harmonic interference
+// ──────────────────────────────────────────────────────────────
+
+class TurbulentRise {
+  constructor() {
+    this.name = "Turbulent Rise";
+    this.desc = "Chaotic, energetic surface with multiple overlapping wave frequencies. Feels forceful and alive.";
+    this.fill = 0;
+    this.targetFill = 0;
+    this.waves = []; // active wave impulses
+    this.numPoints = 48;
+    this.heights = new Float32Array(this.numPoints);
+    this.velocities = new Float32Array(this.numPoints);
+    this.stiffness = 0.04;
+    this.spread = 0.22;
+  }
+
+  addFill(amount) {
+    this.targetFill = Math.min(1, this.targetFill + amount);
+    const force = globalForce * amount;
+
+    // Impact from right side — stronger impulses biased to the right
+    const numWaves = 3 + Math.floor(Math.random() * 3);
+    for (let w = 0; w < numWaves; w++) {
+      // Bias positions toward the right (higher indices)
+      const pos = Math.floor((0.5 + Math.random() * 0.5) * this.numPoints);
+      const strength = force * (2 + Math.random() * 3) * -1;
+      const width = 2 + Math.floor(Math.random() * 6);
+      for (let i = Math.max(0, pos - width); i <= Math.min(this.numPoints - 1, pos + width); i++) {
+        const dist = Math.abs(i - pos) / width;
+        this.velocities[i] += strength * (1 - dist);
+      }
+    }
+
+    // Primary traveling wave from right to left (strong)
+    this.waves.push({
+      pos: this.numPoints - 1,
+      speed: -(0.7 + Math.random() * 0.5),
+      amplitude: force * 4,
+      width: 5,
+      active: true,
+    });
+    // Smaller bounce-back wave from left
+    this.waves.push({
+      pos: 0,
+      speed: 0.3 + Math.random() * 0.3,
+      amplitude: force * 1.5,
+      width: 3,
+      active: true,
+    });
+  }
+
+  reset() {
+    this.fill = 0;
+    this.targetFill = 0;
+    this.heights.fill(0);
+    this.velocities.fill(0);
+    this.waves = [];
+  }
+
+  update() {
+    this.fill += (this.targetFill - this.fill) * 0.07;
+
+    // Traveling waves
+    for (const w of this.waves) {
+      w.pos += w.speed;
+      w.amplitude *= 0.97;
+      const idx = Math.floor(w.pos);
+      if (idx >= 0 && idx < this.numPoints) {
+        const range = w.width;
+        for (let i = Math.max(0, idx - range); i <= Math.min(this.numPoints - 1, idx + range); i++) {
+          const dist = Math.abs(i - w.pos) / range;
+          this.velocities[i] -= w.amplitude * Math.max(0, 1 - dist) * 0.1;
+        }
+      }
+      if (w.pos < -5 || w.pos > this.numPoints + 5 || Math.abs(w.amplitude) < 0.01) {
+        w.active = false;
+      }
+    }
+    this.waves = this.waves.filter(w => w.active);
+
+    const damp = globalDamp;
+    for (let i = 0; i < this.numPoints; i++) {
+      this.velocities[i] += -this.stiffness * this.heights[i];
+      this.velocities[i] *= damp;
+      this.heights[i] += this.velocities[i];
+    }
+
+    for (let j = 0; j < 4; j++) {
+      for (let i = 0; i < this.numPoints; i++) {
+        if (i > 0) {
+          const d = this.spread * (this.heights[i] - this.heights[i - 1]);
+          this.velocities[i - 1] += d;
+        }
+        if (i < this.numPoints - 1) {
+          const d = this.spread * (this.heights[i] - this.heights[i + 1]);
+          this.velocities[i + 1] += d;
+        }
+      }
+    }
+  }
+
+  draw(ctx) {
+    const inset = CHECK_INSET;
+    const innerW = W - inset * 2;
+    const innerH = H - inset * 2;
+    const baseY = inset + innerH * (1 - this.fill);
+
+    ctx.save();
+    roundedRect(ctx, inset, inset, innerW, innerH, BORDER_RADIUS - 2);
+    ctx.clip();
+
+    ctx.beginPath();
+    ctx.moveTo(inset, H - inset);
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.1;
+      if (i === 0) ctx.lineTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.1;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+    ctx.lineTo(inset + innerW, baseY + this.heights[this.numPoints - 1] * innerH * 0.1);
+    ctx.lineTo(inset + innerW, H - inset);
+    ctx.closePath();
+    ctx.fillStyle = LIQUID_COLOR;
+    ctx.fill();
+
+    // Highlight
+    ctx.strokeStyle = LIQUID_HIGHLIGHT;
+    ctx.lineWidth = 1 * RES;
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath();
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.1;
+      if (i === 0) ctx.moveTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.1;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Variation 5: Mercury Tension
+// High surface tension with overshooting meniscus at edges
+// ──────────────────────────────────────────────────────────────
+
+class MercuryTension {
+  constructor() {
+    this.name = "Mercury Tension";
+    this.desc = "High surface-tension fluid that climbs the walls (meniscus), overshoots on impact, and rings like a bell.";
+    this.fill = 0;
+    this.targetFill = 0;
+    this.numPoints = 36;
+    this.heights = new Float32Array(this.numPoints);
+    this.velocities = new Float32Array(this.numPoints);
+    this.stiffness = 0.02;
+    this.spread = 0.25;
+    this.edgePullStrength = 0.008;
+  }
+
+  addFill(amount) {
+    this.targetFill = Math.min(1, this.targetFill + amount);
+    const force = globalForce * amount * 4;
+    // Symmetric impact from both edges
+    for (let i = 0; i < this.numPoints; i++) {
+      const t = i / (this.numPoints - 1);
+      // Bowl shape — edges go up, center goes down
+      const bowl = 1 - 4 * (t - 0.5) ** 2;
+      this.velocities[i] += force * bowl * (0.8 + Math.random() * 0.4);
+    }
+  }
+
+  reset() {
+    this.fill = 0;
+    this.targetFill = 0;
+    this.heights.fill(0);
+    this.velocities.fill(0);
+  }
+
+  update() {
+    this.fill += (this.targetFill - this.fill) * 0.05;
+
+    const damp = globalDamp;
+    for (let i = 0; i < this.numPoints; i++) {
+      this.velocities[i] += -this.stiffness * this.heights[i];
+      // Edge meniscus pull — edges want to be higher
+      const t = i / (this.numPoints - 1);
+      const edgeDist = Math.min(t, 1 - t);
+      if (edgeDist < 0.15) {
+        const edgePull = (0.15 - edgeDist) / 0.15;
+        this.velocities[i] -= this.edgePullStrength * edgePull;
+      }
+      this.velocities[i] *= damp;
+      this.heights[i] += this.velocities[i];
+    }
+
+    for (let j = 0; j < 5; j++) {
+      for (let i = 0; i < this.numPoints; i++) {
+        if (i > 0) {
+          const d = this.spread * (this.heights[i] - this.heights[i - 1]);
+          this.velocities[i - 1] += d;
+        }
+        if (i < this.numPoints - 1) {
+          const d = this.spread * (this.heights[i] - this.heights[i + 1]);
+          this.velocities[i + 1] += d;
+        }
+      }
+    }
+  }
+
+  draw(ctx) {
+    const inset = CHECK_INSET;
+    const innerW = W - inset * 2;
+    const innerH = H - inset * 2;
+    const baseY = inset + innerH * (1 - this.fill);
+
+    ctx.save();
+    roundedRect(ctx, inset, inset, innerW, innerH, BORDER_RADIUS - 2);
+    ctx.clip();
+
+    ctx.beginPath();
+    ctx.moveTo(inset, H - inset);
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.18;
+      if (i === 0) ctx.lineTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.18;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+    ctx.lineTo(inset + innerW, baseY + this.heights[this.numPoints - 1] * innerH * 0.18);
+    ctx.lineTo(inset + innerW, H - inset);
+    ctx.closePath();
+    ctx.fillStyle = LIQUID_COLOR;
+    ctx.fill();
+
+    // Surface highlight
+    ctx.strokeStyle = LIQUID_HIGHLIGHT;
+    ctx.lineWidth = 2 * RES;
+    ctx.globalAlpha = 0.2;
+    ctx.beginPath();
+    for (let i = 0; i < this.numPoints; i++) {
+      const x = inset + (i / (this.numPoints - 1)) * innerW;
+      const y = baseY + this.heights[i] * innerH * 0.18;
+      if (i === 0) ctx.moveTo(x, y);
+      else {
+        const px = inset + ((i - 1) / (this.numPoints - 1)) * innerW;
+        const py = baseY + this.heights[i - 1] * innerH * 0.18;
+        ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2);
+      }
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    ctx.restore();
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// Shared helpers
+// ──────────────────────────────────────────────────────────────
+
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function drawFrame(ctx, sim) {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  roundedRect(ctx, 0, 0, W, H, BORDER_RADIUS);
+  ctx.fillStyle = BG_COLOR;
+  ctx.fill();
+  ctx.strokeStyle = BORDER_COLOR;
+  ctx.lineWidth = 1.5 * RES;
+  ctx.stroke();
+
+  sim.update();
+  sim.draw(ctx);
+
+}
+
+// ──────────────────────────────────────────────────────────────
+// Bootstrap
+// ──────────────────────────────────────────────────────────────
+
+const sims = [
+  new ViscousBlob(),
+];
+
+function updatePct(sim) {
+  if (sim._pctLabel) sim._pctLabel.textContent = Math.round(sim.targetFill * 100) + "%";
+}
+
+const ZOOM = 10;  // zoomed preview multiplier
+const container = document.getElementById("container");
+const canvases = [];
+
+for (const sim of sims) {
+  const div = document.createElement("div");
+  div.className = "variation";
+
+  const h2 = document.createElement("h2");
+  h2.textContent = sim.name;
+  div.appendChild(h2);
+
+  const previewRow = document.createElement("div");
+  previewRow.className = "preview-row";
+
+  // True-size checkbox
+  const trueWrap = document.createElement("div");
+  trueWrap.style.display = "flex";
+  trueWrap.style.flexDirection = "column";
+  trueWrap.style.alignItems = "center";
+  trueWrap.style.gap = "6px";
+  const trueLabel = document.createElement("div");
+  trueLabel.className = "true-size-label";
+  trueLabel.textContent = "actual";
+  const trueCanvas = document.createElement("canvas");
+  trueCanvas.width = W;
+  trueCanvas.height = H;
+  trueCanvas.style.width = SIZE + "px";
+  trueCanvas.style.height = SIZE + "px";
+  trueWrap.appendChild(trueCanvas);
+  trueWrap.appendChild(trueLabel);
+  previewRow.appendChild(trueWrap);
+
+  // Zoomed preview
+  const zoomWrap = document.createElement("div");
+  zoomWrap.className = "zoomed";
+  zoomWrap.style.display = "flex";
+  zoomWrap.style.flexDirection = "column";
+  zoomWrap.style.alignItems = "center";
+  zoomWrap.style.gap = "6px";
+  const zoomLabel = document.createElement("div");
+  zoomLabel.className = "true-size-label";
+  zoomLabel.textContent = ZOOM + "x zoom";
+  const zoomCanvas = document.createElement("canvas");
+  zoomCanvas.width = W;
+  zoomCanvas.height = H;
+  zoomCanvas.style.width = (SIZE * ZOOM) + "px";
+  zoomCanvas.style.height = (SIZE * ZOOM) + "px";
+  zoomCanvas.style.imageRendering = "auto";
+  zoomWrap.appendChild(zoomCanvas);
+  zoomWrap.appendChild(zoomLabel);
+  previewRow.appendChild(zoomWrap);
+
+  div.appendChild(previewRow);
+  canvases.push({ main: trueCanvas, zoom: zoomCanvas });
+
+  const controls = document.createElement("div");
+  controls.className = "controls";
+
+  const pctLabel = document.createElement("span");
+  pctLabel.className = "label";
+  pctLabel.style.minWidth = "32px";
+  pctLabel.style.textAlign = "right";
+  pctLabel.textContent = "0%";
+  sim._pctLabel = pctLabel;
+  controls.appendChild(pctLabel);
+
+  const addBtn = document.createElement("button");
+  addBtn.textContent = "+25%";
+  addBtn.addEventListener("click", () => { sim.addFill(0.25); updatePct(sim); });
+  controls.appendChild(addBtn);
+
+  const resetBtn = document.createElement("button");
+  resetBtn.textContent = "Reset";
+  resetBtn.addEventListener("click", () => { sim.reset(); updatePct(sim); });
+  controls.appendChild(resetBtn);
+
+  const fillBtn = document.createElement("button");
+  fillBtn.textContent = "100%";
+  fillBtn.addEventListener("click", () => {
+    const remaining = 1 - sim.targetFill;
+    if (remaining > 0.01) sim.addFill(remaining);
+    updatePct(sim);
+  });
+  controls.appendChild(fillBtn);
+
+  div.appendChild(controls);
+
+  const p = document.createElement("p");
+  p.textContent = sim.desc;
+  div.appendChild(p);
+
+  container.appendChild(div);
+}
+
+// Sliders
+const forceSlider = document.getElementById("forceSlider");
+const forceVal = document.getElementById("forceVal");
+forceSlider.addEventListener("input", () => {
+  globalForce = parseFloat(forceSlider.value);
+  forceVal.textContent = globalForce.toFixed(1);
+});
+
+const dampSlider = document.getElementById("dampSlider");
+const dampVal = document.getElementById("dampVal");
+dampSlider.addEventListener("input", () => {
+  globalDamp = parseFloat(dampSlider.value);
+  dampVal.textContent = globalDamp.toFixed(3);
+});
+
+// Global buttons
+document.getElementById("addAll").addEventListener("click", () => {
+  for (const sim of sims) { sim.addFill(0.25); updatePct(sim); }
+});
+document.getElementById("resetAll").addEventListener("click", () => {
+  for (const sim of sims) { sim.reset(); updatePct(sim); }
+});
+document.getElementById("fillAll").addEventListener("click", () => {
+  for (const sim of sims) {
+    const remaining = 1 - sim.targetFill;
+    if (remaining > 0.01) sim.addFill(remaining);
+    updatePct(sim);
+  }
+});
+
+// Animation loop
+function loop() {
+  for (let i = 0; i < sims.length; i++) {
+    const mainCtx = canvases[i].main.getContext("2d");
+    drawFrame(mainCtx, sims[i]);
+    // Mirror to zoom canvas
+    const zoomCtx = canvases[i].zoom.getContext("2d");
+    zoomCtx.clearRect(0, 0, W, H);
+    zoomCtx.drawImage(canvases[i].main, 0, 0);
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

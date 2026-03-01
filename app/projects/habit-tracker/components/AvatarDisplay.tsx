@@ -32,14 +32,8 @@ export default function AvatarDisplay({
   const effectiveMood: AvatarMood = moodEntry?.mood ?? DEFAULT_AVATAR_MOOD;
   const isExplicit = !!moodEntry;
 
-  // TEMP: show placeholder square for sizing
-  if (userGifs.length === 0) {
-    return (
-      <div className="ht-avatar-display">
-        <div className="ht-avatar-placeholder" />
-      </div>
-    );
-  }
+  // If user has no GIFs uploaded at all, don't show anything
+  if (userGifs.length === 0) return null;
 
   // Resolve the GIF to display: explicit mood first, then default, then first available
   const activeGif = gifByMood.get(effectiveMood) ?? null;

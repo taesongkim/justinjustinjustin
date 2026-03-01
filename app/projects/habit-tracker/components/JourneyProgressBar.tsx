@@ -159,7 +159,7 @@ export default function JourneyProgressBar({
   return (
     <div className="ht-journey-bar">
       <div className="ht-journey-dots">
-        {days.map((d) => {
+        {days.map((d, i) => {
           const spark = sparks.get(d.date);
           const isToday = d.date === todayDate;
           const isViewing = d.date === currentDate;
@@ -169,17 +169,25 @@ export default function JourneyProgressBar({
               className={`ht-journey-dot ht-journey-dot-${d.status}${isToday ? " ht-journey-dot-today" : ""}`}
               title={`${d.date}: ${d.status}`}
             >
-              {/* Triangle arrow for the date the card is showing */}
+              {/* Day fraction label + triangle arrow for the viewed date */}
               {isViewing && (
-                <svg
-                  className="ht-journey-arrow"
-                  viewBox="0 0 6 4"
-                  width="5"
-                  height="3"
-                  aria-hidden="true"
-                >
-                  <path d="M0 0l3 4 3-4z" fill={dotColor(d.date, d.status)} />
-                </svg>
+                <>
+                  <span
+                    className="ht-journey-day-label"
+                    style={{ color: dotColor(d.date, d.status) }}
+                  >
+                    {i + 1}/{days.length}
+                  </span>
+                  <svg
+                    className="ht-journey-arrow"
+                    viewBox="0 0 6 4"
+                    width="5"
+                    height="3"
+                    aria-hidden="true"
+                  >
+                    <path d="M0 0l3 4 3-4z" fill={dotColor(d.date, d.status)} />
+                  </svg>
+                </>
               )}
               {d.status === "missed" && (
                 <svg viewBox="0 0 6 6" width="100%" height="100%" aria-hidden="true">

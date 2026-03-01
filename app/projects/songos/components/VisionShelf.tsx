@@ -59,9 +59,9 @@ function VisionCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.97 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.97 }}
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 6 }}
       transition={{ duration: 0.25, ease: "easeOut", delay: index * 0.03 }}
       style={{
         background: "var(--nt-surface)",
@@ -70,6 +70,7 @@ function VisionCard({
         padding: 16,
         transition: "border-color 0.15s",
         position: "relative",
+        outline: "2px dashed #ff69b4", // DEBUG: individual vision card (pink)
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = "var(--nt-text-muted)";
@@ -280,7 +281,7 @@ export default function VisionShelf({
   };
 
   return (
-    <div style={{ padding: "24px 32px", maxWidth: 420 }}>
+    <div style={{ padding: "24px 32px", maxWidth: 420, outline: "2px dashed #39ff14" /* DEBUG: vision shelf outer container (green) */ }}>
       {/* Header */}
       <div
         style={{
@@ -421,6 +422,7 @@ export default function VisionShelf({
           display: "grid",
           gridTemplateColumns: "1fr",
           gap: 12,
+          outline: "2px dashed #dda0dd", // DEBUG: vision grid area (plum)
         }}
       >
         <AnimatePresence>

@@ -7,9 +7,13 @@ import {
   fetchVisions,
   fetchLedgerEntries,
   createLedgerEntry,
+  updateLedgerEntry,
+  deleteLedgerEntry,
   updateVision,
+  deleteVision,
 } from "../lib/service";
 import NewVisionModal from "./NewVisionModal";
+import ShrineButton from "./ShrineButton";
 
 // ─────────────────────────────────────────
 // Radial Grid Background (Three.js)
@@ -20,7 +24,7 @@ import { initRadialGrid, type RadialGridAPI } from "../lib/radialGrid";
 const GRID_3D = {
   posX: 13, posY: -28, posZ: 11,
   theta: 0.01, phi: 1.70, radius: 59,
-  opacity: 0.28,
+  opacity: 0.6,
 } as const;
 
 // Thread line sits at 66% of the viewport
@@ -188,8 +192,10 @@ function LogEntryModal({
                       : "What synchronicity did you notice?"
                   }
                   rows={3}
-                  className="w-full px-4 py-2.5 rounded-xl text-sm text-white/90 placeholder-white/20 outline-none resize-none"
+                  className="w-full text-sm text-white/90 placeholder-white/20 outline-none resize-none"
                   style={{
+                    padding: "8px 12px",
+                    borderRadius: 4,
                     background: "rgba(255, 255, 255, 0.04)",
                     border: "1px solid rgba(255, 255, 255, 0.06)",
                   }}
@@ -203,8 +209,10 @@ function LogEntryModal({
                     type="datetime-local"
                     value={occurredAt}
                     onChange={(e) => setOccurredAt(e.target.value)}
-                    className="w-full px-4 py-2 rounded-xl text-sm text-white/80 outline-none"
+                    className="w-full text-sm text-white/80 outline-none"
                     style={{
+                      padding: "8px 12px",
+                      borderRadius: 4,
                       background: "rgba(255, 255, 255, 0.04)",
                       border: "1px solid rgba(255, 255, 255, 0.06)",
                       colorScheme: "dark",
@@ -212,29 +220,17 @@ function LogEntryModal({
                   />
                 </div>
                 <div className="flex gap-3 pt-1">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="flex-1 py-2.5 rounded-xl text-sm text-white/40 hover:text-white/60 transition-colors cursor-pointer"
-                    style={{
-                      background: "rgba(255, 255, 255, 0.03)",
-                      border: "1px solid rgba(255, 255, 255, 0.05)",
-                    }}
-                  >
+                  <ShrineButton variant="gray" type="button" onClick={onClose} className="flex-1">
                     Cancel
-                  </button>
-                  <button
+                  </ShrineButton>
+                  <ShrineButton
+                    variant={isAction ? "orange" : "blue"}
                     type="submit"
                     disabled={saving || !note.trim()}
-                    className="flex-1 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
-                    style={{
-                      background: accentColor,
-                      border: `1px solid ${borderColor}`,
-                      color: "rgba(255, 255, 255, 0.85)",
-                    }}
+                    className="flex-1"
                   >
                     {saving ? "Saving..." : "Log Entry"}
-                  </button>
+                  </ShrineButton>
                 </div>
               </form>
             </div>
@@ -242,6 +238,157 @@ function LogEntryModal({
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+// ─────────────────────────────────────────
+// Entry Detail Modal (edit / delete)
+// ─────────────────────────────────────────
+function EntryDetailModal({
+  entry,
+  onClose,
+  onUpdate,
+  onDelete,
+}: {
+  entry: LedgerEntry;
+  onClose: () => void;
+  onUpdate: (id: string, note: string, occurredAt: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const [note, setNote] = useState(entry.note);
+  const [occurredAt, setOccurredAt] = useState(() => {
+    const d = new Date(entry.occurred_at);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  });
+  const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const isAction = entry.type === "action";
+  const accentColor = isAction
+    ? "rgba(255, 170, 68, 0.3)"
+    : "rgba(68, 170, 255, 0.3)";
+  const borderColor = isAction
+    ? "rgba(255, 170, 68, 0.2)"
+    : "rgba(68, 170, 255, 0.2)";
+  const textColor = isAction
+    ? "rgba(255, 190, 100, 0.9)"
+    : "rgba(100, 190, 255, 0.9)";
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!note.trim()) return;
+    setSaving(true);
+    await onUpdate(entry.id, note.trim(), new Date(occurredAt).toISOString());
+    setSaving(false);
+    onClose();
+  };
+
+  const handleDelete = async () => {
+    setSaving(true);
+    await onDelete(entry.id);
+    setSaving(false);
+    onClose();
+  };
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 10, scale: 0.97 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="fixed inset-0 z-[60] flex items-center justify-center p-4 pointer-events-none"
+      >
+        <div
+          className="w-full max-w-md rounded-2xl p-6 pointer-events-auto"
+          style={{
+            background: "rgba(12, 10, 25, 0.95)",
+            border: `1px solid ${borderColor}`,
+            boxShadow: `0 0 60px ${accentColor}`,
+          }}
+        >
+          <h3
+            className="text-base font-tight font-semibold mb-4"
+            style={{ color: textColor }}
+          >
+            {isAction ? "Edit Action" : "Edit Synchronicity"}
+          </h3>
+          <form onSubmit={handleSave} className="space-y-4">
+            <textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+              className="w-full text-sm text-white/90 placeholder-white/20 outline-none resize-none"
+              style={{
+                padding: "8px 12px",
+                borderRadius: 4,
+                background: "rgba(255, 255, 255, 0.04)",
+                border: "1px solid rgba(255, 255, 255, 0.06)",
+              }}
+              autoFocus
+            />
+            <div>
+              <label className="block text-white/30 text-xs mb-1.5">When</label>
+              <input
+                type="datetime-local"
+                value={occurredAt}
+                onChange={(e) => setOccurredAt(e.target.value)}
+                className="w-full text-sm text-white/80 outline-none"
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: 4,
+                  background: "rgba(255, 255, 255, 0.04)",
+                  border: "1px solid rgba(255, 255, 255, 0.06)",
+                  colorScheme: "dark",
+                }}
+              />
+            </div>
+            <div className="flex gap-3 pt-1">
+              {/* Delete button */}
+              {!confirmDelete ? (
+                <ShrineButton
+                  variant="red"
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  Delete
+                </ShrineButton>
+              ) : (
+                <ShrineButton
+                  variant="red"
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={saving}
+                >
+                  {saving ? "Deleting..." : "Confirm Delete"}
+                </ShrineButton>
+              )}
+
+              <div className="flex-1" />
+
+              <ShrineButton variant="gray" type="button" onClick={onClose}>
+                Cancel
+              </ShrineButton>
+              <ShrineButton
+                variant={isAction ? "orange" : "blue"}
+                type="submit"
+                disabled={saving || !note.trim()}
+              >
+                {saving ? "Saving..." : "Save"}
+              </ShrineButton>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </>
   );
 }
 
@@ -270,30 +417,12 @@ function ThreadPopup({
         className="fixed z-[55] flex gap-2"
         style={{ left: x + 16, top: y - 20 }}
       >
-        <button
-          onClick={() => onSelect("action")}
-          className="px-4 py-2 rounded-xl text-xs font-medium cursor-pointer transition-all duration-150 hover:scale-105"
-          style={{
-            background: "rgba(255, 170, 68, 0.15)",
-            border: "1px solid rgba(255, 170, 68, 0.2)",
-            color: "rgba(255, 190, 100, 0.9)",
-            boxShadow: "0 0 20px rgba(255, 170, 68, 0.08)",
-          }}
-        >
+        <ShrineButton variant="orange" onClick={() => onSelect("action")}>
           Action
-        </button>
-        <button
-          onClick={() => onSelect("synchronicity")}
-          className="px-4 py-2 rounded-xl text-xs font-medium cursor-pointer transition-all duration-150 hover:scale-105"
-          style={{
-            background: "rgba(68, 170, 255, 0.15)",
-            border: "1px solid rgba(68, 170, 255, 0.2)",
-            color: "rgba(130, 200, 255, 0.9)",
-            boxShadow: "0 0 20px rgba(68, 170, 255, 0.08)",
-          }}
-        >
+        </ShrineButton>
+        <ShrineButton variant="blue" onClick={() => onSelect("synchronicity")}>
           Synchronicity
-        </button>
+        </ShrineButton>
       </motion.div>
     </>
   );
@@ -346,19 +475,53 @@ function useScrollVelocity(scrollRef: React.RefObject<HTMLDivElement | null>) {
 }
 
 // ─────────────────────────────────────────
-// Thread segment with unified string + tag physics
+// Tag display mode
 // ─────────────────────────────────────────
-// Stable pseudo-random from entry id — gives each tag a unique but
-// consistent x offset so tags don't line up in a perfect column.
+type TagMode = "ticket" | "classic" | "orb";
+
+// ─────────────────────────────────────────
+// Shared helpers
+// ─────────────────────────────────────────
 function hashId(id: string): number {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
   return h;
 }
 
-// ── Shared animation loop for all ThreadSegments ──
-// One RAF drives every entry's string physics + tag positioning.
-interface SegmentAnimState {
+function entryColors(type: "action" | "synchronicity") {
+  const isAction = type === "action";
+  return {
+    isAction,
+    side: (isAction ? "left" : "right") as "left" | "right",
+    color: isAction ? "rgba(255, 170, 68, 0.7)" : "rgba(100, 180, 255, 0.7)",
+    glowColor: isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)",
+    tagBg: isAction ? "rgba(255, 170, 68, 0.06)" : "rgba(100, 180, 255, 0.06)",
+    tagBorder: isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)",
+    textColor: isAction ? "rgba(255, 190, 100, 0.9)" : "rgba(130, 200, 255, 0.9)",
+  };
+}
+
+// Orb shared between both modes
+function SegmentOrb({ color, glowColor }: { color: string; glowColor: string }) {
+  return (
+    <div
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+      style={{
+        width: 8,
+        height: 8,
+        borderRadius: "50%",
+        background: `radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, ${color} 40%, ${color} 100%)`,
+        boxShadow: `0 0 6px ${color}, 0 0 14px ${glowColor}, 0 0 24px ${glowColor}`,
+      }}
+    />
+  );
+}
+
+// ─────────────────────────────────────────
+// CLASSIC mode — side-floating tags with curved strings
+// ─────────────────────────────────────────
+interface ClassicAnimState {
+  mode: "classic";
   side: "left" | "right";
   phase: number;
   xJitter: number;
@@ -376,6 +539,68 @@ const STRING_INSET = 8;
 const SVG_WIDTH = 50;
 const BASE_END_Y = 40;
 
+// ─────────────────────────────────────────
+// TICKET mode — tags as current-driven particles, strings follow
+// ─────────────────────────────────────────
+interface TicketAnimState {
+  mode: "ticket";
+  side: "left" | "right";
+  phase: number;
+  orbY: number;        // world Y of the orb (for flow field sampling)
+  stringLen: number;
+  // Tag particle position (relative to orb at 0,0)
+  tx: number;
+  ty: number;
+  // Tag particle velocity
+  vx: number;
+  vy: number;
+  pathEl: SVGPathElement | null;
+  dotEl: SVGCircleElement | null;
+  tagEl: HTMLDivElement | null;
+}
+
+const TICKET_STRING_LEN = 34;
+const TICKET_TAG_H = 36; // mini tag height
+const TICKET_TAG_W = 16;
+
+// Underwater flow field — returns lateral force at a given (y, t)
+// Spatially varying so tickets at different depths sway differently
+function currentForce(y: number, t: number, phase: number): number {
+  return (
+    Math.sin(y * 0.008 + t * 0.3 + phase) * 0.018 +
+    Math.sin(y * 0.02  + t * 0.7 + phase * 1.7) * 0.012 +
+    Math.sin(y * 0.004 + t * 0.13 + phase * 0.4) * 0.025
+  );
+}
+
+// ─────────────────────────────────────────
+// ORB mode — orbiting orbs around the thread line
+// ─────────────────────────────────────────
+interface OrbAnimState {
+  mode: "orb";
+  side: "left" | "right";
+  phase: number;         // random start angle
+  orbY: number;          // Y position on thread (date-based)
+  orbitRadius: number;   // distance from thread center
+  orbitSpeed: number;    // radians per second
+  angle: number;         // current orbit angle (radians)
+  bobPhase: number;      // phase offset for vertical bob
+  bobAmplitude: number;  // px of vertical bobbing
+  el: HTMLDivElement | null;       // the orb element
+  zoneEl: HTMLDivElement | null;   // the clickable orbit zone
+  glowEl: HTMLDivElement | null;   // orbit ring visual
+}
+
+const ORB_BASE_RADIUS = 18;   // px — innermost orbit ring
+const ORB_RING_STEP = 14;     // px — spacing between concentric orbits for same-date entries
+const ORB_SIZE = 10;           // px — orb diameter
+const ORB_BOB_BASE = 3;       // px — base vertical bobbing amplitude
+const ORB_SPEED_BASE = 0.4;   // radians/sec — base orbit speed
+
+// ── Unified anim state ──
+type SegmentAnimState = ClassicAnimState | TicketAnimState | OrbAnimState;
+
+// ── Shared animation loop — drives both modes ──
 function useSegmentLoop(
   scrollVelocity: React.RefObject<number>,
   registry: React.RefObject<Map<string, SegmentAnimState>>,
@@ -388,43 +613,145 @@ function useSegmentLoop(
       const scrollForce = sv * 8;
 
       registry.current.forEach((s) => {
-        // Spring-damper swing
-        s.swingVel = (s.swingVel + scrollForce - s.swingAngle * 0.15) * 0.92;
-        s.swingAngle += s.swingVel;
-        s.swingAngle = Math.max(-25, Math.min(25, s.swingAngle));
+        if (s.mode === "classic") {
+          // ── Classic swing physics ──
+          s.swingVel = (s.swingVel + scrollForce - s.swingAngle * 0.15) * 0.92;
+          s.swingAngle += s.swingVel;
+          s.swingAngle = Math.max(-25, Math.min(25, s.swingAngle));
 
-        const lenFactor = 1 + s.yOffset * 0.003;
-        const sway1 = (Math.sin(t * 1.2 + s.phase) * 6 + s.swingAngle * 0.5) * lenFactor;
-        const sway2 = (Math.sin(t * 0.8 + s.phase + 1.5) * 4 + s.swingAngle * 0.3) * lenFactor;
+          const lenFactor = 1 + s.yOffset * 0.003;
+          const sway1 = (Math.sin(t * 1.2 + s.phase) * 6 + s.swingAngle * 0.5) * lenFactor;
+          const sway2 = (Math.sin(t * 0.8 + s.phase + 1.5) * 4 + s.swingAngle * 0.3) * lenFactor;
 
-        // Bob Y — vertical center of the tag
-        const bobY = s.targetEndY + Math.sin(t * 0.7 + s.phase + 0.8) * 3 + s.swingAngle * 0.4;
+          const bobY = s.targetEndY + Math.sin(t * 0.7 + s.phase + 0.8) * 3 + s.swingAngle * 0.4;
+          const tagH = s.tagEl?.offsetHeight ?? 36;
+          const tagTopY = bobY - tagH / 2;
+          if (s.tagEl) {
+            s.tagEl.style.transform = `translate(${s.xJitter}px, ${tagTopY}px)`;
+          }
 
-        // Center tag on bobY
-        const tagH = s.tagEl?.offsetHeight ?? 36;
-        const tagTopY = bobY - tagH / 2;
-        if (s.tagEl) {
-          s.tagEl.style.transform = `translate(${s.xJitter}px, ${tagTopY}px)`;
-        }
+          const startX = s.side === "left" ? s.svgWidth : 0;
+          const tagNearEdgeX = s.side === "left" ? s.xJitter : s.svgWidth + s.xJitter;
+          const endX = s.side === "left" ? tagNearEdgeX - STRING_INSET : tagNearEdgeX + STRING_INSET;
+          const midX = (startX + endX) / 2;
+          const endY = bobY;
+          const droopBase = 14 + s.yOffset * 0.3;
+          const cp1Y = droopBase + sway1;
+          const cp2Y = s.targetEndY * 0.6 + sway2;
 
-        // String path — orb to tag center
-        const startX = s.side === "left" ? s.svgWidth : 0;
-        const tagNearEdgeX = s.side === "left" ? s.xJitter : s.svgWidth + s.xJitter;
-        const endX = s.side === "left"
-          ? tagNearEdgeX - STRING_INSET
-          : tagNearEdgeX + STRING_INSET;
-        const midX = (startX + endX) / 2;
-        const endY = bobY;
+          const d = `M ${startX} 0 C ${startX + (s.side === "left" ? -12 : 12)} ${cp1Y}, ${midX} ${cp2Y}, ${endX} ${endY}`;
+          if (s.pathEl) s.pathEl.setAttribute("d", d);
+          if (s.dotEl) {
+            s.dotEl.setAttribute("cx", String(endX));
+            s.dotEl.setAttribute("cy", String(endY));
+          }
+        } else if (s.mode === "ticket") {
+          // ── Ticket: tag is a current-driven particle, string follows ──
 
-        const droopBase = 14 + s.yOffset * 0.3;
-        const cp1Y = droopBase + sway1;
-        const cp2Y = s.targetEndY * 0.6 + sway2;
+          // Forces on the tag
+          const flow = currentForce(s.orbY + s.ty, t, s.phase);
+          const scrollPush = scrollForce * 0.15;
+          const gravity = 0.06;
 
-        const d = `M ${startX} 0 C ${startX + (s.side === "left" ? -12 : 12)} ${cp1Y}, ${midX} ${cp2Y}, ${endX} ${endY}`;
-        if (s.pathEl) s.pathEl.setAttribute("d", d);
-        if (s.dotEl) {
-          s.dotEl.setAttribute("cx", String(endX));
-          s.dotEl.setAttribute("cy", String(endY));
+          // Apply forces to tag velocity
+          s.vx += flow + scrollPush;
+          s.vy += gravity;
+          // Water damping
+          s.vx *= 0.96;
+          s.vy *= 0.96;
+
+          // Move the tag particle
+          s.tx += s.vx;
+          s.ty += s.vy;
+
+          // Keep tag below the orb
+          if (s.ty < 4) { s.ty = 4; s.vy = Math.abs(s.vy) * 0.3; }
+
+          // ── Tether: always taut — enforce exact string length ──
+          const dist = Math.sqrt(s.tx * s.tx + s.ty * s.ty);
+          if (dist > 0.01) {
+            const ratio = s.stringLen / dist;
+            s.tx *= ratio;
+            s.ty *= ratio;
+            // Remove outward velocity component (keep tangential motion)
+            const nx = s.tx / s.stringLen;
+            const ny = s.ty / s.stringLen;
+            const radialVel = s.vx * nx + s.vy * ny;
+            if (radialVel > 0) {
+              s.vx -= radialVel * nx;
+              s.vy -= radialVel * ny;
+            }
+          }
+
+          // ── Tag rotation = tether angle (orb-to-tag direction) ──
+          const tethAngle = Math.atan2(s.tx, s.ty); // angle from straight down
+
+          // ── Position the tag ──
+          if (s.tagEl) {
+            s.tagEl.style.transform = `translate(${s.tx}px, ${s.ty}px) rotate(${tethAngle}rad)`;
+          }
+
+          // ── String: passive bezier from orb (0,0) to tag top-center ──
+          // String ends exactly at the tag's pivot point (tx, ty)
+          const endX = s.tx;
+          const endY = s.ty;
+
+          // Dot goes 4px INTO the tag along its rotated axis
+          // The tag's "down" axis after rotation:
+          const tagDirX = Math.sin(tethAngle);
+          const tagDirY = Math.cos(tethAngle);
+          const dotX = endX + tagDirX * 4;
+          const dotY = endY + tagDirY * 4;
+
+          // Curvature: string sags based on lateral velocity
+          // Straight when still, bows when the tag is moving
+          const sagAmount = Math.abs(s.vx) * 3;
+          const sagDir = s.vx > 0 ? 1 : -1;
+
+          const cp1x = endX * 0.33 + sagAmount * sagDir * 0.6;
+          const cp1y = endY * 0.33;
+          const cp2x = endX * 0.66 + sagAmount * sagDir * 0.3;
+          const cp2y = endY * 0.66;
+
+          const d = `M 0 0 C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${endX} ${endY}`;
+          if (s.pathEl) s.pathEl.setAttribute("d", d);
+
+          if (s.dotEl) {
+            s.dotEl.setAttribute("cx", String(dotX));
+            s.dotEl.setAttribute("cy", String(dotY));
+          }
+        } else if (s.mode === "orb") {
+          // ── Orb: orbit around the thread line ──
+          const scrollPush = scrollForce * 0.08;
+
+          // Advance orbit angle
+          s.angle += s.orbitSpeed / 60 + scrollPush * 0.02;
+
+          // Compute position on orbit ellipse (flattened for perspective)
+          const ellipseRx = s.orbitRadius;
+          const ellipseRy = s.orbitRadius * 0.35; // flatten for 3D look
+          const ox = Math.cos(s.angle) * ellipseRx;
+          const oy = Math.sin(s.angle) * ellipseRy;
+
+          // Vertical bob
+          const bob = Math.sin(t * 0.8 + s.bobPhase) * s.bobAmplitude;
+
+          // Z-ordering: orbs in front (angle π/2 to 3π/2) vs behind thread
+          const normalizedAngle = ((s.angle % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+          const isBehind = normalizedAngle > Math.PI * 0.5 && normalizedAngle < Math.PI * 1.5;
+          const depthScale = 0.7 + Math.sin(s.angle) * 0.3; // subtle size pulse for depth
+
+          if (s.el) {
+            s.el.style.transform = `translate(${ox}px, ${oy + bob}px) scale(${depthScale})`;
+            s.el.style.opacity = isBehind ? "0.35" : "0.9";
+            s.el.style.zIndex = isBehind ? "1" : "3";
+          }
+
+          // Update orbit ring visual
+          if (s.glowEl) {
+            s.glowEl.style.width = `${ellipseRx * 2}px`;
+            s.glowEl.style.height = `${ellipseRy * 2}px`;
+          }
         }
       });
 
@@ -435,26 +762,65 @@ function useSegmentLoop(
   }, [scrollVelocity, registry]);
 }
 
+// ─────────────────────────────────────────
+// ThreadSegment — delegates to Classic or Ticket visual
+// ─────────────────────────────────────────
 function ThreadSegment({
   entry,
-  index,
   orbY,
   tagY,
+  orbitIndex,
   registry,
+  tagMode,
+  onSelectEntry,
 }: {
   entry: LedgerEntry;
   index: number;
   orbY: number;
   tagY: number;
+  orbitIndex: number;
   registry: React.RefObject<Map<string, SegmentAnimState>>;
+  tagMode: TagMode;
+  onSelectEntry?: (entry: LedgerEntry) => void;
 }) {
-  const isAction = entry.type === "action";
-  const side = isAction ? "left" : "right";
-  const color = isAction ? "rgba(255, 170, 68, 0.7)" : "rgba(100, 180, 255, 0.7)";
-  const glowColor = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
-  const tagBg = isAction ? "rgba(255, 170, 68, 0.06)" : "rgba(100, 180, 255, 0.06)";
-  const tagBorder = isAction ? "rgba(255, 170, 68, 0.3)" : "rgba(100, 180, 255, 0.3)";
+  const c = entryColors(entry.type);
 
+  return (
+    <div
+      className="absolute"
+      style={{ top: orbY, left: "66%", width: 0, height: 0 }}
+    >
+      {tagMode !== "orb" && (
+        <SegmentOrb color={c.color} glowColor={c.glowColor} />
+      )}
+
+      {tagMode === "classic" ? (
+        <ClassicTag entry={entry} orbY={orbY} tagY={tagY} registry={registry} colors={c} onSelect={onSelectEntry} />
+      ) : tagMode === "ticket" ? (
+        <TicketTag entry={entry} orbY={orbY} registry={registry} colors={c} />
+      ) : (
+        <OrbTag entry={entry} orbY={orbY} orbitIndex={orbitIndex} registry={registry} colors={c} onSelect={onSelectEntry} />
+      )}
+    </div>
+  );
+}
+
+// ─── Classic tag (side-floating with curved string) ───
+function ClassicTag({
+  entry,
+  orbY,
+  tagY,
+  registry,
+  colors: c,
+  onSelect,
+}: {
+  entry: LedgerEntry;
+  orbY: number;
+  tagY: number;
+  registry: React.RefObject<Map<string, SegmentAnimState>>;
+  colors: ReturnType<typeof entryColors>;
+  onSelect?: (entry: LedgerEntry) => void;
+}) {
   const pathRef = useRef<SVGPathElement>(null);
   const dotRef = useRef<SVGCircleElement>(null);
   const tagRef = useRef<HTMLDivElement>(null);
@@ -469,11 +835,19 @@ function ThreadSegment({
     return ((h % 31) - 15);
   }, [entry.id]);
 
-  // Register this segment's refs + physics state with the shared loop
+  // Initial string path so it starts connected (resting position)
+  const initStartX = c.side === "left" ? SVG_WIDTH : 0;
+  const initEndX = c.side === "left"
+    ? xJitter - STRING_INSET
+    : SVG_WIDTH + xJitter + STRING_INSET;
+  const initMidX = (initStartX + initEndX) / 2;
+  const initD = `M ${initStartX} 0 C ${initStartX + (c.side === "left" ? -12 : 12)} ${14 + yOffset * 0.3}, ${initMidX} ${targetEndY * 0.6}, ${initEndX} ${targetEndY}`;
+
   useEffect(() => {
     const map = registry.current;
-    const state: SegmentAnimState = {
-      side,
+    const state: ClassicAnimState = {
+      mode: "classic",
+      side: c.side,
       phase: phaseRef.current,
       xJitter,
       yOffset,
@@ -487,12 +861,11 @@ function ThreadSegment({
     };
     map.set(entry.id, state);
     return () => { map.delete(entry.id); };
-  }, [entry.id, side, xJitter, yOffset, targetEndY, registry]);
+  }, [entry.id, c.side, xJitter, yOffset, targetEndY, registry]);
 
-  // Keep DOM refs fresh (they can change after mount)
   useEffect(() => {
     const s = registry.current.get(entry.id);
-    if (s) {
+    if (s && s.mode === "classic") {
       s.pathEl = pathRef.current;
       s.dotEl = dotRef.current;
       s.tagEl = tagRef.current;
@@ -500,75 +873,264 @@ function ThreadSegment({
   });
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.06, ease: "easeOut" }}
-      className="absolute"
-      style={{ top: orbY, left: "66%", width: 0, height: 0 }}
-    >
-      {/* Glowing orb — anchored at true date position on the thread */}
-      <div
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: "50%",
-          background: `radial-gradient(circle at center, rgba(255, 255, 255, 1) 0%, ${color} 40%, ${color} 100%)`,
-          boxShadow: `0 0 6px ${color}, 0 0 14px ${glowColor}, 0 0 24px ${glowColor}`,
-        }}
-      />
-
-      {/* SVG string — curves from orb down to tag */}
+    <>
       <svg
         className="absolute overflow-visible pointer-events-none"
         width={SVG_WIDTH}
         height={svgHeight}
         style={{
           top: 0,
-          [side === "left" ? "right" : "left"]: 0,
-          filter: `drop-shadow(0 0 3px ${glowColor})`,
+          [c.side === "left" ? "right" : "left"]: 0,
+          filter: `drop-shadow(0 0 3px ${c.glowColor})`,
         }}
       >
-        <path
-          ref={pathRef}
-          fill="none"
-          stroke={color}
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          opacity={0.6}
-        />
-        <circle
-          ref={dotRef}
-          r="2"
-          fill={color}
-          opacity={0.8}
-        />
+        <path ref={pathRef} d={initD} fill="none" stroke={c.color} strokeWidth="1.2" strokeLinecap="round" opacity={0.6} />
+        <circle ref={dotRef} r="2" cx={initEndX} cy={targetEndY} fill={c.color} opacity={0.8} />
       </svg>
 
-      {/* Tag — absolutely positioned, Y driven by shared loop */}
       <div
         ref={tagRef}
-        className="absolute"
+        className="absolute cursor-pointer transition-opacity duration-200 hover:opacity-80"
         style={{
           top: 0,
-          [side === "left" ? "right" : "left"]: SVG_WIDTH,
+          [c.side === "left" ? "right" : "left"]: SVG_WIDTH,
           width: 220,
           padding: "8px 11px",
           borderRadius: 4,
           backdropFilter: "blur(1px)",
           WebkitBackdropFilter: "blur(1px)",
-          background: tagBg,
-          border: `0.5px solid ${tagBorder}`,
-          boxShadow: `0 0 6px ${glowColor}`,
+          background: c.tagBg,
+          border: `0.5px solid ${c.tagBorder}`,
+          boxShadow: `0 0 6px ${c.glowColor}`,
           willChange: "transform",
+          pointerEvents: "auto",
+          transform: `translate(${xJitter}px, ${targetEndY - 18}px)`,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect?.(entry);
         }}
       >
-        <p className="text-xs leading-snug" style={{ color: isAction ? "rgba(255, 190, 100, 0.9)" : "rgba(130, 200, 255, 0.9)", textAlign: side === "left" ? "right" : "left" }}>
+        <p className="text-xs leading-snug" style={{ color: c.textColor, textAlign: c.side === "left" ? "right" : "left" }}>
           {entry.note}
         </p>
       </div>
-    </motion.div>
+    </>
+  );
+}
+
+// ─── Ticket tag (current-driven particle, string follows) ───
+function TicketTag({
+  entry,
+  orbY,
+  registry,
+  colors: c,
+}: {
+  entry: LedgerEntry;
+  orbY: number;
+  registry: React.RefObject<Map<string, SegmentAnimState>>;
+  colors: ReturnType<typeof entryColors>;
+}) {
+  const pathRef = useRef<SVGPathElement>(null);
+  const dotRef = useRef<SVGCircleElement>(null);
+  const tagRef = useRef<HTMLDivElement>(null);
+  const phaseRef = useRef(Math.random() * Math.PI * 2);
+
+  const stringLen = useMemo(() => {
+    const h = Math.abs(hashId(entry.id));
+    return TICKET_STRING_LEN + (h % 12) - 6; // 28–40px variation
+  }, [entry.id]);
+
+  useEffect(() => {
+    const map = registry.current;
+    // Start tag hanging straight down with a tiny random offset
+    const initX = (Math.random() - 0.5) * 2;
+    const state: TicketAnimState = {
+      mode: "ticket",
+      side: c.side,
+      phase: phaseRef.current,
+      orbY,
+      stringLen,
+      tx: initX,
+      ty: stringLen,
+      vx: 0,
+      vy: 0,
+      pathEl: pathRef.current,
+      dotEl: dotRef.current,
+      tagEl: tagRef.current,
+    };
+    map.set(entry.id, state);
+    return () => { map.delete(entry.id); };
+  }, [entry.id, c.side, orbY, stringLen, registry]);
+
+  useEffect(() => {
+    const s = registry.current.get(entry.id);
+    if (s && s.mode === "ticket") {
+      s.pathEl = pathRef.current;
+      s.dotEl = dotRef.current;
+      s.tagEl = tagRef.current;
+    }
+  });
+
+  return (
+    <>
+      {/* SVG string — hangs down from orb */}
+      <svg
+        className="absolute overflow-visible pointer-events-none"
+        width="1"
+        height="1"
+        style={{
+          top: 0,
+          left: 0,
+          filter: `drop-shadow(0 0 3px ${c.glowColor})`,
+        }}
+      >
+        <path ref={pathRef} d={`M 0 0 L 0 ${stringLen}`} fill="none" stroke={c.color} strokeWidth="1.2" strokeLinecap="round" opacity={0.6} />
+        <circle ref={dotRef} r="2" cx={0} cy={stringLen + 4} fill={c.color} opacity={0.8} />
+      </svg>
+
+      {/* Mini tag — same styling as classic, just compact and no text */}
+      <div
+        ref={tagRef}
+        className="absolute"
+        style={{
+          top: 0,
+          left: 0,
+          transformOrigin: "top center",
+          transform: `translate(0px, ${stringLen}px)`,
+          willChange: "transform",
+        }}
+      >
+        <div
+          style={{
+            width: 16,
+            height: TICKET_TAG_H,
+            borderRadius: 1,
+            backdropFilter: "blur(1px)",
+            WebkitBackdropFilter: "blur(1px)",
+            background: c.tagBg,
+            border: `0.5px solid ${c.tagBorder}`,
+            boxShadow: `0 0 6px ${c.glowColor}`,
+            transform: "translateX(-50%)",
+          }}
+        />
+      </div>
+    </>
+  );
+}
+
+// ─── Orb tag (orbiting around the thread) ───
+function OrbTag({
+  entry,
+  orbY,
+  orbitIndex,
+  registry,
+  colors: c,
+  onSelect,
+}: {
+  entry: LedgerEntry;
+  orbY: number;
+  orbitIndex: number;   // 0-based index among same-date entries
+  registry: React.RefObject<Map<string, SegmentAnimState>>;
+  colors: ReturnType<typeof entryColors>;
+  onSelect?: (entry: LedgerEntry) => void;
+}) {
+  const orbRef = useRef<HTMLDivElement>(null);
+  const zoneRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const phaseRef = useRef(Math.random() * Math.PI * 2);
+
+  const orbitRadius = ORB_BASE_RADIUS + orbitIndex * ORB_RING_STEP;
+  const orbitSpeed = ORB_SPEED_BASE / (1 + orbitIndex * 0.25); // outer orbits slower
+
+  useEffect(() => {
+    const map = registry.current;
+    const state: OrbAnimState = {
+      mode: "orb",
+      side: c.side,
+      phase: phaseRef.current,
+      orbY,
+      orbitRadius,
+      orbitSpeed,
+      angle: phaseRef.current,
+      bobPhase: phaseRef.current * 1.3,
+      bobAmplitude: ORB_BOB_BASE + Math.random() * 2,
+      el: orbRef.current,
+      zoneEl: zoneRef.current,
+      glowEl: glowRef.current,
+    };
+    map.set(entry.id, state);
+    return () => { map.delete(entry.id); };
+  }, [entry.id, c.side, orbY, orbitRadius, orbitSpeed, registry]);
+
+  useEffect(() => {
+    const s = registry.current.get(entry.id);
+    if (s && s.mode === "orb") {
+      s.el = orbRef.current;
+      s.zoneEl = zoneRef.current;
+      s.glowEl = glowRef.current;
+    }
+  });
+
+  const ellipseRy = orbitRadius * 0.35;
+
+  return (
+    <>
+      {/* Orbit ring — subtle ellipse path */}
+      <div
+        ref={glowRef}
+        className="absolute pointer-events-none"
+        style={{
+          top: "50%",
+          left: "50%",
+          width: orbitRadius * 2,
+          height: ellipseRy * 2,
+          transform: "translate(-50%, -50%)",
+          borderRadius: "50%",
+          border: `0.5px solid ${c.tagBorder}`,
+          opacity: 0.25,
+        }}
+      />
+
+      {/* Clickable orbit zone — ring-shaped hit area */}
+      <div
+        ref={zoneRef}
+        className="absolute cursor-pointer"
+        style={{
+          top: "50%",
+          left: "50%",
+          width: orbitRadius * 2 + 16,
+          height: ellipseRy * 2 + 16,
+          transform: "translate(-50%, -50%)",
+          borderRadius: "50%",
+          zIndex: 4,
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect?.(entry);
+        }}
+        title={entry.note}
+      />
+
+      {/* The orbiting orb itself */}
+      <div
+        ref={orbRef}
+        className="absolute"
+        style={{
+          top: "50%",
+          left: "50%",
+          width: ORB_SIZE,
+          height: ORB_SIZE,
+          marginLeft: -ORB_SIZE / 2,
+          marginTop: -ORB_SIZE / 2,
+          borderRadius: "50%",
+          background: `radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9) 0%, ${c.color} 40%, ${c.glowColor} 100%)`,
+          boxShadow: `0 0 8px ${c.color}, 0 0 16px ${c.glowColor}, 0 0 28px ${c.glowColor}`,
+          willChange: "transform, opacity",
+          pointerEvents: "none",
+        }}
+      />
+    </>
   );
 }
 
@@ -1516,6 +2078,7 @@ export default function ShrineScreen({
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [editSaving, setEditSaving] = useState(false);
+  const [confirmDeleteVision, setConfirmDeleteVision] = useState(false);
   const [particleMode, setParticleMode] = useState<ParticleMode>("stardust");
   const [particleConfig, setParticleConfig] = useState<ParticleConfig>(defaultParticleConfig);
   const [threadWidths, setThreadWidths] = useState({
@@ -1530,9 +2093,14 @@ export default function ShrineScreen({
   // Debug: live particle count
   const particleCountRef = useRef<HTMLSpanElement>(null);
 
+  // Tag display mode
+  const [tagMode, setTagMode] = useState<TagMode>("classic");
+  const [selectedEntry, setSelectedEntry] = useState<LedgerEntry | null>(null);
+
   // Shared animation loop for all thread segment strings
   const segmentRegistry = useRef<Map<string, SegmentAnimState>>(new Map());
   useSegmentLoop(scrollVelocity, segmentRegistry);
+
 
   const currentVision = visions[currentIndex] ?? null;
 
@@ -1600,6 +2168,24 @@ export default function ShrineScreen({
 
     return map;
   }, [entries, dayToY]);
+
+  // Compute orbit index per entry — entries sharing the same date get
+  // incrementing orbit indices so they each have their own ring distance
+  const orbitIndices = useMemo(() => {
+    const map = new Map<string, number>();
+    // Group entries by their date (day-level)
+    const dateGroups = new Map<string, string[]>();
+    for (const entry of entries) {
+      const d = new Date(entry.occurred_at);
+      const dateKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      if (!dateGroups.has(dateKey)) dateGroups.set(dateKey, []);
+      dateGroups.get(dateKey)!.push(entry.id);
+    }
+    for (const ids of dateGroups.values()) {
+      ids.forEach((id, i) => map.set(id, i));
+    }
+    return map;
+  }, [entries]);
 
   // Load visions
   const loadVisions = useCallback(async () => {
@@ -1684,6 +2270,25 @@ export default function ShrineScreen({
     [logType, currentVision]
   );
 
+  // Update ledger entry
+  const handleUpdateEntry = useCallback(
+    async (id: string, note: string, occurredAt: string) => {
+      const updated = await updateLedgerEntry(id, { note, occurred_at: occurredAt });
+      setEntries((prev) => prev.map((e) => (e.id === id ? updated : e)));
+    },
+    []
+  );
+
+  // Delete ledger entry
+  const handleDeleteEntry = useCallback(
+    async (id: string) => {
+      await deleteLedgerEntry(id);
+      segmentRegistry.current.delete(id);
+      setEntries((prev) => prev.filter((e) => e.id !== id));
+    },
+    []
+  );
+
   // Vision created
   const handleCreated = useCallback(
     (v: Vision) => {
@@ -1759,10 +2364,21 @@ export default function ShrineScreen({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6 }}
         onClick={onLogout}
-        className="absolute top-5 right-5 z-20 px-3 py-1.5 rounded-lg text-xs text-white/25 hover:text-white/50 transition-colors cursor-pointer"
+        className="absolute top-5 right-5 z-20 text-sm font-medium cursor-pointer"
         style={{
+          borderRadius: 4,
+          paddingTop: 4,
+          paddingBottom: 4,
+          paddingLeft: 12,
+          paddingRight: 12,
           background: "rgba(255, 255, 255, 0.03)",
-          border: "1px solid rgba(255, 255, 255, 0.04)",
+          border: "1px solid rgba(255, 255, 255, 0.05)",
+          color: "rgba(255, 255, 255, 0.4)",
+        }}
+        whileHover={{
+          background: "rgba(255, 255, 255, 0.08)",
+          border: "1px solid rgba(255, 255, 255, 0.12)",
+          color: "rgba(255, 255, 255, 0.7)",
         }}
       >
         Logout
@@ -1776,18 +2392,9 @@ export default function ShrineScreen({
           transition={{ delay: 0.3, duration: 0.5 }}
           className="flex flex-col items-center gap-6"
         >
-          <button
-            onClick={() => setModalOpen(true)}
-            className="px-8 py-4 rounded-2xl text-base font-tight font-medium tracking-wide cursor-pointer transition-all duration-300 hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2))",
-              border: "1px solid rgba(139, 92, 246, 0.15)",
-              color: "rgba(200, 180, 255, 0.8)",
-              boxShadow: "0 0 40px rgba(139, 92, 246, 0.08)",
-            }}
-          >
+          <ShrineButton variant="purple" onClick={() => setModalOpen(true)}>
             Add Your First Vision
-          </button>
+          </ShrineButton>
         </motion.div>
       )}
 
@@ -1821,6 +2428,39 @@ export default function ShrineScreen({
                 className="absolute inset-0 z-[1] pointer-events-none"
               >
                 <RadialGridBg />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── Tag mode toggle (only when thread open) ── */}
+          <AnimatePresence>
+            {threadOpen && (
+              <motion.div
+                key="tag-mode-toggle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, delay: 0.4 }}
+                className="absolute bottom-5 left-5 z-30 flex gap-1"
+                style={{ pointerEvents: "auto" }}
+              >
+                {(["orb", "ticket", "classic"] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => {
+                      segmentRegistry.current.clear();
+                      setTagMode(mode);
+                    }}
+                    className="px-3 py-1.5 rounded-md text-[10px] tracking-wide uppercase cursor-pointer transition-all duration-200"
+                    style={{
+                      background: tagMode === mode ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
+                      border: `1px solid ${tagMode === mode ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.06)"}`,
+                      color: tagMode === mode ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.25)",
+                    }}
+                  >
+                    {mode}
+                  </button>
+                ))}
               </motion.div>
             )}
           </AnimatePresence>
@@ -1861,16 +2501,16 @@ export default function ShrineScreen({
                           e.stopPropagation();
                           setThreadPopup({ x: e.clientX, y: e.clientY });
                         }}
-                        className="group relative flex items-center justify-center w-7 h-7 rounded-full cursor-pointer transition-all duration-200 hover:scale-110"
+                        className="group relative flex items-center justify-center w-6 h-6 rounded-full cursor-pointer transition-all duration-200 hover:scale-110"
                         style={{
-                          background: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.12)",
-                          boxShadow: "0 0 12px rgba(255,255,255,0.04)",
+                          background: "rgba(139, 92, 246, 0.15)",
+                          border: "1px solid rgba(139, 92, 246, 0.25)",
+                          boxShadow: "0 0 12px rgba(139, 92, 246, 0.08)",
                         }}
                       >
                         <span
-                          className="text-sm font-light leading-none transition-colors duration-200"
-                          style={{ color: "rgba(255,255,255,0.35)" }}
+                          className="text-xs font-light leading-none transition-colors duration-200"
+                          style={{ color: "rgba(200, 180, 255, 0.7)" }}
                         >
                           +
                         </span>
@@ -1901,18 +2541,19 @@ export default function ShrineScreen({
                     <ThreadNotches totalDays={totalDays} pxPerDay={PX_PER_DAY} scrollRef={threadScrollRef} />
 
                     {/* Entries — absolutely positioned at their date locations */}
-                    <AnimatePresence initial={false}>
-                      {entries.map((entry, i) => (
-                        <ThreadSegment
-                          key={entry.id}
-                          entry={entry}
-                          index={i}
-                          orbY={dayToY(entry.occurred_at)}
-                          tagY={resolvedPositions.get(entry.id) ?? dayToY(entry.occurred_at)}
-                          registry={segmentRegistry}
-                        />
-                      ))}
-                    </AnimatePresence>
+                    {entries.map((entry, i) => (
+                      <ThreadSegment
+                        key={`${tagMode}-${entry.id}`}
+                        entry={entry}
+                        index={i}
+                        orbY={dayToY(entry.occurred_at)}
+                        tagY={resolvedPositions.get(entry.id) ?? dayToY(entry.occurred_at)}
+                        orbitIndex={orbitIndices.get(entry.id) ?? 0}
+                        registry={segmentRegistry}
+                        tagMode={tagMode}
+                        onSelectEntry={setSelectedEntry}
+                      />
+                    ))}
 
                     {entries.length === 0 && (
                       <p
@@ -1984,6 +2625,7 @@ export default function ShrineScreen({
                     e.stopPropagation();
                     setEditTitle(currentVision.title);
                     setEditDescription(currentVision.description ?? "");
+                    setConfirmDeleteVision(false);
                     setEditingVision(true);
                     setEditOverlayPresent(true);
                   }}
@@ -2083,10 +2725,21 @@ export default function ShrineScreen({
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.25 }}
                 onClick={handleCloseThread}
-                className="absolute top-5 left-5 z-20 px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white/60 transition-colors cursor-pointer"
+                className="absolute top-5 left-5 z-20 text-sm font-medium cursor-pointer"
                 style={{
+                  borderRadius: 4,
+                  paddingTop: 4,
+                  paddingBottom: 4,
+                  paddingLeft: 12,
+                  paddingRight: 12,
                   background: "rgba(255, 255, 255, 0.03)",
                   border: "1px solid rgba(255, 255, 255, 0.05)",
+                  color: "rgba(255, 255, 255, 0.4)",
+                }}
+                whileHover={{
+                  background: "rgba(255, 255, 255, 0.08)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  color: "rgba(255, 255, 255, 0.7)",
                 }}
               >
                 &larr; Back
@@ -2152,9 +2805,10 @@ export default function ShrineScreen({
                       style={{
                         fontFamily: "var(--font-crimson-pro), serif",
                         fontWeight: 200,
+                        padding: "8px 12px",
+                        borderRadius: 4,
                         color: "rgba(255, 255, 255, 0.85)",
                         borderBottom: "1px solid rgba(160, 140, 255, 0.2)",
-                        paddingBottom: 8,
                         caretColor: "rgba(160, 140, 255, 0.6)",
                       }}
                       onKeyDown={(e) => {
@@ -2172,9 +2826,10 @@ export default function ShrineScreen({
                       placeholder="Description (optional)"
                       className="w-full text-center text-sm bg-transparent outline-none resize-none"
                       style={{
+                        padding: "8px 12px",
+                        borderRadius: 4,
                         color: "rgba(255, 255, 255, 0.5)",
                         borderBottom: "1px solid rgba(160, 140, 255, 0.1)",
-                        paddingBottom: 8,
                         lineHeight: 1.6,
                         caretColor: "rgba(160, 140, 255, 0.6)",
                       }}
@@ -2185,20 +2840,13 @@ export default function ShrineScreen({
                       }}
                     />
 
-                    {/* Save / Cancel buttons */}
+                    {/* Save / Cancel / Delete buttons */}
                     <div className="flex gap-4 mt-2">
-                      <button
-                        onClick={() => setEditingVision(false)}
-                        className="px-5 py-2 rounded-lg text-xs tracking-wide cursor-pointer transition-all duration-200 hover:scale-105"
-                        style={{
-                          background: "rgba(255, 255, 255, 0.03)",
-                          border: "1px solid rgba(255, 255, 255, 0.08)",
-                          color: "rgba(255, 255, 255, 0.4)",
-                        }}
-                      >
+                      <ShrineButton variant="gray" onClick={() => setEditingVision(false)}>
                         Cancel
-                      </button>
-                      <button
+                      </ShrineButton>
+                      <ShrineButton
+                        variant="purple"
                         disabled={editSaving || !editTitle.trim()}
                         onClick={async () => {
                           if (!editTitle.trim()) return;
@@ -2218,16 +2866,48 @@ export default function ShrineScreen({
                             setEditSaving(false);
                           }
                         }}
-                        className="px-5 py-2 rounded-lg text-xs tracking-wide cursor-pointer transition-all duration-200 hover:scale-105"
-                        style={{
-                          background: "rgba(160, 140, 255, 0.12)",
-                          border: "1px solid rgba(160, 140, 255, 0.2)",
-                          color: "rgba(200, 180, 255, 0.8)",
-                          opacity: editSaving || !editTitle.trim() ? 0.4 : 1,
-                        }}
                       >
                         {editSaving ? "Saving..." : "Save"}
-                      </button>
+                      </ShrineButton>
+                    </div>
+
+                    {/* Delete vision */}
+                    <div className="flex justify-center mt-4">
+                      {!confirmDeleteVision ? (
+                        <ShrineButton
+                          variant="red"
+                          onClick={() => setConfirmDeleteVision(true)}
+                        >
+                          Delete Vision
+                        </ShrineButton>
+                      ) : (
+                        <ShrineButton
+                          variant="red"
+                          disabled={editSaving}
+                          onClick={async () => {
+                            setEditSaving(true);
+                            try {
+                              await deleteVision(currentVision.id);
+                              setVisions((prev) =>
+                                prev.filter((v) => v.id !== currentVision.id)
+                              );
+                              // Adjust index if we deleted the last one
+                              setCurrentIndex((idx) =>
+                                idx >= visions.length - 1 ? Math.max(0, visions.length - 2) : idx
+                              );
+                              setEditingVision(false);
+                              setThreadOpen(false);
+                            } catch (err) {
+                              console.error("Failed to delete vision:", err);
+                            } finally {
+                              setEditSaving(false);
+                              setConfirmDeleteVision(false);
+                            }
+                          }}
+                        >
+                          {editSaving ? "Deleting..." : "Confirm Delete"}
+                        </ShrineButton>
+                      )}
                     </div>
                   </div>
                 </motion.div>
@@ -2244,13 +2924,23 @@ export default function ShrineScreen({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
           onClick={() => setModalOpen(true)}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 px-6 py-3 rounded-full text-sm font-medium tracking-wide cursor-pointer transition-all duration-200 hover:scale-105"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-sm font-medium cursor-pointer"
           style={{
-            background: "linear-gradient(135deg, rgba(139, 92, 246, 0.25), rgba(99, 102, 241, 0.25))",
+            borderRadius: 4,
+            paddingTop: 4,
+            paddingBottom: 4,
+            paddingLeft: 12,
+            paddingRight: 12,
+            background: "rgba(139, 92, 246, 0.15)",
             border: "1px solid rgba(139, 92, 246, 0.2)",
-            color: "rgba(255, 255, 255, 0.75)",
-            boxShadow: "0 0 30px rgba(139, 92, 246, 0.12)",
-            backdropFilter: "blur(12px)",
+            color: "rgba(200, 180, 255, 0.9)",
+            boxShadow: "0 0 20px rgba(139, 92, 246, 0.08)",
+          }}
+          whileHover={{
+            background: "rgba(139, 92, 246, 0.25)",
+            border: "1px solid rgba(139, 92, 246, 0.35)",
+            color: "rgba(220, 200, 255, 1)",
+            boxShadow: "0 0 24px rgba(139, 92, 246, 0.2)",
           }}
         >
           + New Vision
@@ -2281,6 +2971,19 @@ export default function ShrineScreen({
           onSubmit={handleLogEntry}
         />
       )}
+
+      {/* ── Entry Detail Modal (edit / delete) ── */}
+      <AnimatePresence>
+        {selectedEntry && (
+          <EntryDetailModal
+            key={selectedEntry.id}
+            entry={selectedEntry}
+            onClose={() => setSelectedEntry(null)}
+            onUpdate={handleUpdateEntry}
+            onDelete={handleDeleteEntry}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── New Vision Modal ── */}
       <NewVisionModal

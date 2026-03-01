@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { supabase } from "../lib/supabase";
+import ShrineButton from "./ShrineButton";
 
 // ── Floating particles background ──
 function LoginParticles({ count = 120 }: { count?: number }) {
@@ -124,8 +125,10 @@ export default function LoginScreen() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  className="w-full px-4 py-3 rounded-xl text-sm text-white/90 placeholder-white/20 outline-none transition-all duration-200 focus:ring-1 focus:ring-purple-500/40"
+                  className="w-full text-sm text-white/90 placeholder-white/20 outline-none transition-all duration-200 focus:ring-1 focus:ring-purple-500/40"
                   style={{
+                    padding: "8px 12px",
+                    borderRadius: 4,
                     background: "rgba(255, 255, 255, 0.04)",
                     border: "1px solid rgba(255, 255, 255, 0.06)",
                   }}
@@ -143,19 +146,14 @@ export default function LoginScreen() {
                 </motion.p>
               )}
 
-              <button
+              <ShrineButton
+                variant="purple"
                 type="submit"
                 disabled={loading || !email.trim()}
-                className="w-full py-3 rounded-xl text-sm font-medium tracking-wide transition-all duration-200 disabled:opacity-30 cursor-pointer disabled:cursor-not-allowed"
-                style={{
-                  background: "linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(99, 102, 241, 0.3))",
-                  border: "1px solid rgba(139, 92, 246, 0.2)",
-                  color: "rgba(255, 255, 255, 0.85)",
-                  boxShadow: "0 0 20px rgba(139, 92, 246, 0.1)",
-                }}
+                className="w-full"
               >
                 {loading ? "Sending..." : "Send Magic Link"}
-              </button>
+              </ShrineButton>
             </form>
           ) : (
             <motion.div
@@ -189,15 +187,16 @@ export default function LoginScreen() {
                 Check your inbox for the magic link
               </p>
               <p className="text-white/30 text-xs mt-2">{email}</p>
-              <button
+              <ShrineButton
+                variant="gray"
+                className="mt-4"
                 onClick={() => {
                   setSent(false);
                   setEmail("");
                 }}
-                className="text-purple-400/60 text-xs mt-4 hover:text-purple-400/80 transition-colors cursor-pointer"
               >
                 Try a different email
-              </button>
+              </ShrineButton>
             </motion.div>
           )}
         </div>

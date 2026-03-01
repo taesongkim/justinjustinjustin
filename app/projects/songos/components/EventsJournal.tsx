@@ -325,9 +325,9 @@ function EventEditModal({
       }}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 8 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 8 }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 6 }}
         transition={{ duration: 0.2, ease: "easeOut" }}
         onClick={(e) => e.stopPropagation()}
         style={{
@@ -902,6 +902,7 @@ export default function EventsJournal({
             alignItems: "center",
             gap: 16,
             overflowX: "auto",
+            outline: "2px dashed #ff6b6b", // DEBUG: filter bar (red)
           }}
         >
           {/* Category pills */}
@@ -1079,6 +1080,7 @@ export default function EventsJournal({
             borderRight: "1px solid var(--nt-border)",
             height: "100%",
             overflow: "hidden",
+            outline: "2px dashed #ffa500", // DEBUG: events card stack section (orange)
           }}
         >
           {/* Header */}
@@ -1174,7 +1176,7 @@ export default function EventsJournal({
         </div>
 
         {/* Right: notes panel */}
-        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
+        <div style={{ flex: 1, minWidth: 0, overflow: "hidden", outline: "2px dashed #00bfff" /* DEBUG: notes panel right side (cyan) */ }}>
           <AnimatePresence mode="wait">
             {selectedEvent ? (
               <NotesPanel

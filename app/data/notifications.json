@@ -1,5 +1,17 @@
 [
   {
+    "id": "12",
+    "category": "update",
+    "message": "created new internal tools related to progress tracking and goal tracking. not yet public, but marking here for documentation",
+    "timestamp": "2026-02-27T21:10:00.000Z"
+  },
+  {
+    "id": "11",
+    "category": "learned",
+    "message": "tried using Apple's SHARP model to generate 3D gaussian splatting from 2D images, but results were poor. abandoned for now, but I'll probably try again.",
+    "timestamp": "2026-02-27T21:08:00.000Z"
+  },
+  {
     "id": "10",
     "category": "learned",
     "message": "Learned I can export visual creations from unicorn.studio via video format AND apply video in web in blend modes. Crazy.",

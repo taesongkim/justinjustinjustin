@@ -86,6 +86,7 @@ export default function SongOSShell() {
           display: "flex",
           flexDirection: "column",
           transition: "margin-left 0.2s ease",
+          outline: "2px dashed #ffff00", // DEBUG: main content area (yellow)
         }}
       >
         {activeApp === "tasks" && <NestedTodoApp />}

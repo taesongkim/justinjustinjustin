@@ -27,6 +27,7 @@ import PromptEditor from './editor/PromptEditor';
 import MantraSession from './session/MantraSession';
 import MantraLinesSession from './session/MantraLinesSession';
 import PromptSession from './session/PromptSession';
+import SessionHistory from './history/SessionHistory';
 
 // ─── Context ────────────────────────────────────────────
 
@@ -46,6 +47,7 @@ interface WritualContextValue {
   updatePractice: (id: string, updates: Partial<Practice>) => void;
   deletePractice: (id: string) => void;
   recordSession: (session: Omit<SessionRecord, 'id'>) => void;
+  deleteSession: (id: string) => void;
 }
 
 const WritualContext = createContext<WritualContextValue | null>(null);
@@ -60,6 +62,52 @@ export function useWritual() {
 
 const storage = localStorageAdapter;
 
+// ─── Page ↔ Hash serialization ─────────────────────────
+
+function pageToHash(p: Page): string {
+  switch (p.name) {
+    case 'library':
+      return '#library';
+    case 'editor': {
+      const parts = ['#editor'];
+      if (p.type) parts.push(p.type);
+      if (p.practiceId) parts.push(p.practiceId);
+      return parts.join('/');
+    }
+    case 'session':
+      return `#session/${p.practiceId}`;
+    case 'history':
+      return p.sessionId ? `#history/${p.sessionId}` : '#history';
+    case 'flow-builder':
+      return p.flowId ? `#flow-builder/${p.flowId}` : '#flow-builder';
+    default:
+      return '#library';
+  }
+}
+
+function hashToPage(hash: string): Page {
+  const raw = hash.replace(/^#/, '');
+  const parts = raw.split('/');
+  const name = parts[0];
+
+  switch (name) {
+    case 'editor':
+      return {
+        name: 'editor',
+        type: (parts[1] as PracticeType) || undefined,
+        practiceId: parts[2] || undefined,
+      };
+    case 'session':
+      return parts[1] ? { name: 'session', practiceId: parts[1] } : { name: 'library' };
+    case 'history':
+      return { name: 'history', sessionId: parts[1] || undefined };
+    case 'flow-builder':
+      return { name: 'flow-builder', flowId: parts[1] || undefined };
+    default:
+      return { name: 'library' };
+  }
+}
+
 // ─── App ────────────────────────────────────────────────
 
 export default function WritualApp() {
@@ -69,12 +117,28 @@ export default function WritualApp() {
   const [page, setPage] = useState<Page>({ name: 'library' });
   const [loaded, setLoaded] = useState(false);
 
-  // Load from storage on mount
+  // Load from storage on mount + read initial hash
   useEffect(() => {
     setPractices(storage.loadPractices());
     setFlows(storage.loadFlows());
     setSessions(storage.loadSessions());
+
+    // Restore page from hash if present
+    if (typeof window !== 'undefined' && window.location.hash) {
+      setPage(hashToPage(window.location.hash));
+    }
+
     setLoaded(true);
+  }, []);
+
+  // Listen for browser back/forward
+  useEffect(() => {
+    const handlePopState = () => {
+      const hash = window.location.hash;
+      setPage(hash ? hashToPage(hash) : { name: 'library' });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   // Persist practices when they change
@@ -88,7 +152,11 @@ export default function WritualApp() {
 
   // ── Actions ─────────────────────────────────────────
 
-  const navigate = useCallback((p: Page) => setPage(p), []);
+  const navigate = useCallback((p: Page) => {
+    setPage(p);
+    const hash = pageToHash(p);
+    window.history.pushState(null, '', hash);
+  }, []);
 
   const createPractice = useCallback(
     (type: PracticeType, title: string, content: string, settings: PracticeSettings) => {
@@ -125,12 +193,24 @@ export default function WritualApp() {
 
   const recordSession = useCallback(
     (session: Omit<SessionRecord, 'id'>) => {
-      const record: SessionRecord = { ...session, id: generateId() };
+      // Snapshot practice title/type so history survives practice deletion
+      const practice = practices.find((p) => p.id === session.practiceId);
+      const record: SessionRecord = {
+        ...session,
+        id: generateId(),
+        practiceTitle: session.practiceTitle ?? practice?.title,
+        practiceType: session.practiceType ?? practice?.type,
+      };
       storage.appendSession(record);
       setSessions((prev) => [...prev, record]);
     },
-    []
+    [practices]
   );
+
+  const deleteSession = useCallback((id: string) => {
+    storage.deleteSession(id);
+    setSessions((prev) => prev.filter((s) => s.id !== id));
+  }, []);
 
   // ── Context value ───────────────────────────────────
 
@@ -145,8 +225,9 @@ export default function WritualApp() {
       updatePractice,
       deletePractice,
       recordSession,
+      deleteSession,
     }),
-    [practices, flows, sessions, page, navigate, createPractice, updatePractice, deletePractice, recordSession]
+    [practices, flows, sessions, page, navigate, createPractice, updatePractice, deletePractice, recordSession, deleteSession]
   );
 
   // ── Render ──────────────────────────────────────────
@@ -180,6 +261,13 @@ function Nav() {
       >
         Library
       </button>
+      <button
+        className="writual-nav-link"
+        data-active={page.name === 'history'}
+        onClick={() => navigate({ name: 'history' })}
+      >
+        History
+      </button>
     </nav>
   );
 }
@@ -203,6 +291,9 @@ function PageContent() {
       if (type === 'mantra-lines') return <MantraLinesEditor practice={existing} />;
       return <MantraEditor practice={existing} />;
     }
+
+    case 'history':
+      return <SessionHistory />;
 
     case 'session': {
       const practice = practices.find((p) => p.id === page.practiceId);

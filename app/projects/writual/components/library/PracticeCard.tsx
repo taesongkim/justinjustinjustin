@@ -1,14 +1,14 @@
 'use client';
 
 import { useWritual } from '../WritualApp';
-import { Practice, isMantraSettings } from '../../lib/types';
+import { Practice } from '../../lib/types';
 
 interface PracticeCardProps {
   practice: Practice;
 }
 
 export default function PracticeCard({ practice }: PracticeCardProps) {
-  const { navigate, deletePractice } = useWritual();
+  const { navigate } = useWritual();
 
   const typeLabels: Record<string, string> = {
     mantra: 'Mantra',
@@ -82,17 +82,6 @@ export default function PracticeCard({ practice }: PracticeCardProps) {
           }
         >
           Edit
-        </button>
-        <button
-          className="w-btn w-btn-sm w-btn-ghost"
-          onClick={() => {
-            if (confirm('Delete this practice?')) {
-              deletePractice(practice.id);
-            }
-          }}
-          style={{ color: 'var(--w-text-muted)', marginLeft: 'auto' }}
-        >
-          Delete
         </button>
       </div>
     </div>

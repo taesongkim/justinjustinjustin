@@ -13,7 +13,7 @@ interface MantraLinesEditorProps {
 }
 
 export default function MantraLinesEditor({ practice }: MantraLinesEditorProps) {
-  const { createPractice, updatePractice, navigate } = useWritual();
+  const { createPractice, updatePractice, deletePractice, navigate } = useWritual();
 
   const existingSettings = practice?.settings as (MantraLinesSettings & Record<string, unknown>) | undefined;
   const migratedSettings: MantraLinesSettings | undefined = existingSettings
@@ -185,20 +185,36 @@ export default function MantraLinesEditor({ practice }: MantraLinesEditorProps) 
 
       <hr className="w-divider" />
 
-      <div className="w-form-row" style={{ justifyContent: 'flex-end' }}>
-        <button
-          className="w-btn"
-          onClick={() => navigate({ name: 'library' })}
-        >
-          Cancel
-        </button>
-        <button
-          className="w-btn w-btn-primary"
-          onClick={handleSave}
-          disabled={!title.trim() || !phrase.trim()}
-        >
-          {practice ? 'Save Changes' : 'Create Practice'}
-        </button>
+      <div className="w-form-row" style={{ justifyContent: 'space-between' }}>
+        {practice ? (
+          <button
+            className="w-btn w-btn-ghost"
+            style={{ color: 'var(--w-error)' }}
+            onClick={() => {
+              if (confirm('Delete this practice? Session history will be preserved.')) {
+                deletePractice(practice.id);
+                navigate({ name: 'library' });
+              }
+            }}
+          >
+            Delete
+          </button>
+        ) : <span />}
+        <div className="w-form-row">
+          <button
+            className="w-btn"
+            onClick={() => navigate({ name: 'library' })}
+          >
+            Cancel
+          </button>
+          <button
+            className="w-btn w-btn-primary"
+            onClick={handleSave}
+            disabled={!title.trim() || !phrase.trim()}
+          >
+            {practice ? 'Save Changes' : 'Create Practice'}
+          </button>
+        </div>
       </div>
     </div>
   );

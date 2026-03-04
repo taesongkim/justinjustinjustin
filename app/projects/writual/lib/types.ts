@@ -65,6 +65,8 @@ export interface PracticeFlow {
 export interface SessionRecord {
   id: string;
   practiceId: string;
+  practiceTitle?: string; // snapshot for history resilience
+  practiceType?: PracticeType; // snapshot for history resilience
   flowId?: string;
   startedAt: number;
   endedAt: number;
@@ -118,4 +120,5 @@ export type Page =
   | { name: 'library' }
   | { name: 'editor'; practiceId?: string; type?: PracticeType }
   | { name: 'session'; practiceId: string }
+  | { name: 'history'; sessionId?: string }
   | { name: 'flow-builder'; flowId?: string };

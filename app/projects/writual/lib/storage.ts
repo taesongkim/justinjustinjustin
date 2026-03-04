@@ -11,6 +11,7 @@ export interface WritualStorage {
 
   loadSessions(): SessionRecord[];
   appendSession(session: SessionRecord): void;
+  deleteSession(id: string): void;
 }
 
 // ─── Keys ───────────────────────────────────────────────
@@ -50,5 +51,9 @@ export const localStorageAdapter: WritualStorage = {
     const sessions = safeGet<SessionRecord[]>(SESSIONS_KEY, []);
     sessions.push(s);
     safeSet(SESSIONS_KEY, sessions);
+  },
+  deleteSession: (id) => {
+    const sessions = safeGet<SessionRecord[]>(SESSIONS_KEY, []);
+    safeSet(SESSIONS_KEY, sessions.filter((s) => s.id !== id));
   },
 };

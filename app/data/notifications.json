@@ -1,5 +1,23 @@
 [
   {
+    "id": "18",
+    "category": "published",
+    "message": "journaling app is now fully functional as a test app under https://justinjustinjustin.com/projects/writual with saved sessions viewable in history tab",
+    "timestamp": "2026-03-04T22:18:00.000Z"
+  },
+  {
+    "id": "17",
+    "category": "update",
+    "message": "journaling app now has mantra, mantra line, and prompt categories of journaling practices enabled",
+    "timestamp": "2026-03-04T21:40:00.000Z"
+  },
+  {
+    "id": "16",
+    "category": "update",
+    "message": "journaling app can now be beta tested at https://justinjustinjustin.com/projects/writual ",
+    "timestamp": "2026-03-04T20:01:00.000Z"
+  },
+  {
     "id": "15",
     "category": "update",
     "message": "nested tasks is being upgraded. decoupling trees from tabs. creating storage, archive, templating capabilities. currently still testing. plans to update live in a few days.",

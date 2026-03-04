@@ -426,6 +426,101 @@
   color: var(--w-text-muted);
 }
 
+/* ─── Markdown Shortcuts Hint ───────────────────────────── */
+
+.md-shortcuts-hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--w-text-muted);
+  padding: 4px 0;
+}
+
+.md-shortcuts-hint span {
+  background: var(--w-surface);
+  padding: 2px 8px;
+  border-radius: var(--w-radius-sm);
+  font-family: var(--font-mono, monospace);
+}
+
+/* ─── TipTap Editor ─────────────────────────────────────── */
+
+.writual-tiptap-editor {
+  min-height: 400px;
+  outline: none;
+  font-size: 16px;
+  line-height: 1.8;
+  color: var(--w-text);
+  caret-color: var(--w-text);
+}
+
+.writual-tiptap-editor h1 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 24px 0 12px 0;
+  line-height: 1.3;
+}
+
+.writual-tiptap-editor h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 20px 0 10px 0;
+  line-height: 1.3;
+}
+
+.writual-tiptap-editor h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 16px 0 8px 0;
+  line-height: 1.4;
+}
+
+.writual-tiptap-editor p {
+  margin: 0 0 4px 0;
+}
+
+.writual-tiptap-editor hr {
+  border: none;
+  border-top: 1px solid var(--w-border);
+  margin: 20px 0;
+}
+
+.writual-tiptap-editor blockquote {
+  border-left: 3px solid var(--w-border-focus);
+  padding-left: 16px;
+  color: var(--w-text-secondary);
+  margin: 8px 0;
+  font-style: italic;
+}
+
+.writual-tiptap-editor ul,
+.writual-tiptap-editor ol {
+  margin: 4px 0;
+  padding-left: 24px;
+}
+
+.writual-tiptap-editor li {
+  margin: 2px 0;
+}
+
+.writual-tiptap-editor strong {
+  font-weight: 600;
+}
+
+.writual-tiptap-editor em {
+  font-style: italic;
+}
+
+/* Placeholder */
+.writual-tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--w-text-muted);
+  pointer-events: none;
+  height: 0;
+}
+
 /* ─── Session Header ─────────────────────────────────────── */
 
 .session-header {

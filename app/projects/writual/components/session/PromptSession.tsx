@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useWritual } from '../WritualApp';
 import { Practice, PromptSettings } from '../../lib/types';
 import { countWords, formatTime } from '../../lib/utils';
 import { useTimer, useCopyToClipboard } from '../../lib/hooks';
+import WritualEditor from './PromptEditor.tiptap';
 
 interface PromptSessionProps {
   practice: Practice;
@@ -18,18 +19,17 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const [started, setStarted] = useState(false);
   const [complete, setComplete] = useState(false);
   const [startTimestamp] = useState(Date.now());
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const { elapsedMs } = useTimer(started && !complete);
   const { copied, copy } = useCopyToClipboard();
 
   const wordCount = countWords(content);
 
-  const handleInput = useCallback(
-    (value: string) => {
+  const handleUpdate = useCallback(
+    (markdown: string) => {
       if (complete) return;
       if (!started) setStarted(true);
-      setContent(value);
+      setContent(markdown);
     },
     [started, complete]
   );
@@ -48,15 +48,6 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const handleDone = () => {
     navigate({ name: 'library' });
   };
-
-  // Auto-resize textarea
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (el) {
-      el.style.height = 'auto';
-      el.style.height = el.scrollHeight + 'px';
-    }
-  }, [content]);
 
   return (
     <div className="w-stack">
@@ -110,17 +101,24 @@ export default function PromptSession({ practice }: PromptSessionProps) {
 
       <hr className="w-divider" />
 
-      {/* Writing area */}
-      <textarea
-        ref={textareaRef}
-        className="prompt-writing-area"
-        value={content}
-        onChange={(e) => handleInput(e.target.value)}
-        placeholder="Start writing..."
+      {/* Shortcuts hint */}
+      {!complete && (
+        <div className="md-shortcuts-hint">
+          <span># heading</span>
+          <span>- list</span>
+          <span>1. numbered</span>
+          <span>&gt; quote</span>
+          <span>---</span>
+          <span>⌘B bold</span>
+          <span>⌘I italic</span>
+        </div>
+      )}
+
+      {/* TipTap editor — live inline formatting */}
+      <WritualEditor
+        onUpdate={handleUpdate}
         disabled={complete}
-        autoFocus
-        spellCheck
-        rows={12}
+        placeholder="Start writing..."
       />
 
       {/* Bottom controls */}

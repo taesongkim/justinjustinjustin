@@ -1,0 +1,449 @@
+/* ─── Writual Theme Variables ────────────────────────────── */
+
+.writual {
+  --w-bg: #0a0a0a;
+  --w-surface: #111111;
+  --w-surface-hover: #191919;
+  --w-border: #1e1e1e;
+  --w-border-focus: #333333;
+
+  --w-text: #d4d4d4;
+  --w-text-secondary: #777777;
+  --w-text-muted: #444444;
+  --w-text-ghost: rgba(212, 212, 212, 0.2);
+
+  --w-accent: #8b8b8b;
+  --w-accent-hover: #a0a0a0;
+  --w-success: #4ade80;
+  --w-error: #f87171;
+
+  --w-radius: 8px;
+  --w-radius-sm: 4px;
+  --w-transition: 150ms ease;
+
+  background: var(--w-bg);
+  color: var(--w-text);
+  min-height: 100vh;
+}
+
+/* ─── Layout ─────────────────────────────────────────────── */
+
+.writual-shell {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.writual-nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 48px;
+  border-bottom: 1px solid var(--w-border);
+  padding-bottom: 16px;
+}
+
+.writual-nav-title {
+  font-family: var(--font-tight);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--w-text-secondary);
+  margin-right: auto;
+}
+
+.writual-nav-link {
+  font-size: 13px;
+  color: var(--w-text-muted);
+  cursor: pointer;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: color var(--w-transition);
+}
+
+.writual-nav-link:hover {
+  color: var(--w-text);
+}
+
+.writual-nav-link[data-active="true"] {
+  color: var(--w-text);
+}
+
+/* ─── Buttons ────────────────────────────────────────────── */
+
+.w-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--w-radius-sm);
+  border: 1px solid var(--w-border);
+  background: transparent;
+  color: var(--w-text);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all var(--w-transition);
+}
+
+.w-btn:hover:not(:disabled) {
+  border-color: var(--w-border-focus);
+  background: var(--w-surface);
+}
+
+.w-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.w-btn-primary {
+  background: var(--w-text);
+  color: var(--w-bg);
+  border-color: var(--w-text);
+}
+
+.w-btn-primary:hover:not(:disabled) {
+  background: var(--w-accent-hover);
+  border-color: var(--w-accent-hover);
+}
+
+.w-btn-ghost {
+  border-color: transparent;
+}
+
+.w-btn-ghost:hover:not(:disabled) {
+  background: var(--w-surface);
+  border-color: transparent;
+}
+
+.w-btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* ─── Inputs ─────────────────────────────────────────────── */
+
+.w-input,
+.w-textarea {
+  width: 100%;
+  background: var(--w-surface);
+  color: var(--w-text);
+  border: 1px solid var(--w-border);
+  border-radius: var(--w-radius-sm);
+  padding: 10px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color var(--w-transition);
+  outline: none;
+}
+
+.w-input:focus,
+.w-textarea:focus {
+  border-color: var(--w-border-focus);
+}
+
+.w-input::placeholder,
+.w-textarea::placeholder {
+  color: var(--w-text-muted);
+}
+
+.w-textarea {
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.6;
+}
+
+/* ─── Form Layout ────────────────────────────────────────── */
+
+.w-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.w-label {
+  font-size: 12px;
+  color: var(--w-text-secondary);
+  letter-spacing: 0.02em;
+}
+
+.w-form-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.w-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+/* ─── Toggle Switch ──────────────────────────────────────── */
+
+.w-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  background: var(--w-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background var(--w-transition);
+  border: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.w-toggle[data-on="true"] {
+  background: var(--w-success);
+}
+
+.w-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: var(--w-text);
+  border-radius: 50%;
+  transition: transform var(--w-transition);
+}
+
+.w-toggle[data-on="true"]::after {
+  transform: translateX(16px);
+}
+
+/* ─── Select ─────────────────────────────────────────────── */
+
+.w-select {
+  background: var(--w-surface);
+  color: var(--w-text);
+  border: 1px solid var(--w-border);
+  border-radius: var(--w-radius-sm);
+  padding: 6px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.w-select:focus {
+  border-color: var(--w-border-focus);
+}
+
+.w-select option {
+  background: var(--w-surface);
+  color: var(--w-text);
+}
+
+/* ─── Cards ──────────────────────────────────────────────── */
+
+.w-card {
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: var(--w-radius);
+  padding: 20px;
+  transition: border-color var(--w-transition);
+}
+
+.w-card:hover {
+  border-color: var(--w-border-focus);
+}
+
+.w-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+/* ─── Mantra Session ─────────────────────────────────────── */
+
+.mantra-container {
+  position: relative;
+  font-size: 20px;
+  line-height: 1.6;
+  font-family: var(--font-tight);
+  min-height: 100px;
+}
+
+.mantra-ghost {
+  color: var(--w-text-ghost);
+  pointer-events: none;
+  user-select: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Replace mode: ghost + typed chars side by side */
+.mantra-replace {
+  position: relative;
+}
+
+.mantra-replace-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.mantra-replace-input {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  color: var(--w-text);
+  border: none;
+  outline: none;
+  width: 100%;
+  font: inherit;
+  line-height: inherit;
+  resize: none;
+  caret-color: var(--w-text);
+}
+
+/* Overlay mode: input on top of ghost */
+.mantra-overlay {
+  position: relative;
+}
+
+.mantra-overlay-ghost {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+
+.mantra-overlay-input {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  color: var(--w-text);
+  border: none;
+  outline: none;
+  width: 100%;
+  font: inherit;
+  line-height: inherit;
+  resize: none;
+  caret-color: var(--w-text);
+}
+
+/* ─── Prompt Session ─────────────────────────────────────── */
+
+.prompt-writing-area {
+  width: 100%;
+  min-height: 400px;
+  background: transparent;
+  color: var(--w-text);
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.8;
+  resize: none;
+  caret-color: var(--w-text);
+}
+
+.prompt-writing-area::placeholder {
+  color: var(--w-text-muted);
+}
+
+/* ─── Session Header ─────────────────────────────────────── */
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--w-border);
+}
+
+.session-timer {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--w-text-secondary);
+  letter-spacing: 0.04em;
+}
+
+.session-meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 13px;
+  color: var(--w-text-secondary);
+}
+
+/* ─── Completion Badge ───────────────────────────────────── */
+
+.completion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(74, 222, 128, 0.1);
+  color: var(--w-success);
+}
+
+/* ─── Empty State ────────────────────────────────────────── */
+
+.w-empty {
+  text-align: center;
+  padding: 64px 24px;
+  color: var(--w-text-muted);
+  font-size: 14px;
+}
+
+/* ─── Section Headers ────────────────────────────────────── */
+
+.w-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.w-section-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--w-text);
+}
+
+/* ─── Utilities ──────────────────────────────────────────── */
+
+.w-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.w-stack-sm {
+  gap: 8px;
+}
+
+.w-divider {
+  border: none;
+  border-top: 1px solid var(--w-border);
+  margin: 16px 0;
+}
+
+@media (max-width: 640px) {
+  .writual-shell {
+    padding: 24px 16px;
+  }
+
+  .writual-nav {
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .w-card-grid {
+    grid-template-columns: 1fr;
+  }
+}

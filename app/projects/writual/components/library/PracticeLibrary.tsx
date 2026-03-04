@@ -82,6 +82,29 @@ export default function PracticeLibrary() {
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.background = 'none')
                 }
+                onClick={() => handleNew('mantra-lines')}
+              >
+                Mantra Lines
+              </button>
+              <button
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '10px 14px',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--w-text)',
+                  fontSize: 13,
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.background = 'var(--w-surface-hover)')
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.background = 'none')
+                }
                 onClick={() => handleNew('prompt')}
               >
                 Prompt

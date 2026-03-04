@@ -22,8 +22,10 @@ import { localStorageAdapter } from '../lib/storage';
 import { generateId } from '../lib/utils';
 import PracticeLibrary from './library/PracticeLibrary';
 import MantraEditor from './editor/MantraEditor';
+import MantraLinesEditor from './editor/MantraLinesEditor';
 import PromptEditor from './editor/PromptEditor';
 import MantraSession from './session/MantraSession';
+import MantraLinesSession from './session/MantraLinesSession';
 import PromptSession from './session/PromptSession';
 
 // ─── Context ────────────────────────────────────────────
@@ -197,9 +199,8 @@ function PageContent() {
         ? practices.find((p) => p.id === page.practiceId)
         : undefined;
 
-      if (type === 'prompt') {
-        return <PromptEditor practice={existing} />;
-      }
+      if (type === 'prompt') return <PromptEditor practice={existing} />;
+      if (type === 'mantra-lines') return <MantraLinesEditor practice={existing} />;
       return <MantraEditor practice={existing} />;
     }
 
@@ -207,9 +208,8 @@ function PageContent() {
       const practice = practices.find((p) => p.id === page.practiceId);
       if (!practice) return <div className="w-empty">Practice not found.</div>;
 
-      if (practice.type === 'prompt') {
-        return <PromptSession practice={practice} />;
-      }
+      if (practice.type === 'prompt') return <PromptSession practice={practice} />;
+      if (practice.type === 'mantra-lines') return <MantraLinesSession practice={practice} />;
       return <MantraSession practice={practice} />;
     }
 

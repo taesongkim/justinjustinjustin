@@ -1,35 +1,35 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── useTimer ───────────────────────────────────────────
-// Starts counting when `running` is true. Returns elapsed seconds.
+// Starts counting when `running` is true. Returns elapsed in milliseconds.
 
 export function useTimer(running: boolean) {
-  const [elapsed, setElapsed] = useState(0);
+  const [elapsedMs, setElapsedMs] = useState(0);
   const startRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!running) return;
 
     if (startRef.current === null) {
-      startRef.current = Date.now() - elapsed * 1000;
+      startRef.current = Date.now() - elapsedMs;
     }
 
     const tick = () => {
       if (startRef.current !== null) {
-        setElapsed(Math.floor((Date.now() - startRef.current) / 1000));
+        setElapsedMs(Date.now() - startRef.current);
       }
     };
 
-    const id = setInterval(tick, 200);
+    const id = setInterval(tick, 47);
     return () => clearInterval(id);
   }, [running]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const reset = useCallback(() => {
     startRef.current = null;
-    setElapsed(0);
+    setElapsedMs(0);
   }, []);
 
-  return { elapsed, reset };
+  return { elapsedMs, reset };
 }
 
 // ─── useCopyToClipboard ─────────────────────────────────

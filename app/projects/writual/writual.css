@@ -357,6 +357,55 @@
   color: var(--w-error);
 }
 
+/* ─── Mantra Lines ───────────────────────────────────────── */
+
+.mantra-lines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mantra-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--w-border);
+  opacity: 0.35;
+  transition: opacity var(--w-transition);
+}
+
+.mantra-line[data-active="true"] {
+  opacity: 1;
+}
+
+.mantra-line[data-complete="true"] {
+  opacity: 0.6;
+}
+
+.mantra-line-number {
+  width: 36px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--w-text-muted);
+  padding-top: 2px;
+  text-align: right;
+}
+
+.mantra-line-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mantra-line-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
 /* ─── Prompt Session ─────────────────────────────────────── */
 
 .prompt-writing-area {

@@ -10,7 +10,12 @@ interface PracticeCardProps {
 export default function PracticeCard({ practice }: PracticeCardProps) {
   const { navigate, deletePractice } = useWritual();
 
-  const typeLabel = practice.type === 'mantra' ? 'Mantra' : 'Prompt';
+  const typeLabels: Record<string, string> = {
+    mantra: 'Mantra',
+    'mantra-lines': 'Mantra Lines',
+    prompt: 'Prompt',
+  };
+  const typeLabel = typeLabels[practice.type] ?? practice.type;
   const preview =
     practice.content.length > 80
       ? practice.content.slice(0, 80) + '...'

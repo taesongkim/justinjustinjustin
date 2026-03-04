@@ -18,13 +18,23 @@ export interface MantraSettings {
   timerEnabled: boolean;
 }
 
+export interface MantraLinesSettings {
+  lineCount: number;
+  ghostVisible: boolean;
+  completionDetection: boolean;
+  leniency: LeniencyFlags;
+  autoAdvance: boolean;
+  lineTimerEnabled: boolean;
+  sessionTimerEnabled: boolean;
+}
+
 export interface PromptSettings {
   instructions: string;
   timerEnabled: boolean;
   wordCountEnabled: boolean;
 }
 
-export type PracticeSettings = MantraSettings | PromptSettings;
+export type PracticeSettings = MantraSettings | MantraLinesSettings | PromptSettings;
 
 // ─── Practice (template) ────────────────────────────────
 
@@ -72,6 +82,16 @@ export const DEFAULT_MANTRA_SETTINGS: MantraSettings = {
   timerEnabled: true,
 };
 
+export const DEFAULT_MANTRA_LINES_SETTINGS: MantraLinesSettings = {
+  lineCount: 10,
+  ghostVisible: true,
+  completionDetection: true,
+  leniency: { ignoreCaps: false, ignorePunctuation: false },
+  autoAdvance: true,
+  lineTimerEnabled: false,
+  sessionTimerEnabled: true,
+};
+
 export const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
   instructions: '',
   timerEnabled: true,
@@ -82,6 +102,10 @@ export const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
 
 export function isMantraSettings(s: PracticeSettings): s is MantraSettings {
   return 'typingMode' in s;
+}
+
+export function isMantraLinesSettings(s: PracticeSettings): s is MantraLinesSettings {
+  return 'lineCount' in s;
 }
 
 export function isPromptSettings(s: PracticeSettings): s is PromptSettings {

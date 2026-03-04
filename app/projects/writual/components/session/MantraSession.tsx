@@ -25,7 +25,7 @@ export default function MantraSession({ practice }: MantraSessionProps) {
   const [startTimestamp] = useState(Date.now());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { elapsed, reset } = useTimer(started && !complete);
+  const { elapsedMs, reset } = useTimer(started && !complete);
 
   const ghostText = practice.content;
 
@@ -61,7 +61,7 @@ export default function MantraSession({ practice }: MantraSessionProps) {
       practiceId: practice.id,
       startedAt: startTimestamp,
       endedAt: Date.now(),
-      durationMs: elapsed * 1000,
+      durationMs: elapsedMs,
     });
     navigate({ name: 'library' });
   };
@@ -95,7 +95,7 @@ export default function MantraSession({ practice }: MantraSessionProps) {
         <div className="session-meta">
           {complete && <span className="completion-badge">Complete</span>}
           {settings.timerEnabled && (
-            <span className="session-timer">{formatTime(elapsed)}</span>
+            <span className="session-timer">{formatTime(elapsedMs)}</span>
           )}
           <button className="w-btn w-btn-sm" onClick={handleReset}>
             Reset

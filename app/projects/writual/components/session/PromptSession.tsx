@@ -20,7 +20,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const [startTimestamp] = useState(Date.now());
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const { elapsed } = useTimer(started && !complete);
+  const { elapsedMs } = useTimer(started && !complete);
   const { copied, copy } = useCopyToClipboard();
 
   const wordCount = countWords(content);
@@ -40,7 +40,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       practiceId: practice.id,
       startedAt: startTimestamp,
       endedAt: Date.now(),
-      durationMs: elapsed * 1000,
+      durationMs: elapsedMs,
       content,
     });
   };
@@ -71,7 +71,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
             <span style={{ fontSize: 12 }}>{wordCount} words</span>
           )}
           {settings.timerEnabled && (
-            <span className="session-timer">{formatTime(elapsed)}</span>
+            <span className="session-timer">{formatTime(elapsedMs)}</span>
           )}
           <button
             className="w-btn w-btn-sm"

@@ -1,5 +1,23 @@
 [
   {
+    "id": "15",
+    "category": "update",
+    "message": "nested tasks is being upgraded. decoupling trees from tabs. creating storage, archive, templating capabilities. currently still testing. plans to update live in a few days.",
+    "timestamp": "2026-03-04T20:00:00.000Z"
+  },
+  {
+    "id": "14",
+    "category": "update",
+    "message": "wrote new spec for journaling app. initiated building. ",
+    "timestamp": "2026-03-04T20:00:00.000Z"
+  },
+  {
+    "id": "13",
+    "category": "update",
+    "message": "changed background of homepage to new wave animation",
+    "timestamp": "2026-03-04T19:59:00.000Z"
+  },
+  {
     "id": "12",
     "category": "update",
     "message": "created new internal tools related to progress tracking and goal tracking. not yet public, but marking here for documentation",

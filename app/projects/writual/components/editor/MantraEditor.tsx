@@ -6,9 +6,6 @@ import {
   Practice,
   MantraSettings,
   DEFAULT_MANTRA_SETTINGS,
-  LeniencyLevel,
-  TypingMode,
-  CompletionMode,
 } from '../../lib/types';
 
 interface MantraEditorProps {
@@ -18,12 +15,21 @@ interface MantraEditorProps {
 export default function MantraEditor({ practice }: MantraEditorProps) {
   const { createPractice, updatePractice, navigate } = useWritual();
 
-  const existingSettings = practice?.settings as MantraSettings | undefined;
+  // Migrate old settings shape (leniencyLevel string → leniency flags object)
+  const existingSettings = practice?.settings as (MantraSettings & Record<string, unknown>) | undefined;
+  const migratedSettings: MantraSettings | undefined = existingSettings
+    ? {
+        ...DEFAULT_MANTRA_SETTINGS,
+        ...existingSettings,
+        completionDetection: existingSettings.completionDetection ?? (existingSettings.completionMode === 'auto' || existingSettings.completionMode === undefined),
+        leniency: existingSettings.leniency ?? { ignoreCaps: false, ignorePunctuation: false },
+      }
+    : undefined;
 
   const [title, setTitle] = useState(practice?.title ?? '');
   const [phrase, setPhrase] = useState(practice?.content ?? '');
   const [settings, setSettings] = useState<MantraSettings>(
-    existingSettings ?? { ...DEFAULT_MANTRA_SETTINGS }
+    migratedSettings ?? { ...DEFAULT_MANTRA_SETTINGS }
   );
 
   const updateSetting = <K extends keyof MantraSettings>(
@@ -106,44 +112,44 @@ export default function MantraEditor({ practice }: MantraEditorProps) {
           />
         </div>
 
-        <div className="w-field">
-          <label className="w-label">Typing mode</label>
-          <select
-            className="w-select"
-            value={settings.typingMode}
-            onChange={(e) => updateSetting('typingMode', e.target.value as TypingMode)}
-          >
-            <option value="replace">Replace (chars fade as you type)</option>
-            <option value="overlay">Overlay (type over ghost text)</option>
-          </select>
+        <div className="w-toggle-row">
+          <span style={{ fontSize: 13 }}>Completion detection</span>
+          <button
+            className="w-toggle"
+            data-on={settings.completionDetection}
+            onClick={() => updateSetting('completionDetection', !settings.completionDetection)}
+          />
         </div>
 
-        <div className="w-field">
-          <label className="w-label">Completion detection</label>
-          <select
-            className="w-select"
-            value={settings.completionMode}
-            onChange={(e) => updateSetting('completionMode', e.target.value as CompletionMode)}
-          >
-            <option value="auto">Auto-detect</option>
-            <option value="manual">Manual</option>
-          </select>
-        </div>
-
-        {settings.completionMode === 'auto' && (
-          <div className="w-field">
-            <label className="w-label">Leniency</label>
-            <select
-              className="w-select"
-              value={settings.leniencyLevel}
-              onChange={(e) =>
-                updateSetting('leniencyLevel', e.target.value as LeniencyLevel)
-              }
-            >
-              <option value="exact">Exact match</option>
-              <option value="ignore-case">Ignore capitalization</option>
-              <option value="ignore-punctuation">Ignore punctuation</option>
-            </select>
+        {settings.completionDetection && (
+          <div className="w-stack w-stack-sm" style={{ paddingLeft: 12, borderLeft: '1px solid var(--w-border)' }}>
+            <span className="w-label">Leniency</span>
+            <div className="w-toggle-row">
+              <span style={{ fontSize: 13 }}>Ignore capitalization</span>
+              <button
+                className="w-toggle"
+                data-on={settings.leniency.ignoreCaps}
+                onClick={() =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    leniency: { ...prev.leniency, ignoreCaps: !prev.leniency.ignoreCaps },
+                  }))
+                }
+              />
+            </div>
+            <div className="w-toggle-row">
+              <span style={{ fontSize: 13 }}>Ignore punctuation</span>
+              <button
+                className="w-toggle"
+                data-on={settings.leniency.ignorePunctuation}
+                onClick={() =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    leniency: { ...prev.leniency, ignorePunctuation: !prev.leniency.ignorePunctuation },
+                  }))
+                }
+              />
+            </div>
           </div>
         )}
       </div>

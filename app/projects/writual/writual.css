@@ -320,7 +320,7 @@
 
 .mantra-overlay-input {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   background: transparent;
   color: var(--w-text);
   border: none;
@@ -330,6 +330,31 @@
   line-height: inherit;
   resize: none;
   caret-color: var(--w-text);
+}
+
+/* When completion detection is on, hide textarea text and show overlay instead */
+.mantra-input-transparent {
+  color: transparent;
+}
+
+.mantra-char-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  pointer-events: none;
+  user-select: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mantra-chars-correct {
+  color: var(--w-text);
+}
+
+.mantra-chars-error {
+  color: var(--w-error);
 }
 
 /* ─── Prompt Session ─────────────────────────────────────── */

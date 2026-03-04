@@ -1,4 +1,4 @@
-import { LeniencyLevel } from './types';
+import { LeniencyFlags } from './types';
 
 export function generateId(): string {
   return crypto.randomUUID();
@@ -6,12 +6,12 @@ export function generateId(): string {
 
 // ─── Completion Checking ────────────────────────────────
 
-function normalize(text: string, level: LeniencyLevel): string {
+function normalize(text: string, flags: LeniencyFlags): string {
   let result = text;
-  if (level === 'ignore-case' || level === 'ignore-punctuation') {
+  if (flags.ignoreCaps) {
     result = result.toLowerCase();
   }
-  if (level === 'ignore-punctuation') {
+  if (flags.ignorePunctuation) {
     result = result.replace(/[^\w\s]/g, '');
   }
   return result;
@@ -20,10 +20,10 @@ function normalize(text: string, level: LeniencyLevel): string {
 export function checkCompletion(
   input: string,
   target: string,
-  level: LeniencyLevel
+  flags: LeniencyFlags
 ): { isComplete: boolean; correctCount: number } {
-  const normInput = normalize(input, level);
-  const normTarget = normalize(target, level);
+  const normInput = normalize(input, flags);
+  const normTarget = normalize(target, flags);
 
   let correctCount = 0;
   for (let i = 0; i < Math.min(normInput.length, normTarget.length); i++) {

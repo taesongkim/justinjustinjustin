@@ -1,16 +1,19 @@
 // ─── Practice Types ─────────────────────────────────────
 
 export type PracticeType = 'mantra' | 'mantra-lines' | 'prompt';
-export type CompletionMode = 'manual' | 'auto';
-export type LeniencyLevel = 'exact' | 'ignore-case' | 'ignore-punctuation';
 export type TypingMode = 'replace' | 'overlay';
+
+export interface LeniencyFlags {
+  ignoreCaps: boolean;
+  ignorePunctuation: boolean;
+}
 
 // ─── Settings ───────────────────────────────────────────
 
 export interface MantraSettings {
   ghostVisible: boolean;
-  completionMode: CompletionMode;
-  leniencyLevel: LeniencyLevel;
+  completionDetection: boolean;
+  leniency: LeniencyFlags;
   typingMode: TypingMode;
   timerEnabled: boolean;
 }
@@ -63,9 +66,9 @@ export interface SessionRecord {
 
 export const DEFAULT_MANTRA_SETTINGS: MantraSettings = {
   ghostVisible: true,
-  completionMode: 'auto',
-  leniencyLevel: 'ignore-case',
-  typingMode: 'replace',
+  completionDetection: true,
+  leniency: { ignoreCaps: false, ignorePunctuation: false },
+  typingMode: 'overlay',
   timerEnabled: true,
 };
 

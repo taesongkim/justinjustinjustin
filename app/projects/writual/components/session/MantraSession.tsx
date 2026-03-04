@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useWritual } from '../WritualApp';
-import { Practice, MantraSettings, isMantraSettings } from '../../lib/types';
+import { Practice, MantraSettings } from '../../lib/types';
 import { checkCompletion, formatTime } from '../../lib/utils';
 import { useTimer } from '../../lib/hooks';
 
@@ -12,7 +12,12 @@ interface MantraSessionProps {
 
 export default function MantraSession({ practice }: MantraSessionProps) {
   const { navigate, recordSession } = useWritual();
-  const settings = practice.settings as MantraSettings;
+  const raw = practice.settings as MantraSettings & Record<string, unknown>;
+  const settings: MantraSettings = {
+    ...raw,
+    completionDetection: raw.completionDetection ?? true,
+    leniency: raw.leniency ?? { ignoreCaps: false, ignorePunctuation: false },
+  };
 
   const [input, setInput] = useState('');
   const [started, setStarted] = useState(false);
@@ -28,15 +33,15 @@ export default function MantraSession({ practice }: MantraSessionProps) {
   const { isComplete, correctCount } = checkCompletion(
     input,
     ghostText,
-    settings.completionMode === 'auto' ? settings.leniencyLevel : 'exact'
+    settings.completionDetection ? settings.leniency : { ignoreCaps: false, ignorePunctuation: false }
   );
 
   // Auto-detect completion
   useEffect(() => {
-    if (settings.completionMode === 'auto' && isComplete && !complete) {
+    if (settings.completionDetection && isComplete && !complete) {
       setComplete(true);
     }
-  }, [isComplete, settings.completionMode, complete]);
+  }, [isComplete, settings.completionDetection, complete]);
 
   const handleInput = useCallback(
     (value: string) => {
@@ -106,31 +111,39 @@ export default function MantraSession({ practice }: MantraSessionProps) {
 
       {/* Typing Area */}
       <div className="mantra-container">
-        {settings.typingMode === 'replace' ? (
-          <ReplaceMode
-            ghostText={ghostText}
-            input={input}
-            correctCount={correctCount}
-            ghostVisible={settings.ghostVisible}
-            onInput={handleInput}
-            complete={complete}
-            textareaRef={textareaRef}
+        <div className="mantra-overlay">
+          {settings.ghostVisible && (
+            <div className="mantra-overlay-ghost mantra-ghost">{ghostText}</div>
+          )}
+          {/* Styled character overlay — only when completion detection is on */}
+          {settings.completionDetection && input.length > 0 && (
+            <div className="mantra-char-overlay" aria-hidden="true">
+              <span className="mantra-chars-correct">
+                {input.slice(0, correctCount)}
+              </span>
+              {correctCount < input.length && (
+                <span className="mantra-chars-error">
+                  {input.slice(correctCount)}
+                </span>
+              )}
+            </div>
+          )}
+          <textarea
+            ref={textareaRef}
+            className={`mantra-overlay-input${settings.completionDetection ? ' mantra-input-transparent' : ''}`}
+            value={input}
+            onChange={(e) => handleInput(e.target.value)}
+            disabled={complete}
+            autoFocus
+            spellCheck={false}
+            rows={1}
           />
-        ) : (
-          <OverlayMode
-            ghostText={ghostText}
-            input={input}
-            ghostVisible={settings.ghostVisible}
-            onInput={handleInput}
-            complete={complete}
-            textareaRef={textareaRef}
-          />
-        )}
+        </div>
       </div>
 
       {/* Bottom controls */}
       <div className="w-form-row" style={{ justifyContent: 'flex-end', marginTop: 16 }}>
-        {settings.completionMode === 'manual' && !complete && (
+        {!settings.completionDetection && !complete && (
           <button className="w-btn" onClick={handleManualComplete}>
             Mark Complete
           </button>
@@ -145,83 +158,3 @@ export default function MantraSession({ practice }: MantraSessionProps) {
   );
 }
 
-// ─── Replace Mode ───────────────────────────────────────
-
-function ReplaceMode({
-  ghostText,
-  input,
-  correctCount,
-  ghostVisible,
-  onInput,
-  complete,
-  textareaRef,
-}: {
-  ghostText: string;
-  input: string;
-  correctCount: number;
-  ghostVisible: boolean;
-  onInput: (value: string) => void;
-  complete: boolean;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
-}) {
-  return (
-    <div className="mantra-replace">
-      {ghostVisible && (
-        <div className="mantra-replace-ghost mantra-ghost">
-          {/* Typed portion (invisible in ghost) */}
-          <span style={{ visibility: 'hidden' }}>
-            {ghostText.slice(0, correctCount)}
-          </span>
-          {/* Remaining ghost */}
-          <span>{ghostText.slice(correctCount)}</span>
-        </div>
-      )}
-      <textarea
-        ref={textareaRef}
-        className="mantra-replace-input"
-        value={input}
-        onChange={(e) => onInput(e.target.value)}
-        disabled={complete}
-        autoFocus
-        spellCheck={false}
-        rows={1}
-      />
-    </div>
-  );
-}
-
-// ─── Overlay Mode ───────────────────────────────────────
-
-function OverlayMode({
-  ghostText,
-  input,
-  ghostVisible,
-  onInput,
-  complete,
-  textareaRef,
-}: {
-  ghostText: string;
-  input: string;
-  ghostVisible: boolean;
-  onInput: (value: string) => void;
-  complete: boolean;
-  textareaRef: React.RefObject<HTMLTextAreaElement | null>;
-}) {
-  return (
-    <div className="mantra-overlay">
-      {ghostVisible && (
-        <div className="mantra-overlay-ghost mantra-ghost">{ghostText}</div>
-      )}
-      <textarea
-        ref={textareaRef}
-        className="mantra-overlay-input"
-        value={input}
-        onChange={(e) => onInput(e.target.value)}
-        disabled={complete}
-        autoFocus
-        spellCheck={false}
-        rows={1}
-      />
-    </div>
-  );
-}

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import notificationsRaw from "./data/notifications.json";
+import { DottedSurface } from "./components/DottedSurface";
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -208,26 +209,8 @@ export default function Home() {
 
   return (
     <div className="home-root">
-      {/* Overlay video */}
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        style={{
-          position:       "fixed",
-          inset:          0,
-          width:          "100%",
-          height:         "100%",
-          objectFit:      "cover",
-          mixBlendMode:   "screen",
-          pointerEvents:  "none",
-          zIndex:         10,
-          opacity:        0.8,
-        }}
-      >
-        <source src="/overlay.webm" type="video/webm" />
-      </video>
+      {/* Dotted surface background */}
+      <DottedSurface />
 
       {/* Top bar */}
       <div style={{
@@ -235,12 +218,14 @@ export default function Home() {
         justifyContent: "flex-end",
         padding:        "22px 32px",
         flexShrink:     0,
+        position:       "relative",
+        zIndex:         10,
       }}>
         <ProjectsDropdown />
       </div>
 
       {/* Main content */}
-      <div className="home-content">
+      <div className="home-content" style={{ position: "relative", zIndex: 10 }}>
 
         {/* Left: welcome text, vertically centered */}
         <div className="home-welcome">

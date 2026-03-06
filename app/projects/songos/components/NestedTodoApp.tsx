@@ -199,10 +199,8 @@ export default function NestedTodoApp() {
     setNote(activeTab.note);
     setExpandedIds(new Set(activeTab.expandedIds));
 
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    setDarkMode(prefersDark);
+    // Always default to dark — light mode not yet complete
+    setDarkMode(true);
     setMounted(true);
   }, []);
 

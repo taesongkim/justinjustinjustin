@@ -37,6 +37,7 @@ import {
 import TodoItemComponent from "./TodoItem";
 import ConnectingLines from "./ConnectingLines";
 import FocusModal from "./FocusModal";
+import TabDirectory from "./TabDirectory";
 
 // ─── Context ──────────────────────────────────────────────────
 
@@ -144,6 +145,7 @@ export default function NestedTodoApp() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState("");
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null);
+  const [directoryOpen, setDirectoryOpen] = useState(false);
   const tabsRef = useRef<Tab[]>([]);
 
   const [deletedItem, setDeletedItem] = useState<{
@@ -184,6 +186,7 @@ export default function NestedTodoApp() {
         todos: [createTodoItem("", 0)],
         note: "",
         expandedIds: [],
+        createdAt: new Date().toISOString(),
       };
       loadedTabs = [defaultTab];
     }
@@ -199,10 +202,8 @@ export default function NestedTodoApp() {
     setNote(activeTab.note);
     setExpandedIds(new Set(activeTab.expandedIds));
 
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    setDarkMode(prefersDark);
+    // Always default to dark — light mode not yet complete
+    setDarkMode(true);
     setMounted(true);
   }, []);
 
@@ -769,6 +770,7 @@ export default function NestedTodoApp() {
       todos: [createTodoItem("", 0)],
       note: "",
       expandedIds: [],
+      createdAt: new Date().toISOString(),
     };
 
     const updatedTabs = [...snapshotTabs, newTab];
@@ -1187,8 +1189,50 @@ export default function NestedTodoApp() {
             >
               +
             </button>
+
+            {/* Directory button */}
+            <button
+              onClick={() => setDirectoryOpen(true)}
+              style={{
+                background: "transparent",
+                border: "none",
+                padding: "4px 8px",
+                fontSize: 13,
+                color: "var(--nt-text-muted)",
+                cursor: "pointer",
+                transition: "color 0.15s",
+                flexShrink: 0,
+                lineHeight: 1,
+                letterSpacing: "0.03em",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "var(--nt-text-secondary)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = "var(--nt-text-muted)";
+              }}
+              aria-label="Open task tree directory"
+            >
+              ≡
+            </button>
           </div>
         </header>
+
+        {/* ─── Tab Directory ─────────────────────────────── */}
+        <TabDirectory
+          tabs={
+            // Snapshot current active tab so directory shows live state
+            tabs.map((t) =>
+              t.id === activeTabId
+                ? { ...t, todos, note, expandedIds: Array.from(expandedIds) }
+                : t
+            )
+          }
+          activeTabId={activeTabId}
+          isOpen={directoryOpen}
+          onClose={() => setDirectoryOpen(false)}
+          onSelectTab={switchTab}
+        />
 
         {/* ─── Columns (CSS Grid) ────────────────────────── */}
         {(() => {

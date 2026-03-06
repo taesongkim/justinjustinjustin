@@ -47,6 +47,33 @@ export interface Tab {
   todos: TodoItem[];
   note: string;
   expandedIds: string[]; // serialized Set<string> for JSON storage
+  createdAt: string; // ISO 8601 timestamp
+}
+
+// ─── Tab Helpers ────────────────────────────────────────────
+
+/** Count all TodoItems in a tree (including nested children). */
+export function countAllItems(todos: TodoItem[]): number {
+  let count = 0;
+  for (const todo of todos) {
+    count += 1 + countAllItems(todo.children);
+  }
+  return count;
+}
+
+/** Count only checked items in a tree. */
+export function countCheckedItems(todos: TodoItem[]): number {
+  let count = 0;
+  for (const todo of todos) {
+    if (todo.checked) count += 1;
+    count += countCheckedItems(todo.children);
+  }
+  return count;
+}
+
+/** Count root-level tasks (top-level branches). */
+export function countRootTasks(todos: TodoItem[]): number {
+  return todos.length;
 }
 
 // ─── Formatting Helpers ──────────────────────────────────────

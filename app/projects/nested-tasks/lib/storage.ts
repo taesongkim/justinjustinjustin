@@ -1,5 +1,18 @@
 import { TodoItem, Tab, generateId, createTodoItem } from "./types";
 
+/** Ensure all tabs have a createdAt field (migration for pre-existing data). */
+function migrateTabs(tabs: Tab[]): Tab[] {
+  let changed = false;
+  const migrated = tabs.map((t) => {
+    if (!t.createdAt) {
+      changed = true;
+      return { ...t, createdAt: new Date().toISOString() };
+    }
+    return t;
+  });
+  return changed ? migrated : tabs;
+}
+
 // ─── Storage Interface ────────────────────────────────────────
 // Swap this implementation for a real backend later.
 // The rest of the app only depends on this interface.
@@ -59,7 +72,7 @@ export const localStorageAdapter: TodoStorage = {
   loadTabs(): Tab[] {
     try {
       const data = localStorage.getItem(TABS_KEY);
-      if (data) return JSON.parse(data);
+      if (data) return migrateTabs(JSON.parse(data));
 
       // Migration: if no tabs exist but legacy todos do, migrate them
       const legacyTodos = localStorage.getItem(TODOS_KEY);
@@ -73,6 +86,7 @@ export const localStorageAdapter: TodoStorage = {
             todos,
             note: legacyNote || "",
             expandedIds: [],
+            createdAt: new Date().toISOString(),
           };
           return [tab];
         }

@@ -244,7 +244,7 @@ function MantraLine({
         {index + 1}
       </div>
       <div className="mantra-line-content">
-        <div className="mantra-container" style={{ fontSize: 16 }}>
+        <div className="mantra-container">
           <div className="mantra-overlay">
             {settings.ghostVisible && !line.complete && (
               <div className="mantra-overlay-ghost mantra-ghost">{ghostText}</div>

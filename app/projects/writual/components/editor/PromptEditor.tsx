@@ -111,6 +111,43 @@ export default function PromptEditor({ practice }: PromptEditorProps) {
             }
           />
         </div>
+
+        <div className="w-toggle-row">
+          <span style={{ fontSize: 13 }}>Completion detection</span>
+          <button
+            className="w-toggle"
+            data-on={settings.completionDetection}
+            onClick={() => updateSetting('completionDetection', !settings.completionDetection)}
+          />
+        </div>
+
+        {settings.completionDetection && (
+          <div className="w-stack w-stack-sm" style={{ paddingLeft: 12, borderLeft: '1px solid var(--w-border)' }}>
+            <div className="w-toggle-row">
+              <span style={{ fontSize: 13 }}>Target word count</span>
+              <input
+                className="w-input"
+                type="number"
+                min={1}
+                value={settings.targetWordCount ?? ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '') {
+                    updateSetting('targetWordCount', 0);
+                  } else {
+                    updateSetting('targetWordCount', Math.max(1, parseInt(val) || 0));
+                  }
+                }}
+                onBlur={() => {
+                  if (!settings.targetWordCount || settings.targetWordCount < 1) {
+                    updateSetting('targetWordCount', 1);
+                  }
+                }}
+                style={{ width: 100, textAlign: 'right' }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <hr className="w-divider" />

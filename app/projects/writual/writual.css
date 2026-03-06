@@ -426,6 +426,20 @@
   color: var(--w-text-muted);
 }
 
+.prompt-progress {
+  height: 3px;
+  background: var(--w-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.prompt-progress-bar {
+  height: 100%;
+  background: var(--w-success);
+  border-radius: 2px;
+  transition: width 200ms ease;
+}
+
 /* ─── Markdown Shortcuts Hint ───────────────────────────── */
 
 .md-shortcuts-hint {

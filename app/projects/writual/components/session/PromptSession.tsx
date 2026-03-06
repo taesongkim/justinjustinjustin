@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useWritual } from '../WritualApp';
-import { Practice, PromptSettings } from '../../lib/types';
+import { Practice, PromptSettings, DEFAULT_PROMPT_SETTINGS } from '../../lib/types';
 import { countWords, formatTime } from '../../lib/utils';
 import { useTimer, useCopyToClipboard } from '../../lib/hooks';
 import WritualEditor from './PromptEditor.tiptap';
@@ -13,41 +13,79 @@ interface PromptSessionProps {
 
 export default function PromptSession({ practice }: PromptSessionProps) {
   const { navigate, recordSession } = useWritual();
-  const settings = practice.settings as PromptSettings;
+
+  // Migrate old settings that lack new fields
+  const raw = practice.settings as PromptSettings & Record<string, unknown>;
+  const settings: PromptSettings = {
+    ...DEFAULT_PROMPT_SETTINGS,
+    ...raw,
+    completionDetection: raw.completionDetection ?? false,
+    targetWordCount: raw.targetWordCount ?? 200,
+  };
 
   const [content, setContent] = useState('');
   const [started, setStarted] = useState(false);
   const [complete, setComplete] = useState(false);
-  const [startTimestamp] = useState(Date.now());
+  const [startTimestamp, setStartTimestamp] = useState(0);
+  const hasAutoCompleted = useRef(false);
 
   const { elapsedMs } = useTimer(started && !complete);
   const { copied, copy } = useCopyToClipboard();
 
   const wordCount = countWords(content);
 
+  const doComplete = useCallback((text: string, elapsed: number, stamp: number) => {
+    recordSession({
+      practiceId: practice.id,
+      startedAt: stamp,
+      endedAt: Date.now(),
+      durationMs: elapsed,
+      content: text,
+    });
+  }, [practice.id, recordSession]);
+
   const handleUpdate = useCallback(
     (markdown: string) => {
       if (complete) return;
-      if (!started) setStarted(true);
+      if (!started) {
+        setStarted(true);
+        setStartTimestamp(Date.now());
+      }
       setContent(markdown);
     },
     [started, complete]
   );
 
+  // Auto-complete when word count target is reached
+  useEffect(() => {
+    if (
+      settings.completionDetection &&
+      started &&
+      !complete &&
+      !hasAutoCompleted.current &&
+      wordCount >= settings.targetWordCount
+    ) {
+      hasAutoCompleted.current = true;
+      setComplete(true);
+      doComplete(content, elapsedMs, startTimestamp);
+    }
+  }, [wordCount, settings.completionDetection, settings.targetWordCount, started, complete, content, elapsedMs, startTimestamp, doComplete]);
+
   const handleComplete = () => {
+    if (complete) return;
     setComplete(true);
-    recordSession({
-      practiceId: practice.id,
-      startedAt: startTimestamp,
-      endedAt: Date.now(),
-      durationMs: elapsedMs,
-      content,
-    });
+    doComplete(content, elapsedMs, startTimestamp);
   };
 
   const handleDone = () => {
     navigate({ name: 'library' });
   };
+
+  // Word count progress for completion detection
+  const showProgress = settings.completionDetection && started && !complete;
+  const progressPct = settings.completionDetection
+    ? Math.min(100, Math.round((wordCount / settings.targetWordCount) * 100))
+    : 0;
 
   return (
     <div className="w-stack">
@@ -59,7 +97,14 @@ export default function PromptSession({ practice }: PromptSessionProps) {
         <div className="session-meta">
           {complete && <span className="completion-badge">Complete</span>}
           {settings.wordCountEnabled && (
-            <span style={{ fontSize: 12 }}>{wordCount} words</span>
+            <span style={{ fontSize: 12 }}>
+              {wordCount}{settings.completionDetection ? ` / ${settings.targetWordCount}` : ''} words
+            </span>
+          )}
+          {!settings.wordCountEnabled && settings.completionDetection && (
+            <span style={{ fontSize: 12 }}>
+              {wordCount} / {settings.targetWordCount} words
+            </span>
           )}
           {settings.timerEnabled && (
             <span className="session-timer">{formatTime(elapsedMs)}</span>
@@ -100,6 +145,13 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       </div>
 
       <hr className="w-divider" />
+
+      {/* Word count progress bar */}
+      {showProgress && (
+        <div className="prompt-progress">
+          <div className="prompt-progress-bar" style={{ width: `${progressPct}%` }} />
+        </div>
+      )}
 
       {/* Shortcuts hint */}
       {!complete && (

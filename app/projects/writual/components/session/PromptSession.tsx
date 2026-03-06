@@ -167,11 +167,13 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       )}
 
       {/* TipTap editor — live inline formatting */}
-      <WritualEditor
-        onUpdate={handleUpdate}
-        disabled={complete}
-        placeholder="Start writing..."
-      />
+      <div className="prompt-editor-area">
+        <WritualEditor
+          onUpdate={handleUpdate}
+          disabled={complete}
+          placeholder="Start writing..."
+        />
+      </div>
 
       {/* Bottom controls */}
       <div className="w-form-row" style={{ justifyContent: 'flex-end', marginTop: 16 }}>

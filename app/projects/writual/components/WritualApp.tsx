@@ -7,6 +7,7 @@ import {
   useEffect,
   useCallback,
   useMemo,
+  useRef,
 } from 'react';
 import {
   Practice,
@@ -129,6 +130,7 @@ export default function WritualApp() {
   const [loaded, setLoaded] = useState(false);
   const [highlightModalOpen, setHighlightModalOpen] = useState(false);
   const [highlightInitialText, setHighlightInitialText] = useState('');
+  const priorFocusRef = useRef<{ el: HTMLElement; start: number | null; end: number | null } | null>(null);
 
   // Load from storage on mount + read initial hash
   useEffect(() => {
@@ -161,6 +163,13 @@ export default function WritualApp() {
       if (e.shiftKey && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'h') {
         e.preventDefault();
         const selected = window.getSelection()?.toString().trim() || '';
+        // Capture current focus + cursor position before modal steals focus
+        const active = document.activeElement as HTMLElement | null;
+        if (active && (active instanceof HTMLTextAreaElement || active instanceof HTMLInputElement)) {
+          priorFocusRef.current = { el: active, start: active.selectionStart, end: active.selectionEnd };
+        } else if (active) {
+          priorFocusRef.current = { el: active, start: null, end: null };
+        }
         setHighlightInitialText(selected);
         setHighlightModalOpen((prev) => !prev);
       }
@@ -286,7 +295,22 @@ export default function WritualApp() {
         <HighlightModal
           open={highlightModalOpen}
           initialText={highlightInitialText}
-          onClose={() => { setHighlightModalOpen(false); setHighlightInitialText(''); }}
+          onClose={() => {
+            setHighlightModalOpen(false);
+            setHighlightInitialText('');
+            // Restore prior focus + cursor position
+            const prior = priorFocusRef.current;
+            if (prior) {
+              requestAnimationFrame(() => {
+                prior.el.focus();
+                if (prior.start !== null && (prior.el instanceof HTMLTextAreaElement || prior.el instanceof HTMLInputElement)) {
+                  prior.el.selectionStart = prior.start;
+                  prior.el.selectionEnd = prior.end ?? prior.start;
+                }
+              });
+              priorFocusRef.current = null;
+            }
+          }}
           onSave={addHighlight}
         />
       </div>

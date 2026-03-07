@@ -856,22 +856,25 @@
   color: var(--w-text);
 }
 
-.highlight-modal-input {
+.highlight-modal-input,
+.highlight-modal-input:focus,
+.highlight-modal-input:focus-visible,
+.highlight-modal-input:focus-within {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--w-border);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 6px;
   padding: 10px 12px;
   font-size: 15px;
   line-height: 1.6;
   color: var(--w-text);
   resize: none;
-  outline: none;
+  outline: 0 !important;
+  outline-offset: 0 !important;
+  outline-color: transparent !important;
+  box-shadow: none !important;
+  ring: none;
   font-family: inherit;
   transition: border-color var(--w-transition);
-}
-
-.highlight-modal-input:focus {
-  border-color: var(--w-border-focus);
 }
 
 .highlight-modal-input::placeholder {
@@ -892,4 +895,70 @@
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Highlight Save Animation ────────────────────────── */
+
+/* Phase 1: header + footer fade out (runs concurrently with phase 2) */
+.highlight-chrome-fade {
+  animation: chromeFadeOut 150ms ease-out forwards;
+}
+
+@keyframes chromeFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Phase 2: input delight — fade bg/border so canvas glow is the focus */
+.highlight-input-delight {
+  animation: inputDelight 150ms ease-out forwards;
+}
+
+@keyframes inputDelight {
+  0% {
+    border-color: rgba(255, 255, 255, 0.08);
+    color: var(--w-text);
+    box-shadow: none;
+  }
+  100% {
+    border-color: transparent;
+    color: var(--w-text);
+    box-shadow: none;
+  }
+}
+
+/* Phase 3: input fades out */
+.highlight-input-exit {
+  animation: inputExit 200ms ease-in forwards;
+}
+
+@keyframes inputExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--w-text);
+    background: transparent;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--w-text);
+    background: transparent;
+  }
+}
+
+/* Remove modal border/bg during save so only the input is visible */
+.highlight-modal-saving {
+  border-color: transparent;
+  background: transparent;
+}
+
+/* Compensate textarea bg when modal bg disappears — keeps perceived brightness stable */
+.highlight-input-compensate {
+  background: rgba(255, 255, 255, 0.079) !important;
+  transition: background 150ms ease-out !important;
 }

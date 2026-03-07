@@ -55,6 +55,13 @@ export default function WritualEditor({
     }
   }, [editor, disabled]);
 
+  // Delay initial focus so the slide-in animation isn't interrupted
+  useEffect(() => {
+    if (!editor || disabled) return;
+    const id = setTimeout(() => editor.commands.focus(), 350);
+    return () => clearTimeout(id);
+  }, [editor, disabled]);
+
   return <EditorContent editor={editor} />;
 }
 

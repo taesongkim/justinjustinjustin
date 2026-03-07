@@ -85,6 +85,12 @@ export default function MantraSession({ practice }: MantraSessionProps) {
 
   useEffect(adjustHeight, [input, adjustHeight]);
 
+  // Delay initial focus so the slide-in animation isn't interrupted
+  useEffect(() => {
+    const id = setTimeout(() => textareaRef.current?.focus(), 350);
+    return () => clearTimeout(id);
+  }, []);
+
   return (
     <div className="w-stack">
       {/* Header */}
@@ -134,7 +140,6 @@ export default function MantraSession({ practice }: MantraSessionProps) {
             value={input}
             onChange={(e) => handleInput(e.target.value)}
             disabled={complete}
-            autoFocus
             spellCheck={false}
             rows={1}
           />

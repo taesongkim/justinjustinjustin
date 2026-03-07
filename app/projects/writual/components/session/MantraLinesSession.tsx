@@ -70,11 +70,19 @@ export default function MantraLinesSession({ practice }: MantraLinesSessionProps
     };
   }, [currentLine, settings.lineTimerEnabled]);
 
-  // Focus current line
+  // Focus current line (delay initial focus so slide-in animation isn't interrupted)
+  const hasFocusedRef = useRef(false);
   useEffect(() => {
-    if (!sessionComplete) {
-      inputRefs.current[currentLine]?.focus();
+    if (sessionComplete) return;
+    if (!hasFocusedRef.current) {
+      // First focus — delay past slide animation
+      const id = setTimeout(() => {
+        inputRefs.current[currentLine]?.focus();
+        hasFocusedRef.current = true;
+      }, 350);
+      return () => clearTimeout(id);
     }
+    inputRefs.current[currentLine]?.focus();
   }, [currentLine, sessionComplete]);
 
   const completedCount = lines.filter((l) => l.complete).length;

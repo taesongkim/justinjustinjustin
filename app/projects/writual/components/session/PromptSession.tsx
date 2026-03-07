@@ -26,10 +26,11 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const [content, setContent] = useState('');
   const [started, setStarted] = useState(false);
   const [complete, setComplete] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [startTimestamp, setStartTimestamp] = useState(0);
   const hasAutoCompleted = useRef(false);
 
-  const { elapsedMs } = useTimer(started && !complete);
+  const { elapsedMs } = useTimer(started && !complete && !paused);
   const { copied, copy } = useCopyToClipboard();
 
   const wordCount = countWords(content);
@@ -47,7 +48,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const handleUpdate = useCallback(
     (markdown: string) => {
       if (complete) return;
-      if (!started) {
+      if (!started && markdown.trim().length > 0) {
         setStarted(true);
         setStartTimestamp(Date.now());
       }
@@ -107,7 +108,19 @@ export default function PromptSession({ practice }: PromptSessionProps) {
             </span>
           )}
           {settings.timerEnabled && (
-            <span className="session-timer">{formatTime(elapsedMs)}</span>
+            <>
+              <button
+                className="w-btn w-btn-sm w-btn-ghost"
+                onClick={() => setPaused((p) => !p)}
+                disabled={!started || complete}
+                style={{ minWidth: 52 }}
+              >
+                {paused ? 'Resume' : 'Pause'}
+              </button>
+              <span className="session-timer" style={paused ? { opacity: 0.4 } : undefined}>
+                {formatTime(elapsedMs)}
+              </span>
+            </>
           )}
           <button
             className="w-btn w-btn-sm"

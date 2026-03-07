@@ -480,10 +480,13 @@
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 16px 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .writual-tiptap-editor {
-  min-height: 400px;
+  min-height: 300px;
   outline: none;
   font-size: 16px;
   line-height: 1.8;

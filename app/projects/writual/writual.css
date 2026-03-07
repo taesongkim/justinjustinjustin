@@ -24,9 +24,19 @@
   background: var(--w-bg);
   color: var(--w-text);
   min-height: 100vh;
+  overflow: hidden;
+  position: relative;
 }
 
 /* ─── Layout ─────────────────────────────────────────────── */
+
+.writual-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 100vh;
+}
 
 .writual-shell {
   max-width: 720px;

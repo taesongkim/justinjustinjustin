@@ -9,6 +9,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Practice,
   PracticeFlow,
@@ -130,7 +131,9 @@ export default function WritualApp() {
   const [loaded, setLoaded] = useState(false);
   const [highlightModalOpen, setHighlightModalOpen] = useState(false);
   const [highlightInitialText, setHighlightInitialText] = useState('');
+  const [slideDirection, setSlideDirection] = useState(0); // 0=none, 1=enter session, -1=exit session
   const priorFocusRef = useRef<{ el: HTMLElement; start: number | null; end: number | null } | null>(null);
+  const pageRef = useRef<Page>(page);
 
   // Load from storage on mount + read initial hash
   useEffect(() => {
@@ -141,7 +144,9 @@ export default function WritualApp() {
 
     // Restore page from hash if present
     if (typeof window !== 'undefined' && window.location.hash) {
-      setPage(hashToPage(window.location.hash));
+      const initial = hashToPage(window.location.hash);
+      setPage(initial);
+      pageRef.current = initial;
     }
 
     setLoaded(true);
@@ -151,7 +156,17 @@ export default function WritualApp() {
   useEffect(() => {
     const handlePopState = () => {
       const hash = window.location.hash;
-      setPage(hash ? hashToPage(hash) : { name: 'library' });
+      const next: Page = hash ? hashToPage(hash) : { name: 'library' };
+      const current = pageRef.current;
+      if (next.name === 'session' && current.name !== 'session') {
+        setSlideDirection(1);
+      } else if (next.name !== 'session' && current.name === 'session') {
+        setSlideDirection(-1);
+      } else {
+        setSlideDirection(0);
+      }
+      setPage(next);
+      pageRef.current = next;
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
@@ -190,7 +205,17 @@ export default function WritualApp() {
   // ── Actions ─────────────────────────────────────────
 
   const navigate = useCallback((p: Page) => {
+    const current = pageRef.current;
+    // Compute slide direction: entering session → 1, leaving session → -1, otherwise 0
+    if (p.name === 'session' && current.name !== 'session') {
+      setSlideDirection(1);
+    } else if (p.name !== 'session' && current.name === 'session') {
+      setSlideDirection(-1);
+    } else {
+      setSlideDirection(0);
+    }
     setPage(p);
+    pageRef.current = p;
     const hash = pageToHash(p);
     window.history.pushState(null, '', hash);
   }, []);
@@ -288,10 +313,32 @@ export default function WritualApp() {
   return (
     <WritualContext.Provider value={value}>
       <div className="writual">
-        <div className="writual-shell">
-          <Nav />
-          <PageContent />
-        </div>
+        <AnimatePresence mode="sync" initial={false} custom={slideDirection}>
+          <motion.div
+            key={page.name === 'session' ? 'session' : 'main'}
+            className="writual-slide"
+            custom={slideDirection}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            variants={{
+              enter: (dir: number) => ({
+                x: dir === 0 ? 0 : `${dir * 100}%`,
+              }),
+              center: {
+                x: 0,
+              },
+              exit: (dir: number) => ({
+                x: dir === 0 ? 0 : `${dir * -100}%`,
+              }),
+            }}
+            transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            <div className="writual-shell">
+              <SlidePanel page={page} />
+            </div>
+          </motion.div>
+        </AnimatePresence>
         <HighlightModal
           open={highlightModalOpen}
           initialText={highlightInitialText}
@@ -320,8 +367,8 @@ export default function WritualApp() {
 
 // ─── Navigation ─────────────────────────────────────────
 
-function Nav() {
-  const { page, navigate } = useWritual();
+function Nav({ page }: { page: Page }) {
+  const { navigate } = useWritual();
 
   return (
     <nav className="writual-nav">
@@ -351,10 +398,23 @@ function Nav() {
   );
 }
 
+// ─── Slide Panel (captures page at mount) ───────────────
+
+function SlidePanel({ page: initialPage }: { page: Page }) {
+  // Capture the page at mount time so exiting panels keep their content
+  const [frozenPage] = useState(initialPage);
+  return (
+    <>
+      <Nav page={frozenPage} />
+      <PageContent page={frozenPage} />
+    </>
+  );
+}
+
 // ─── Page Router ────────────────────────────────────────
 
-function PageContent() {
-  const { page, practices } = useWritual();
+function PageContent({ page }: { page: Page }) {
+  const { practices } = useWritual();
 
   switch (page.name) {
     case 'library':

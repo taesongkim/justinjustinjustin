@@ -1,4 +1,4 @@
-import { Practice, PracticeFlow, SessionRecord } from './types';
+import { Practice, PracticeFlow, SessionRecord, Highlight } from './types';
 
 // ─── Storage Interface ──────────────────────────────────
 
@@ -12,6 +12,10 @@ export interface WritualStorage {
   loadSessions(): SessionRecord[];
   appendSession(session: SessionRecord): void;
   deleteSession(id: string): void;
+
+  loadHighlights(): Highlight[];
+  appendHighlight(highlight: Highlight): void;
+  deleteHighlight(id: string): void;
 }
 
 // ─── Keys ───────────────────────────────────────────────
@@ -19,6 +23,7 @@ export interface WritualStorage {
 const PRACTICES_KEY = 'writual-practices';
 const FLOWS_KEY = 'writual-flows';
 const SESSIONS_KEY = 'writual-sessions';
+const HIGHLIGHTS_KEY = 'writual-highlights';
 
 // ─── localStorage Adapter ───────────────────────────────
 
@@ -55,5 +60,16 @@ export const localStorageAdapter: WritualStorage = {
   deleteSession: (id) => {
     const sessions = safeGet<SessionRecord[]>(SESSIONS_KEY, []);
     safeSet(SESSIONS_KEY, sessions.filter((s) => s.id !== id));
+  },
+
+  loadHighlights: () => safeGet<Highlight[]>(HIGHLIGHTS_KEY, []),
+  appendHighlight: (h) => {
+    const highlights = safeGet<Highlight[]>(HIGHLIGHTS_KEY, []);
+    highlights.push(h);
+    safeSet(HIGHLIGHTS_KEY, highlights);
+  },
+  deleteHighlight: (id) => {
+    const highlights = safeGet<Highlight[]>(HIGHLIGHTS_KEY, []);
+    safeSet(HIGHLIGHTS_KEY, highlights.filter((h) => h.id !== id));
   },
 };

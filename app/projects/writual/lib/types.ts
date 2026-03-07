@@ -118,6 +118,14 @@ export function isPromptSettings(s: PracticeSettings): s is PromptSettings {
   return 'wordCountEnabled' in s;
 }
 
+// ─── Highlight ──────────────────────────────────────────
+
+export interface Highlight {
+  id: string;
+  text: string;
+  createdAt: number;
+}
+
 // ─── Navigation ─────────────────────────────────────────
 
 export type Page =
@@ -125,4 +133,5 @@ export type Page =
   | { name: 'editor'; practiceId?: string; type?: PracticeType }
   | { name: 'session'; practiceId: string }
   | { name: 'history'; sessionId?: string }
+  | { name: 'highlights' }
   | { name: 'flow-builder'; flowId?: string };

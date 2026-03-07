@@ -12,6 +12,7 @@ import {
   Practice,
   PracticeFlow,
   SessionRecord,
+  Highlight,
   PracticeType,
   PracticeSettings,
   Page,
@@ -28,6 +29,8 @@ import MantraSession from './session/MantraSession';
 import MantraLinesSession from './session/MantraLinesSession';
 import PromptSession from './session/PromptSession';
 import SessionHistory from './history/SessionHistory';
+import Highlights from './highlights/Highlights';
+import HighlightModal from './highlights/HighlightModal';
 
 // ─── Context ────────────────────────────────────────────
 
@@ -35,6 +38,7 @@ interface WritualContextValue {
   practices: Practice[];
   flows: PracticeFlow[];
   sessions: SessionRecord[];
+  highlights: Highlight[];
   page: Page;
 
   navigate: (page: Page) => void;
@@ -48,6 +52,8 @@ interface WritualContextValue {
   deletePractice: (id: string) => void;
   recordSession: (session: Omit<SessionRecord, 'id'>) => void;
   deleteSession: (id: string) => void;
+  addHighlight: (text: string) => void;
+  deleteHighlight: (id: string) => void;
 }
 
 const WritualContext = createContext<WritualContextValue | null>(null);
@@ -78,6 +84,8 @@ function pageToHash(p: Page): string {
       return `#session/${p.practiceId}`;
     case 'history':
       return p.sessionId ? `#history/${p.sessionId}` : '#history';
+    case 'highlights':
+      return '#highlights';
     case 'flow-builder':
       return p.flowId ? `#flow-builder/${p.flowId}` : '#flow-builder';
     default:
@@ -101,6 +109,8 @@ function hashToPage(hash: string): Page {
       return parts[1] ? { name: 'session', practiceId: parts[1] } : { name: 'library' };
     case 'history':
       return { name: 'history', sessionId: parts[1] || undefined };
+    case 'highlights':
+      return { name: 'highlights' };
     case 'flow-builder':
       return { name: 'flow-builder', flowId: parts[1] || undefined };
     default:
@@ -114,14 +124,18 @@ export default function WritualApp() {
   const [practices, setPractices] = useState<Practice[]>([]);
   const [flows, setFlows] = useState<PracticeFlow[]>([]);
   const [sessions, setSessions] = useState<SessionRecord[]>([]);
+  const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [page, setPage] = useState<Page>({ name: 'library' });
   const [loaded, setLoaded] = useState(false);
+  const [highlightModalOpen, setHighlightModalOpen] = useState(false);
+  const [highlightInitialText, setHighlightInitialText] = useState('');
 
   // Load from storage on mount + read initial hash
   useEffect(() => {
     setPractices(storage.loadPractices());
     setFlows(storage.loadFlows());
     setSessions(storage.loadSessions());
+    setHighlights(storage.loadHighlights());
 
     // Restore page from hash if present
     if (typeof window !== 'undefined' && window.location.hash) {
@@ -139,6 +153,20 @@ export default function WritualApp() {
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Global keyboard shortcut: Cmd/Ctrl+Shift+H → open highlight modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey && (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'h') {
+        e.preventDefault();
+        const selected = window.getSelection()?.toString().trim() || '';
+        setHighlightInitialText(selected);
+        setHighlightModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Persist practices when they change
@@ -212,6 +240,17 @@ export default function WritualApp() {
     setSessions((prev) => prev.filter((s) => s.id !== id));
   }, []);
 
+  const addHighlight = useCallback((text: string) => {
+    const highlight: Highlight = { id: generateId(), text, createdAt: Date.now() };
+    storage.appendHighlight(highlight);
+    setHighlights((prev) => [...prev, highlight]);
+  }, []);
+
+  const deleteHighlight = useCallback((id: string) => {
+    storage.deleteHighlight(id);
+    setHighlights((prev) => prev.filter((h) => h.id !== id));
+  }, []);
+
   // ── Context value ───────────────────────────────────
 
   const value = useMemo<WritualContextValue>(
@@ -219,6 +258,7 @@ export default function WritualApp() {
       practices,
       flows,
       sessions,
+      highlights,
       page,
       navigate,
       createPractice,
@@ -226,8 +266,10 @@ export default function WritualApp() {
       deletePractice,
       recordSession,
       deleteSession,
+      addHighlight,
+      deleteHighlight,
     }),
-    [practices, flows, sessions, page, navigate, createPractice, updatePractice, deletePractice, recordSession, deleteSession]
+    [practices, flows, sessions, highlights, page, navigate, createPractice, updatePractice, deletePractice, recordSession, deleteSession, addHighlight, deleteHighlight]
   );
 
   // ── Render ──────────────────────────────────────────
@@ -241,6 +283,12 @@ export default function WritualApp() {
           <Nav />
           <PageContent />
         </div>
+        <HighlightModal
+          open={highlightModalOpen}
+          initialText={highlightInitialText}
+          onClose={() => { setHighlightModalOpen(false); setHighlightInitialText(''); }}
+          onSave={addHighlight}
+        />
       </div>
     </WritualContext.Provider>
   );
@@ -268,6 +316,13 @@ function Nav() {
       >
         History
       </button>
+      <button
+        className="writual-nav-link"
+        data-active={page.name === 'highlights'}
+        onClick={() => navigate({ name: 'highlights' })}
+      >
+        Highlights
+      </button>
     </nav>
   );
 }
@@ -294,6 +349,9 @@ function PageContent() {
 
     case 'history':
       return <SessionHistory />;
+
+    case 'highlights':
+      return <Highlights />;
 
     case 'session': {
       const practice = practices.find((p) => p.id === page.practiceId);

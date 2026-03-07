@@ -861,7 +861,7 @@
 .highlight-modal-input:focus-visible,
 .highlight-modal-input:focus-within {
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid transparent;
   border-radius: 6px;
   padding: 10px 12px;
   font-size: 15px;
@@ -929,7 +929,7 @@
 
 /* Phase 3: input fades out */
 .highlight-input-exit {
-  animation: inputExit 200ms ease-in forwards;
+  animation: inputExit 200ms linear forwards;
 }
 
 @keyframes inputExit {
@@ -943,11 +943,49 @@
   }
   to {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-8px);
     border-color: transparent;
     box-shadow: none;
     color: var(--w-text);
     background: transparent;
+  }
+}
+
+/* Timestamp that glows in during hold */
+.highlight-timestamp {
+  position: absolute;
+  bottom: -22px;
+  left: 4px;
+  font-size: 10px;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  animation: timestampGlowIn 120ms ease-out forwards;
+  pointer-events: none;
+}
+
+.highlight-timestamp-exit {
+  animation: timestampExit 200ms linear forwards;
+}
+
+@keyframes timestampGlowIn {
+  from {
+    opacity: 0;
+    text-shadow: 0 0 16px rgba(255, 255, 255, 0.8);
+  }
+  to {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+}
+
+@keyframes timestampExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 

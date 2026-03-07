@@ -109,9 +109,7 @@ export default function HighlightModal({ open, initialText, onClose, onSave }: H
       >
         <div className={`highlight-modal-header ${chromeClass}`}>
           <span className="highlight-modal-title">Save Highlight</span>
-          <button className="w-btn w-btn-sm" onClick={saving ? undefined : onClose}>
-            Esc
-          </button>
+          <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>esc to close</span>
         </div>
         <div style={{ position: 'relative' }}>
           <textarea
@@ -130,24 +128,37 @@ export default function HighlightModal({ open, initialText, onClose, onSave }: H
               radius={6}
               speed={3}
               tailFrac={0.35}
-              holdMs={300}
+              holdMs={400}
               color="#ffffff"
               onHoldStart={handleHoldStart}
               onComplete={handleGlowComplete}
             />
           )}
+          {saving && (
+            <span className={`highlight-timestamp ${phase === 'exit' ? 'highlight-timestamp-exit' : ''}`}>
+              {new Date().toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              })}
+            </span>
+          )}
         </div>
         <div className={`highlight-modal-footer ${chromeClass}`}>
-          <span style={{ fontSize: 11, color: 'var(--w-text-muted)' }}>
-            ⌘↵ to save
-          </span>
-          <button
-            className="w-btn w-btn-primary w-btn-sm"
-            onClick={handleSave}
-            disabled={!text.trim() || saving}
-          >
-            Save
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 'auto' }}>
+            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.15)' }}>
+              ⌘↵ to save
+            </span>
+            <button
+              className="w-btn w-btn-primary w-btn-sm"
+              onClick={handleSave}
+              disabled={!text.trim() || saving}
+            >
+              Save
+            </button>
+          </div>
         </div>
       </div>
     </div>,

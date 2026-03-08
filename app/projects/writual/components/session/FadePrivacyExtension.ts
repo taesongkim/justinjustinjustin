@@ -75,17 +75,11 @@ export const FadePrivacyExtension = Extension.create({
 
             // Turning OFF → start reveal phase
             if (toggle === false && prev.phase === 'on') {
-              // Schedule cleanup after reveal animation
               if (revealTimer) clearTimeout(revealTimer);
-              const view = (this as unknown as { spec: { view: (v: EditorView) => unknown } }).spec;
-              // We'll dispatch the cleanup from the useEffect side
               revealTimer = setTimeout(() => {
-                // Dispatch a meta to clear decorations
                 try {
                   const editorEl = document.querySelector('.writual-tiptap-editor');
                   if (editorEl) {
-                    // Find the ProseMirror view — we need to dispatch from outside
-                    // Use a custom event the React side listens for
                     editorEl.dispatchEvent(new CustomEvent('fadePrivacyRevealDone'));
                   }
                 } catch { /* noop */ }
@@ -103,7 +97,7 @@ export const FadePrivacyExtension = Extension.create({
               return { phase: 'off', decorations: DecorationSet.empty };
             }
 
-            // Already on — rebuild on doc changes
+            // Already on — rebuild all decorations on any doc change
             if (prev.phase === 'on' && tr.docChanged) {
               return { phase: 'on', decorations: buildDecorations(tr.doc, 'fade-privacy-char') };
             }

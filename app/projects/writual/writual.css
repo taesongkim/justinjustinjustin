@@ -28,6 +28,28 @@
   position: relative;
 }
 
+/* ─── Material Style 1 ──────────────────────────────────── */
+/* Reusable material token: background color + dust texture overlay */
+
+.w-material-1 {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.w-material-1::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/lowdusttexture3.jpg') center / cover no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.3;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 0;
+}
+
 .writual::before {
   content: '';
   position: fixed;
@@ -554,17 +576,14 @@
 /* ─── Mantra Session ─────────────────────────────────────── */
 
 .mantra-container {
-  position: relative;
   font-size: 16px;
   line-height: 1.8;
   font-family: var(--font-tight);
-  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 16px 20px;
 }
 
 .mantra-line-content .mantra-container {
-  background: none;
   border-radius: 0;
   padding: 0;
 }
@@ -665,7 +684,6 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 16px 20px;
 }
@@ -828,30 +846,13 @@
 }
 
 .prompt-editor-area {
-  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 16px 20px;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  position: relative;
 }
 
-.privacy-texture-overlay {
-  position: absolute;
-  inset: 0;
-  background: url('/lowdusttexture3.jpg') center / cover no-repeat;
-  mix-blend-mode: screen;
-  opacity: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  transition: opacity 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-  z-index: 2;
-}
-
-.privacy-texture-overlay.privacy-texture-visible {
-  opacity: 0.3;
-}
 
 .writual-tiptap-editor {
   min-height: 300px;

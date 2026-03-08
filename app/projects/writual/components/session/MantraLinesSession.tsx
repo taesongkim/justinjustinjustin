@@ -189,7 +189,7 @@ export default function MantraLinesSession({ practice }: MantraLinesSessionProps
       </div>
 
       {/* Lines */}
-      <div className="mantra-lines-list">
+      <div className="mantra-lines-list w-material-1">
         {lines.map((line, i) => (
           <MantraLine
             key={i}

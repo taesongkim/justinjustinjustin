@@ -110,7 +110,7 @@ export default function MantraSession({ practice }: MantraSessionProps) {
       </div>
 
       {/* Typing Area */}
-      <div className="mantra-container">
+      <div className="mantra-container w-material-1">
         <div className="mantra-overlay">
           <div className="mantra-overlay-ghost mantra-ghost" style={settings.ghostVisible ? undefined : { visibility: 'hidden' }}>{ghostText}</div>
           {/* Styled character overlay — only when completion detection is on */}

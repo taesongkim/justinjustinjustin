@@ -281,7 +281,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       </div>
 
       {/* TipTap editor — live inline formatting */}
-      <div className="prompt-editor-area" ref={editorAreaRef} data-blurred={privacyLevel === 'full'} data-no-transition={skipTransition || undefined} style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
+      <div className="prompt-editor-area w-material-1" ref={editorAreaRef} data-blurred={privacyLevel === 'full'} data-no-transition={skipTransition || undefined}>
         <WritualEditor
           onUpdate={handleUpdate}
           disabled={false}
@@ -289,7 +289,6 @@ export default function PromptSession({ practice }: PromptSessionProps) {
           fadePrivacy={privacyLevel === 'peek'}
           fadePrivacyInstant={fadePrivacyInstant}
         />
-        <div className={`privacy-texture-overlay${privacyLevel !== 'off' ? ' privacy-texture-visible' : ''}`} />
       </div>
 
       {/* Word count progress bar */}

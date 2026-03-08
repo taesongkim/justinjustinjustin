@@ -508,14 +508,22 @@
 }
 
 /* Favorite bar — left edge indicator */
+/* Favorite bar tuning knobs:
+   --fav-glow-spread : blur radius of the glow (default 6px)
+   --fav-glow-opacity: opacity of the glow color  (default 0.45)
+   --fav-bar-width   : thickness of the bar        (default 3px)
+   --fav-bar-height  : % of card height             (default 50%)
+*/
 .practice-card-fav-bar {
   position: absolute;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  height: 50%;
-  width: 3px;
+  height: var(--fav-bar-height, 60%);
+  width: var(--fav-bar-width, 1px);
   border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 var(--fav-glow-spread, 6px) currentColor;
+  opacity: var(--fav-glow-opacity, 1);
 }
 
 /* Favorite color picker in editors */

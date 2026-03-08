@@ -50,7 +50,7 @@ export default function PracticeCard({
         {practice.favorite?.enabled && (
           <div
             className="practice-card-fav-bar"
-            style={{ background: practice.favorite.color }}
+            style={{ background: practice.favorite.color, color: practice.favorite.color }}
           />
         )}
 
@@ -93,7 +93,7 @@ export default function PracticeCard({
           <span className="practice-card-drag-dot" />
         </div>
 
-        <div style={{ marginBottom: 12, paddingRight: 36 }}>
+        <div style={{ paddingRight: 36 }}>
           <span
             style={{
               fontSize: 11,
@@ -111,7 +111,7 @@ export default function PracticeCard({
               fontSize: 18,
               fontWeight: 500,
               color: 'var(--w-text)',
-              marginBottom: 6,
+              marginBottom: 0,
             }}
           >
             {practice.title}

@@ -113,6 +113,15 @@ export default function PromptEditor({ practice }: PromptEditorProps) {
         </div>
 
         <div className="w-toggle-row">
+          <span style={{ fontSize: 13 }}>Info panel visible</span>
+          <button
+            className="w-toggle"
+            data-on={settings.infoPanelVisible}
+            onClick={() => updateSetting('infoPanelVisible', !settings.infoPanelVisible)}
+          />
+        </div>
+
+        <div className="w-toggle-row">
           <span style={{ fontSize: 13 }}>Completion detection</span>
           <button
             className="w-toggle"

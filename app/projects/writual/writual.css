@@ -26,6 +26,18 @@
   min-height: 100vh;
   overflow: hidden;
   position: relative;
+  filter: blur(0px);
+}
+
+.writual::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('/dusttexture.jpg') center / cover no-repeat;
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ─── Layout ─────────────────────────────────────────────── */
@@ -42,6 +54,159 @@
   max-width: 720px;
   margin: 0 auto;
   padding: 48px 24px;
+}
+
+.session-exit-stage {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+}
+
+/* ─── Session Info Panel (left stage) ─────────────────── */
+
+.session-info-toggle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--w-border);
+  background: transparent;
+  color: var(--w-text-muted);
+  font-size: 12px;
+  font-style: italic;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--w-transition);
+}
+
+.session-info-toggle:hover {
+  border-color: var(--w-border-focus);
+  color: var(--w-text);
+}
+
+.session-info-stage {
+  position: fixed;
+  left: -244px;
+  opacity: 0;
+  width: 244px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.012);
+  border-radius: 0 var(--w-radius) var(--w-radius) 0;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 24px;
+  transition: left 0.125s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity 0.125s cubic-bezier(0.25, 0.1, 0.25, 1);
+  pointer-events: none;
+}
+
+.session-info-stage[data-open="true"] {
+  left: 0;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.session-info-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--w-text);
+}
+
+.session-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+
+.session-info-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--w-text-muted);
+}
+
+.session-info-prompt {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--w-text-secondary);
+  white-space: pre-wrap;
+}
+
+.session-info-instructions {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--w-text-muted);
+  white-space: pre-wrap;
+}
+
+.session-info-stats {
+  margin-top: auto;
+}
+
+.session-info-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--w-text-secondary);
+}
+
+.session-shortcuts-stage {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.session-shortcuts-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--w-border);
+  background: transparent;
+  color: var(--w-text-muted);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--w-transition);
+}
+
+.session-shortcuts-toggle:hover {
+  border-color: var(--w-border-focus);
+  color: var(--w-text);
+}
+
+.session-shortcuts-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--w-surface);
+  border: 1px solid var(--w-border);
+  border-radius: var(--w-radius);
+  padding: 10px 14px;
+  animation: fadeIn 0.1s ease-out;
+}
+
+.session-shortcuts-popover span {
+  font-size: 12px;
+  color: var(--w-text-muted);
+  font-family: var(--font-mono, monospace);
+  white-space: nowrap;
 }
 
 .writual-nav {
@@ -463,7 +628,7 @@
   height: 100%;
   background: var(--w-success);
   border-radius: 2px;
-  transition: width 200ms ease;
+  transition: none;
 }
 
 /* ─── Markdown Shortcuts Hint ───────────────────────────── */
@@ -486,13 +651,49 @@
 
 /* ─── TipTap Editor ─────────────────────────────────────── */
 
+/* ─── Prompt Session Layout ──────────────────────────────── */
+
+.prompt-session-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 96px); /* subtract shell top+bottom padding (48px × 2) */
+  gap: 16px;
+}
+
+.prompt-session-layout .session-header {
+  flex-shrink: 0;
+}
+
+.prompt-session-layout .w-form-row {
+  flex-shrink: 0;
+}
+
+.session-bottom-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.session-bottom-left {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.session-bottom-right {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
 .prompt-editor-area {
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 16px 20px;
-  max-height: 60vh;
-  overflow-y: auto;
   flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .writual-tiptap-editor {
@@ -577,7 +778,7 @@
   justify-content: space-between;
   align-items: center;
   padding-bottom: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
   border-bottom: 1px solid var(--w-border);
 }
 
@@ -586,6 +787,11 @@
   font-size: 14px;
   color: var(--w-text-secondary);
   letter-spacing: 0.04em;
+}
+
+.session-timestamp {
+  font-size: 12px;
+  color: var(--w-text-muted);
 }
 
 .session-meta {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useWritual } from '../WritualApp';
 import { Practice, PromptSettings, DEFAULT_PROMPT_SETTINGS } from '../../lib/types';
 import { countWords, formatTime } from '../../lib/utils';
@@ -12,7 +12,7 @@ interface PromptSessionProps {
 }
 
 export default function PromptSession({ practice }: PromptSessionProps) {
-  const { navigate, recordSession } = useWritual();
+  const { navigate, recordSession, sessions, showInfoPanel, setShowInfoPanel, setInfoPanelData, setInfoPanelRect } = useWritual();
 
   // Migrate old settings that lack new fields
   const raw = practice.settings as PromptSettings & Record<string, unknown>;
@@ -21,6 +21,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
     ...raw,
     completionDetection: raw.completionDetection ?? false,
     targetWordCount: raw.targetWordCount ?? 200,
+    infoPanelVisible: raw.infoPanelVisible ?? false,
   };
 
   const [content, setContent] = useState('');
@@ -28,12 +29,15 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const [complete, setComplete] = useState(false);
   const [paused, setPaused] = useState(false);
   const [startTimestamp, setStartTimestamp] = useState(0);
+  const [sessionOpenedAt] = useState(() => new Date());
   const hasAutoCompleted = useRef(false);
+  const editorAreaRef = useRef<HTMLDivElement>(null);
 
   const { elapsedMs } = useTimer(started && !complete && !paused);
   const { copied, copy } = useCopyToClipboard();
 
   const wordCount = countWords(content);
+  const practiceSessions = useMemo(() => sessions.filter(s => s.practiceId === practice.id), [sessions, practice.id]);
 
   const doComplete = useCallback((text: string, elapsed: number, stamp: number) => {
     recordSession({
@@ -82,21 +86,94 @@ export default function PromptSession({ practice }: PromptSessionProps) {
     navigate({ name: 'library' });
   };
 
+  // Set initial info panel visibility from settings (delay until page slide completes)
+  useEffect(() => {
+    if (settings.infoPanelVisible) {
+      const t = setTimeout(() => setShowInfoPanel(true), 350);
+      return () => clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Set info panel data on mount, clear on unmount
+  useEffect(() => {
+    setInfoPanelData({
+      title: practice.title,
+      prompt: practice.content,
+      instructions: settings.instructions,
+      sessionsCompleted: practiceSessions.length,
+      lastSessionDate: practiceSessions.length > 0
+        ? new Date(practiceSessions[practiceSessions.length - 1].startedAt).toLocaleDateString()
+        : null,
+    });
+    return () => {
+      setShowInfoPanel(false);
+      setInfoPanelData(null);
+      setInfoPanelRect(null);
+    };
+  }, [practice.title, practice.content, settings.instructions, practiceSessions, setInfoPanelData, setShowInfoPanel, setInfoPanelRect]);
+
+  // Track editor area position for the info panel
+  useEffect(() => {
+    const el = editorAreaRef.current;
+    if (!el) return;
+    const sync = () => {
+      const rect = el.getBoundingClientRect();
+      setInfoPanelRect({ top: rect.top, height: rect.height });
+    };
+    sync();
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [setInfoPanelRect]);
+
   // Word count progress for completion detection
-  const showProgress = settings.completionDetection && started && !complete;
+  const showProgress = settings.completionDetection && !complete;
   const progressPct = settings.completionDetection
-    ? Math.min(100, Math.round((wordCount / settings.targetWordCount) * 100))
+    ? Math.min(100, (wordCount / settings.targetWordCount) * 100)
     : 0;
 
   return (
-    <div className="w-stack">
+    <div className="prompt-session-layout">
       {/* Header */}
       <div className="session-header">
-        <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <h2 className="w-section-title">{practice.title}</h2>
+          <button
+            className="session-info-toggle"
+            onClick={() => setShowInfoPanel((o: boolean) => !o)}
+            aria-label="Toggle prompt info"
+          >
+            i
+          </button>
         </div>
         <div className="session-meta">
           {complete && <span className="completion-badge">Complete</span>}
+          <span className="session-timestamp">
+            {sessionOpenedAt.toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+          </span>
+        </div>
+      </div>
+
+      {/* TipTap editor — live inline formatting */}
+      <div className="prompt-editor-area" ref={editorAreaRef}>
+        <WritualEditor
+          onUpdate={handleUpdate}
+          disabled={complete}
+          placeholder="Start writing..."
+        />
+      </div>
+
+      {/* Word count progress bar */}
+      {showProgress && (
+        <div className="prompt-progress">
+          <div className="prompt-progress-bar" style={{ width: `${progressPct}%` }} />
+        </div>
+      )}
+
+      {/* Bottom controls */}
+      <div className="session-bottom-controls">
+        <div className="session-bottom-left">
           {settings.wordCountEnabled && (
             <span style={{ fontSize: 12 }}>
               {wordCount}{settings.completionDetection ? ` / ${settings.targetWordCount}` : ''} words
@@ -122,6 +199,8 @@ export default function PromptSession({ practice }: PromptSessionProps) {
               </span>
             </>
           )}
+        </div>
+        <div className="session-bottom-right">
           <button
             className="w-btn w-btn-sm"
             onClick={() => copy(content)}
@@ -129,80 +208,20 @@ export default function PromptSession({ practice }: PromptSessionProps) {
           >
             {copied ? 'Copied' : 'Copy'}
           </button>
-          <button
-            className="w-btn w-btn-sm"
-            onClick={() => navigate({ name: 'library' })}
-          >
-            Exit
-          </button>
+          {!complete ? (
+            <button
+              className="w-btn w-btn-primary"
+              onClick={handleComplete}
+              disabled={!content.trim()}
+            >
+              Complete
+            </button>
+          ) : (
+            <button className="w-btn w-btn-primary" onClick={handleDone}>
+              Done
+            </button>
+          )}
         </div>
-      </div>
-
-      {/* Prompt display */}
-      <div style={{ marginBottom: 8 }}>
-        <p style={{ color: 'var(--w-text-secondary)', fontSize: 15, lineHeight: 1.6 }}>
-          {practice.content}
-        </p>
-        {settings.instructions && (
-          <p
-            style={{
-              color: 'var(--w-text-muted)',
-              fontSize: 13,
-              lineHeight: 1.5,
-              marginTop: 8,
-            }}
-          >
-            {settings.instructions}
-          </p>
-        )}
-      </div>
-
-      <hr className="w-divider" />
-
-      {/* Word count progress bar */}
-      {showProgress && (
-        <div className="prompt-progress">
-          <div className="prompt-progress-bar" style={{ width: `${progressPct}%` }} />
-        </div>
-      )}
-
-      {/* Shortcuts hint */}
-      {!complete && (
-        <div className="md-shortcuts-hint">
-          <span># heading</span>
-          <span>- list</span>
-          <span>1. numbered</span>
-          <span>&gt; quote</span>
-          <span>---</span>
-          <span>⌘B bold</span>
-          <span>⌘I italic</span>
-        </div>
-      )}
-
-      {/* TipTap editor — live inline formatting */}
-      <div className="prompt-editor-area">
-        <WritualEditor
-          onUpdate={handleUpdate}
-          disabled={complete}
-          placeholder="Start writing..."
-        />
-      </div>
-
-      {/* Bottom controls */}
-      <div className="w-form-row" style={{ justifyContent: 'flex-end', marginTop: 16 }}>
-        {!complete ? (
-          <button
-            className="w-btn w-btn-primary"
-            onClick={handleComplete}
-            disabled={!content.trim()}
-          >
-            Complete
-          </button>
-        ) : (
-          <button className="w-btn w-btn-primary" onClick={handleDone}>
-            Done
-          </button>
-        )}
       </div>
     </div>
   );

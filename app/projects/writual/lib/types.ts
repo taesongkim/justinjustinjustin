@@ -34,6 +34,7 @@ export interface PromptSettings {
   wordCountEnabled: boolean;
   completionDetection: boolean;
   targetWordCount: number;
+  infoPanelVisible: boolean;
 }
 
 export type PracticeSettings = MantraSettings | MantraLinesSettings | PromptSettings;
@@ -102,6 +103,7 @@ export const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
   wordCountEnabled: true,
   completionDetection: false,
   targetWordCount: 200,
+  infoPanelVisible: false,
 };
 
 // ─── Type Guards ────────────────────────────────────────

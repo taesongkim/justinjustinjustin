@@ -36,6 +36,14 @@ import HighlightModal from './highlights/HighlightModal';
 
 // ─── Context ────────────────────────────────────────────
 
+interface InfoPanelData {
+  title: string;
+  prompt: string;
+  instructions?: string;
+  sessionsCompleted: number;
+  lastSessionDate: string | null;
+}
+
 interface WritualContextValue {
   practices: Practice[];
   flows: PracticeFlow[];
@@ -56,6 +64,14 @@ interface WritualContextValue {
   deleteSession: (id: string) => void;
   addHighlight: (text: string) => void;
   deleteHighlight: (id: string) => void;
+
+  // Info panel (rendered at writual level, controlled by PromptSession)
+  showInfoPanel: boolean;
+  setShowInfoPanel: (show: boolean | ((prev: boolean) => boolean)) => void;
+  infoPanelData: InfoPanelData | null;
+  setInfoPanelData: (data: InfoPanelData | null) => void;
+  infoPanelRect: { top: number; height: number } | null;
+  setInfoPanelRect: (rect: { top: number; height: number } | null) => void;
 }
 
 const WritualContext = createContext<WritualContextValue | null>(null);
@@ -132,6 +148,9 @@ export default function WritualApp() {
   const [highlightModalOpen, setHighlightModalOpen] = useState(false);
   const [highlightInitialText, setHighlightInitialText] = useState('');
   const [slideDirection, setSlideDirection] = useState(0); // 0=none, 1=enter session, -1=exit session
+  const [showInfoPanel, setShowInfoPanel] = useState(false);
+  const [infoPanelData, setInfoPanelData] = useState<InfoPanelData | null>(null);
+  const [infoPanelRect, setInfoPanelRect] = useState<{ top: number; height: number } | null>(null);
   const priorFocusRef = useRef<{ el: HTMLElement; start: number | null; end: number | null } | null>(null);
   const pageRef = useRef<Page>(page);
 
@@ -211,6 +230,10 @@ export default function WritualApp() {
       setSlideDirection(1);
     } else if (p.name !== 'session' && current.name === 'session') {
       setSlideDirection(-1);
+      // Reset info panel when leaving session
+      setShowInfoPanel(false);
+      setInfoPanelData(null);
+      setInfoPanelRect(null);
     } else {
       setSlideDirection(0);
     }
@@ -302,8 +325,14 @@ export default function WritualApp() {
       deleteSession,
       addHighlight,
       deleteHighlight,
+      showInfoPanel,
+      setShowInfoPanel,
+      infoPanelData,
+      setInfoPanelData,
+      infoPanelRect,
+      setInfoPanelRect,
     }),
-    [practices, flows, sessions, highlights, page, navigate, createPractice, updatePractice, deletePractice, recordSession, deleteSession, addHighlight, deleteHighlight]
+    [practices, flows, sessions, highlights, page, navigate, createPractice, updatePractice, deletePractice, recordSession, deleteSession, addHighlight, deleteHighlight, showInfoPanel, infoPanelData, infoPanelRect]
   );
 
   // ── Render ──────────────────────────────────────────
@@ -334,11 +363,44 @@ export default function WritualApp() {
             }}
             transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
           >
+            {page.name === 'session' && <StageExit />}
+            {page.name === 'session' && practices.find(p => p.id === page.practiceId)?.type === 'prompt' && <StageShortcuts />}
             <div className="writual-shell">
               <SlidePanel page={page} />
             </div>
           </motion.div>
         </AnimatePresence>
+        {/* Info panel — plain div with CSS transitions (no framer-motion, preserves backdrop-filter in Chrome) */}
+        {infoPanelData && infoPanelRect && (
+          <div
+            className="session-info-stage"
+            data-open={showInfoPanel}
+            style={{ top: infoPanelRect.top, height: infoPanelRect.height }}
+          >
+            <span className="session-info-title">{infoPanelData.title}</span>
+            <div className="session-info-section">
+              <span className="session-info-label">PROMPT</span>
+              <p className="session-info-prompt">{infoPanelData.prompt}</p>
+            </div>
+            {infoPanelData.instructions && (
+              <div className="session-info-section">
+                <span className="session-info-label">ADDITIONAL INFO</span>
+                <p className="session-info-instructions">{infoPanelData.instructions}</p>
+              </div>
+            )}
+            <div className="session-info-section session-info-stats">
+              <span className="session-info-label">STATS</span>
+              <div className="session-info-stat-row">
+                <span>Sessions Completed:</span>
+                <span>{infoPanelData.sessionsCompleted}</span>
+              </div>
+              <div className="session-info-stat-row">
+                <span>Last Session:</span>
+                <span>{infoPanelData.lastSessionDate ?? '—'}</span>
+              </div>
+            </div>
+          </div>
+        )}
         <HighlightModal
           open={highlightModalOpen}
           initialText={highlightInitialText}
@@ -398,15 +460,57 @@ function Nav({ page }: { page: Page }) {
   );
 }
 
-// ─── Slide Panel (captures page at mount) ───────────────
+// ─── Stage-level Exit Button ─────────────────────────────
 
-function SlidePanel({ page: initialPage }: { page: Page }) {
-  // Capture the page at mount time so exiting panels keep their content
-  const [frozenPage] = useState(initialPage);
+function StageExit() {
+  const { navigate } = useWritual();
+  return (
+    <button
+      className="w-btn w-btn-sm w-btn-ghost session-exit-stage"
+      onClick={() => navigate({ name: 'library' })}
+    >
+      Exit
+    </button>
+  );
+}
+
+// ─── Stage-level Shortcuts Hint ──────────────────────────
+
+function StageShortcuts() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="session-shortcuts-stage">
+      <button
+        className="session-shortcuts-toggle"
+        onClick={() => setOpen(o => !o)}
+        aria-label="Formatting shortcuts"
+      >
+        ?
+      </button>
+      {open && (
+        <div className="session-shortcuts-popover">
+          <span># heading</span>
+          <span>- list</span>
+          <span>1. numbered</span>
+          <span>&gt; quote</span>
+          <span>---</span>
+          <span>⌘B bold</span>
+          <span>⌘I italic</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Slide Panel ─────────────────────────────────────────
+// AnimatePresence preserves the exiting component's last render,
+// so we don't need to freeze the page — just pass it through.
+
+function SlidePanel({ page }: { page: Page }) {
   return (
     <>
-      <Nav page={frozenPage} />
-      <PageContent page={frozenPage} />
+      {page.name !== 'session' && <Nav page={page} />}
+      <PageContent page={page} />
     </>
   );
 }

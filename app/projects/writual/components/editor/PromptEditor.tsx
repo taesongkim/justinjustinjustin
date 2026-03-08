@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useWritual } from '../WritualApp';
-import { Practice, PromptSettings, DEFAULT_PROMPT_SETTINGS } from '../../lib/types';
+import { Practice, PracticeFavorite, PromptSettings, DEFAULT_PROMPT_SETTINGS, FAVORITE_COLORS } from '../../lib/types';
 
 interface PromptEditorProps {
   practice?: Practice;
@@ -17,6 +17,9 @@ export default function PromptEditor({ practice }: PromptEditorProps) {
   const [prompt, setPrompt] = useState(practice?.content ?? '');
   const [settings, setSettings] = useState<PromptSettings>(
     existingSettings ?? { ...DEFAULT_PROMPT_SETTINGS }
+  );
+  const [favorite, setFavorite] = useState<PracticeFavorite>(
+    practice?.favorite ?? { enabled: false, color: FAVORITE_COLORS[0].value }
   );
 
   const updateSetting = <K extends keyof PromptSettings>(
@@ -34,9 +37,11 @@ export default function PromptEditor({ practice }: PromptEditorProps) {
         title: title.trim(),
         content: prompt.trim(),
         settings,
+        favorite,
       });
     } else {
-      createPractice('prompt', title.trim(), prompt.trim(), settings);
+      const p = createPractice('prompt', title.trim(), prompt.trim(), settings);
+      if (favorite.enabled) updatePractice(p.id, { favorite });
     }
     navigate({ name: 'library' });
   };
@@ -155,6 +160,33 @@ export default function PromptEditor({ practice }: PromptEditorProps) {
                 style={{ width: 100, textAlign: 'right' }}
               />
             </div>
+          </div>
+        )}
+      </div>
+
+      <hr className="w-divider" />
+
+      <div className="w-stack w-stack-sm">
+        <div className="w-toggle-row">
+          <span style={{ fontSize: 13 }}>Favorite</span>
+          <button
+            className="w-toggle"
+            data-on={favorite.enabled}
+            onClick={() => setFavorite((prev) => ({ ...prev, enabled: !prev.enabled }))}
+          />
+        </div>
+        {favorite.enabled && (
+          <div className="w-favorite-colors">
+            {FAVORITE_COLORS.map((c) => (
+              <button
+                key={c.value}
+                className="w-favorite-color-btn"
+                data-selected={favorite.color === c.value || undefined}
+                style={{ background: c.value }}
+                onClick={() => setFavorite((prev) => ({ ...prev, color: c.value }))}
+                aria-label={c.name}
+              />
+            ))}
           </div>
         )}
       </div>

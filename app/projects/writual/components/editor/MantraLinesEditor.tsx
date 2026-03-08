@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { useWritual } from '../WritualApp';
 import {
   Practice,
+  PracticeFavorite,
   MantraLinesSettings,
   DEFAULT_MANTRA_LINES_SETTINGS,
+  FAVORITE_COLORS,
 } from '../../lib/types';
 
 interface MantraLinesEditorProps {
@@ -29,6 +31,9 @@ export default function MantraLinesEditor({ practice }: MantraLinesEditorProps) 
   const [settings, setSettings] = useState<MantraLinesSettings>(
     migratedSettings ?? { ...DEFAULT_MANTRA_LINES_SETTINGS }
   );
+  const [favorite, setFavorite] = useState<PracticeFavorite>(
+    practice?.favorite ?? { enabled: false, color: FAVORITE_COLORS[0].value }
+  );
 
   const updateSetting = <K extends keyof MantraLinesSettings>(
     key: K,
@@ -45,9 +50,11 @@ export default function MantraLinesEditor({ practice }: MantraLinesEditorProps) 
         title: title.trim(),
         content: phrase.trim(),
         settings,
+        favorite,
       });
     } else {
-      createPractice('mantra-lines', title.trim(), phrase.trim(), settings);
+      const p = createPractice('mantra-lines', title.trim(), phrase.trim(), settings);
+      if (favorite.enabled) updatePractice(p.id, { favorite });
     }
     navigate({ name: 'library' });
   };
@@ -167,6 +174,33 @@ export default function MantraLinesEditor({ practice }: MantraLinesEditorProps) 
               />
             </div>
             {/* Ignore punctuation — hidden for now */}
+          </div>
+        )}
+      </div>
+
+      <hr className="w-divider" />
+
+      <div className="w-stack w-stack-sm">
+        <div className="w-toggle-row">
+          <span style={{ fontSize: 13 }}>Favorite</span>
+          <button
+            className="w-toggle"
+            data-on={favorite.enabled}
+            onClick={() => setFavorite((prev) => ({ ...prev, enabled: !prev.enabled }))}
+          />
+        </div>
+        {favorite.enabled && (
+          <div className="w-favorite-colors">
+            {FAVORITE_COLORS.map((c) => (
+              <button
+                key={c.value}
+                className="w-favorite-color-btn"
+                data-selected={favorite.color === c.value || undefined}
+                style={{ background: c.value }}
+                onClick={() => setFavorite((prev) => ({ ...prev, color: c.value }))}
+                aria-label={c.name}
+              />
+            ))}
           </div>
         )}
       </div>

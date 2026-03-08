@@ -41,12 +41,27 @@ export type PracticeSettings = MantraSettings | MantraLinesSettings | PromptSett
 
 // ─── Practice (template) ────────────────────────────────
 
+export interface PracticeFavorite {
+  enabled: boolean;
+  color: string;
+}
+
+export const FAVORITE_COLORS = [
+  { name: 'White', value: '#d4d4d4' },
+  { name: 'Red', value: '#f87171' },
+  { name: 'Blue', value: '#60a5fa' },
+  { name: 'Green', value: '#4ade80' },
+  { name: 'Yellow', value: '#facc15' },
+  { name: 'Purple', value: '#c084fc' },
+];
+
 export interface Practice {
   id: string;
   type: PracticeType;
   title: string;
   content: string; // mantra phrase or prompt text
   settings: PracticeSettings;
+  favorite?: PracticeFavorite;
   createdAt: number;
   updatedAt: number;
 }

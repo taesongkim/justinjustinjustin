@@ -507,6 +507,41 @@
   background: var(--w-text-muted);
 }
 
+/* Favorite bar — left edge indicator */
+.practice-card-fav-bar {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 50%;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+}
+
+/* Favorite color picker in editors */
+.w-favorite-colors {
+  display: flex;
+  gap: 8px;
+  padding-left: 12px;
+}
+
+.w-favorite-color-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--w-transition), transform var(--w-transition);
+}
+
+.w-favorite-color-btn:hover {
+  transform: scale(1.15);
+}
+
+.w-favorite-color-btn[data-selected] {
+  border-color: var(--w-text);
+}
+
 /* Dragging state */
 .practice-card-row[data-dragging] {
   opacity: 0.4;

@@ -47,6 +47,13 @@ export default function PracticeCard({
         style={{ position: 'relative', cursor: 'pointer', flex: 1 }}
         onClick={() => navigate({ name: 'session', practiceId: practice.id })}
       >
+        {practice.favorite?.enabled && (
+          <div
+            className="practice-card-fav-bar"
+            style={{ background: practice.favorite.color }}
+          />
+        )}
+
         <button
           className="practice-card-edit"
           onClick={(e) => {

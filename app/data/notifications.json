@@ -1,5 +1,23 @@
 [
   {
+    "id": "21",
+    "category": "note",
+    "message": "style unity still needed to be applied to non-writing pages of writual. creation flows, libraries ... etc. need a texture or animation for the background",
+    "timestamp": "2026-03-08T23:47:00.000Z"
+  },
+  {
+    "id": "20",
+    "category": "update",
+    "message": "writual has color accents added, styling is becoming more uniform\n",
+    "timestamp": "2026-03-08T23:14:00.000Z"
+  },
+  {
+    "id": "19",
+    "category": "published",
+    "message": "writual app is updated with tons of new styling. you can favorite your templates, reorder them, there's a new privacy mode, and a new speed note feature. both can be accessed by cmd, shift p or h. ",
+    "timestamp": "2026-03-08T23:13:00.000Z"
+  },
+  {
     "id": "18",
     "category": "published",
     "message": "journaling app is now fully functional as a test app under https://justinjustinjustin.com/projects/writual with saved sessions viewable in history tab",

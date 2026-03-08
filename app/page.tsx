@@ -219,7 +219,7 @@ export default function Home() {
         padding:        "22px 32px",
         flexShrink:     0,
         position:       "relative",
-        zIndex:         10,
+        zIndex:         20,
       }}>
         <ProjectsDropdown />
       </div>

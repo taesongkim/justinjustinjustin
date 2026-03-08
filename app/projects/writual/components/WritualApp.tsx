@@ -154,6 +154,13 @@ export default function WritualApp() {
   const priorFocusRef = useRef<{ el: HTMLElement; start: number | null; end: number | null } | null>(null);
   const pageRef = useRef<Page>(page);
 
+  // Hide info panel when navigating away from session (covers all navigation paths)
+  useEffect(() => {
+    if (page.name !== 'session' && showInfoPanel) {
+      setShowInfoPanel(false);
+    }
+  }, [page, showInfoPanel]);
+
   // Load from storage on mount + read initial hash
   useEffect(() => {
     setPractices(storage.loadPractices());
@@ -181,6 +188,7 @@ export default function WritualApp() {
         setSlideDirection(1);
       } else if (next.name !== 'session' && current.name === 'session') {
         setSlideDirection(-1);
+        setShowInfoPanel(false);
       } else {
         setSlideDirection(0);
       }
@@ -230,10 +238,9 @@ export default function WritualApp() {
       setSlideDirection(1);
     } else if (p.name !== 'session' && current.name === 'session') {
       setSlideDirection(-1);
-      // Reset info panel when leaving session
+      // Fade out info panel, then clear data after transition
       setShowInfoPanel(false);
-      setInfoPanelData(null);
-      setInfoPanelRect(null);
+      setTimeout(() => { setInfoPanelData(null); setInfoPanelRect(null); }, 250);
     } else {
       setSlideDirection(0);
     }

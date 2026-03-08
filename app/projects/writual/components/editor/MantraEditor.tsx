@@ -22,7 +22,7 @@ export default function MantraEditor({ practice }: MantraEditorProps) {
         ...DEFAULT_MANTRA_SETTINGS,
         ...existingSettings,
         completionDetection: existingSettings.completionDetection ?? (existingSettings.completionMode === 'auto' || existingSettings.completionMode === undefined),
-        leniency: existingSettings.leniency ?? { ignoreCaps: false, ignorePunctuation: false },
+        leniency: { ...(existingSettings.leniency ?? { ignoreCaps: false }), ignorePunctuation: false },
       }
     : undefined;
 
@@ -137,19 +137,7 @@ export default function MantraEditor({ practice }: MantraEditorProps) {
                 }
               />
             </div>
-            <div className="w-toggle-row">
-              <span style={{ fontSize: 13 }}>Ignore punctuation</span>
-              <button
-                className="w-toggle"
-                data-on={settings.leniency.ignorePunctuation}
-                onClick={() =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    leniency: { ...prev.leniency, ignorePunctuation: !prev.leniency.ignorePunctuation },
-                  }))
-                }
-              />
-            </div>
+            {/* Ignore punctuation — hidden for now */}
           </div>
         )}
       </div>

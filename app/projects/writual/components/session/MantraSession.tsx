@@ -16,7 +16,7 @@ export default function MantraSession({ practice }: MantraSessionProps) {
   const settings: MantraSettings = {
     ...raw,
     completionDetection: raw.completionDetection ?? true,
-    leniency: raw.leniency ?? { ignoreCaps: false, ignorePunctuation: false },
+    leniency: { ...(raw.leniency ?? { ignoreCaps: false }), ignorePunctuation: false },
   };
 
   const [input, setInput] = useState('');

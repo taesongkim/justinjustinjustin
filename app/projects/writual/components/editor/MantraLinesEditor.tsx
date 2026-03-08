@@ -20,7 +20,7 @@ export default function MantraLinesEditor({ practice }: MantraLinesEditorProps) 
     ? {
         ...DEFAULT_MANTRA_LINES_SETTINGS,
         ...existingSettings,
-        leniency: existingSettings.leniency ?? { ignoreCaps: false, ignorePunctuation: false },
+        leniency: { ...(existingSettings.leniency ?? { ignoreCaps: false }), ignorePunctuation: false },
       }
     : undefined;
 
@@ -166,19 +166,7 @@ export default function MantraLinesEditor({ practice }: MantraLinesEditorProps) 
                 }
               />
             </div>
-            <div className="w-toggle-row">
-              <span style={{ fontSize: 13 }}>Ignore punctuation</span>
-              <button
-                className="w-toggle"
-                data-on={settings.leniency.ignorePunctuation}
-                onClick={() =>
-                  setSettings((prev) => ({
-                    ...prev,
-                    leniency: { ...prev.leniency, ignorePunctuation: !prev.leniency.ignorePunctuation },
-                  }))
-                }
-              />
-            </div>
+            {/* Ignore punctuation — hidden for now */}
           </div>
         )}
       </div>

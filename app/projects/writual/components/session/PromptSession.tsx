@@ -74,30 +74,25 @@ export default function PromptSession({ practice }: PromptSessionProps) {
 
   const handleUpdate = useCallback(
     (markdown: string) => {
-      if (complete) return;
       if (!started && markdown.trim().length > 0) {
         setStarted(true);
         setStartTimestamp(Date.now());
       }
       setContent(markdown);
     },
-    [started, complete]
+    [started]
   );
 
-  // Auto-complete when word count target is reached
+  // Reactive completion — true whenever word count meets target
+  const autoComplete = settings.completionDetection && started && wordCount >= settings.targetWordCount;
+
+  // Record session once when auto-complete first triggers
   useEffect(() => {
-    if (
-      settings.completionDetection &&
-      started &&
-      !complete &&
-      !hasAutoCompleted.current &&
-      wordCount >= settings.targetWordCount
-    ) {
+    if (autoComplete && !hasAutoCompleted.current) {
       hasAutoCompleted.current = true;
-      setComplete(true);
       doComplete(content, elapsedMs, startTimestamp);
     }
-  }, [wordCount, settings.completionDetection, settings.targetWordCount, started, complete, content, elapsedMs, startTimestamp, doComplete]);
+  }, [autoComplete, content, elapsedMs, startTimestamp, doComplete]);
 
   const handleComplete = () => {
     if (complete) return;
@@ -129,12 +124,17 @@ export default function PromptSession({ practice }: PromptSessionProps) {
         ? new Date(practiceSessions[practiceSessions.length - 1].startedAt).toLocaleDateString()
         : null,
     });
+  }, [practice.title, practice.content, settings.instructions, practiceSessions, setInfoPanelData]);
+
+  // Clean up info panel on unmount only
+  useEffect(() => {
     return () => {
       setShowInfoPanel(false);
       setInfoPanelData(null);
       setInfoPanelRect(null);
     };
-  }, [practice.title, practice.content, settings.instructions, practiceSessions, setInfoPanelData, setShowInfoPanel, setInfoPanelRect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Track editor area position for the info panel
   // Re-measure after slide animation settles (ResizeObserver only fires on size changes, not position)
@@ -178,7 +178,8 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   }, []);
 
   // Word count progress for completion detection
-  const showProgress = settings.completionDetection && !complete;
+  const isComplete = complete || autoComplete;
+  const showProgress = settings.completionDetection;
   const progressPct = settings.completionDetection
     ? Math.min(100, (wordCount / settings.targetWordCount) * 100)
     : 0;
@@ -272,7 +273,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
           </div>
         </div>
         <div className="session-header-right">
-          {complete && <span className="completion-badge">Complete</span>}
+          {isComplete && <span className="completion-badge">Complete</span>}
           <span className="session-timestamp">
             {sessionOpenedAt.toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
           </span>
@@ -283,7 +284,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       <div className="prompt-editor-area" ref={editorAreaRef} data-blurred={privacyLevel === 'full'} data-no-transition={skipTransition || undefined} style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
         <WritualEditor
           onUpdate={handleUpdate}
-          disabled={complete}
+          disabled={false}
           placeholder="Start writing..."
           fadePrivacy={privacyLevel === 'peek'}
           fadePrivacyInstant={fadePrivacyInstant}
@@ -316,7 +317,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
               <button
                 className="w-btn w-btn-sm w-btn-ghost"
                 onClick={() => setPaused((p) => !p)}
-                disabled={!started || complete}
+                disabled={!started || isComplete}
                 style={{ minWidth: 52 }}
               >
                 {paused ? 'Resume' : 'Pause'}
@@ -335,7 +336,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
           >
             {copied ? 'Copied' : 'Copy'}
           </button>
-          {!complete ? (
+          {!isComplete ? (
             <button
               className="w-btn w-btn-primary"
               onClick={handleComplete}

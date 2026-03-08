@@ -32,7 +32,7 @@ export default function MantraLinesSession({ practice }: MantraLinesSessionProps
   const settings: MantraLinesSettings = {
     ...DEFAULT_MANTRA_LINES_SETTINGS,
     ...raw,
-    leniency: raw.leniency ?? { ignoreCaps: false, ignorePunctuation: false },
+    leniency: { ...(raw.leniency ?? { ignoreCaps: false }), ignorePunctuation: false },
   };
 
   const ghostText = practice.content;
@@ -91,9 +91,13 @@ export default function MantraLinesSession({ practice }: MantraLinesSessionProps
     (index: number, value: string) => {
       if (index !== currentLine || sessionComplete) return;
 
-      // Intercept Enter key — advance to next line
+      // Intercept Enter key — only advance if line is complete
       if (value.endsWith('\n')) {
         const trimmed = value.slice(0, -1);
+        if (settings.completionDetection) {
+          const { isComplete } = checkCompletion(trimmed, ghostText, settings.leniency);
+          if (!isComplete) return; // Block Enter if line isn't complete
+        }
         // Update the line with trimmed value first
         setLines((prev) =>
           prev.map((l, i) =>
@@ -248,9 +252,7 @@ function MantraLine({
       <div className="mantra-line-content">
         <div className="mantra-container">
           <div className="mantra-overlay">
-            {settings.ghostVisible && !line.complete && (
-              <div className="mantra-overlay-ghost mantra-ghost">{ghostText}</div>
-            )}
+            <div className="mantra-overlay-ghost mantra-ghost" style={settings.ghostVisible && !line.complete ? undefined : { visibility: 'hidden' }}>{ghostText}</div>
             {settings.completionDetection && line.input.length > 0 && (
               <div className="mantra-char-overlay" aria-hidden="true">
                 <span className="mantra-chars-correct">
@@ -276,10 +278,16 @@ function MantraLine({
         </div>
       </div>
       <div className="mantra-line-meta">
-        {line.complete && <span className="completion-badge">done</span>}
         {settings.lineTimerEnabled && line.started && (
           <span style={{ fontSize: 11, color: 'var(--w-text-muted)', fontFamily: 'var(--font-mono)' }}>
             {formatTime(line.elapsedMs)}
+          </span>
+        )}
+        {line.complete && (
+          <span className="mantra-line-check">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
           </span>
         )}
       </div>

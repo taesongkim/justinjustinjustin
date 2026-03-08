@@ -503,8 +503,8 @@
 
 .mantra-container {
   position: relative;
-  font-size: 20px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.8;
   font-family: var(--font-tight);
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
@@ -659,8 +659,6 @@
 
 .mantra-line-content .mantra-container {
   min-height: unset;
-  font-size: 16px;
-  line-height: 1.4;
 }
 
 .mantra-line-content .mantra-overlay-input {
@@ -673,6 +671,18 @@
   gap: 8px;
   flex-shrink: 0;
   padding-top: 2px;
+}
+
+.mantra-line-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(74, 222, 128, 0.15);
+  color: var(--w-success);
+  flex-shrink: 0;
 }
 
 /* ─── Prompt Session ─────────────────────────────────────── */

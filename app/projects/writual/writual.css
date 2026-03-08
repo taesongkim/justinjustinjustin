@@ -444,6 +444,15 @@
   line-height: 1.6;
   font-family: var(--font-tight);
   min-height: 100px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.mantra-line-content .mantra-container {
+  background: none;
+  border-radius: 0;
+  padding: 0;
 }
 
 .mantra-ghost {
@@ -538,6 +547,9 @@
   display: flex;
   flex-direction: column;
   gap: 0;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 16px 20px;
 }
 
 .mantra-line {

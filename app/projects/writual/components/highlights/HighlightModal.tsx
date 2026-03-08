@@ -136,7 +136,7 @@ export default function HighlightModal({ open, initialText, onClose, onSave }: H
           )}
           {saving && (
             <span className={`highlight-timestamp ${phase === 'exit' ? 'highlight-timestamp-exit' : ''}`}>
-              {new Date().toLocaleString('en-US', {
+              Saved on {new Date().toLocaleString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 hour: 'numeric',

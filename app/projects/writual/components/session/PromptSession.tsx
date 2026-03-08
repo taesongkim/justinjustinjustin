@@ -142,7 +142,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
     if (!el) return;
     const sync = () => {
       const rect = el.getBoundingClientRect();
-      setInfoPanelRect({ top: rect.top, height: rect.height });
+      setInfoPanelRect({ top: rect.top, height: rect.height, left: rect.left });
     };
     sync();
     const ro = new ResizeObserver(sync);
@@ -277,7 +277,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       </div>
 
       {/* TipTap editor — live inline formatting */}
-      <div className="prompt-editor-area" ref={editorAreaRef} data-blurred={privacyLevel === 'full'} data-no-transition={skipTransition || undefined}>
+      <div className="prompt-editor-area" ref={editorAreaRef} data-blurred={privacyLevel === 'full'} data-no-transition={skipTransition || undefined} style={{ backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)' }}>
         <WritualEditor
           onUpdate={handleUpdate}
           disabled={complete}
@@ -285,6 +285,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
           fadePrivacy={privacyLevel === 'peek'}
           fadePrivacyInstant={fadePrivacyInstant}
         />
+        <div className={`privacy-texture-overlay${privacyLevel !== 'off' ? ' privacy-texture-visible' : ''}`} />
       </div>
 
       {/* Word count progress bar */}

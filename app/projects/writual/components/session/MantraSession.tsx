@@ -106,12 +106,6 @@ export default function MantraSession({ practice }: MantraSessionProps) {
           <button className="w-btn w-btn-sm" onClick={handleReset}>
             Reset
           </button>
-          <button
-            className="w-btn w-btn-sm"
-            onClick={() => navigate({ name: 'library' })}
-          >
-            Exit
-          </button>
         </div>
       </div>
 

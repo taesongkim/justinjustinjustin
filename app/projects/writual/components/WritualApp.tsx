@@ -70,8 +70,8 @@ interface WritualContextValue {
   setShowInfoPanel: (show: boolean | ((prev: boolean) => boolean)) => void;
   infoPanelData: InfoPanelData | null;
   setInfoPanelData: (data: InfoPanelData | null) => void;
-  infoPanelRect: { top: number; height: number } | null;
-  setInfoPanelRect: (rect: { top: number; height: number } | null) => void;
+  infoPanelRect: { top: number; height: number; left: number } | null;
+  setInfoPanelRect: (rect: { top: number; height: number; left: number } | null) => void;
 }
 
 const WritualContext = createContext<WritualContextValue | null>(null);
@@ -150,7 +150,7 @@ export default function WritualApp() {
   const [slideDirection, setSlideDirection] = useState(0); // 0=none, 1=enter session, -1=exit session
   const [showInfoPanel, setShowInfoPanel] = useState(false);
   const [infoPanelData, setInfoPanelData] = useState<InfoPanelData | null>(null);
-  const [infoPanelRect, setInfoPanelRect] = useState<{ top: number; height: number } | null>(null);
+  const [infoPanelRect, setInfoPanelRect] = useState<{ top: number; height: number; left: number } | null>(null);
   const priorFocusRef = useRef<{ el: HTMLElement; start: number | null; end: number | null } | null>(null);
   const pageRef = useRef<Page>(page);
 
@@ -375,7 +375,7 @@ export default function WritualApp() {
           <div
             className="session-info-stage"
             data-open={showInfoPanel}
-            style={{ top: infoPanelRect.top, height: infoPanelRect.height }}
+            style={{ top: infoPanelRect.top, height: infoPanelRect.height, left: infoPanelRect.left - 244 - 16, backdropFilter: 'blur(2px)', WebkitBackdropFilter: 'blur(2px)' }}
           >
             <span className="session-info-title">{infoPanelData.title}</span>
             <div className="session-info-section">

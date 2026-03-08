@@ -430,8 +430,73 @@
 
 .w-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
+}
+
+.practice-card-edit {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--w-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--w-radius-sm);
+  opacity: 0;
+  transition: opacity var(--w-transition), color var(--w-transition);
+}
+
+.w-card:hover .practice-card-edit {
+  opacity: 1;
+}
+
+.practice-card-edit:hover {
+  color: var(--w-text);
+}
+
+.practice-card-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.practice-card-start {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.practice-card-row:hover .practice-card-start {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.practice-card-start-text {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--w-text-muted);
+  font-weight: 500;
+}
+
+.practice-card-start-arrow {
+  font-size: 14px;
+  color: var(--w-text-muted);
+  animation: pulse-arrow 1s linear infinite;
+}
+
+@keyframes pulse-arrow {
+  0% { opacity: 0; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(2px); }
+  100% { opacity: 0; transform: translateX(4px); }
 }
 
 /* ─── Mantra Session ─────────────────────────────────────── */

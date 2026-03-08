@@ -30,6 +30,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const [paused, setPaused] = useState(false);
   const [startTimestamp, setStartTimestamp] = useState(0);
   const [sessionOpenedAt] = useState(() => new Date());
+  const [privacyMode, setPrivacyMode] = useState(false);
   const hasAutoCompleted = useRef(false);
   const editorAreaRef = useRef<HTMLDivElement>(null);
 
@@ -127,6 +128,18 @@ export default function PromptSession({ practice }: PromptSessionProps) {
     return () => ro.disconnect();
   }, [setInfoPanelRect]);
 
+  // Cmd+Shift+P toggles privacy mode
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.metaKey && e.shiftKey && e.key === 'p') {
+        e.preventDefault();
+        setPrivacyMode(p => !p);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
   // Word count progress for completion detection
   const showProgress = settings.completionDetection && !complete;
   const progressPct = settings.completionDetection
@@ -137,7 +150,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
     <div className="prompt-session-layout">
       {/* Header */}
       <div className="session-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="session-header-left">
           <h2 className="w-section-title">{practice.title}</h2>
           <button
             className="session-info-toggle"
@@ -147,7 +160,30 @@ export default function PromptSession({ practice }: PromptSessionProps) {
             i
           </button>
         </div>
-        <div className="session-meta">
+        <div className="session-header-center">
+          <button
+            className={`session-header-toggle${privacyMode ? ' active' : ''}`}
+            onClick={() => setPrivacyMode(p => !p)}
+            aria-label="Toggle privacy mode"
+            title="Privacy mode (⌘⇧P)"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {privacyMode ? (
+                <>
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </>
+              ) : (
+                <>
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </>
+              )}
+            </svg>
+          </button>
+        </div>
+        <div className="session-header-right">
           {complete && <span className="completion-badge">Complete</span>}
           <span className="session-timestamp">
             {sessionOpenedAt.toLocaleString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
@@ -156,7 +192,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       </div>
 
       {/* TipTap editor — live inline formatting */}
-      <div className="prompt-editor-area" ref={editorAreaRef}>
+      <div className="prompt-editor-area" ref={editorAreaRef} data-blurred={privacyMode}>
         <WritualEditor
           onUpdate={handleUpdate}
           disabled={complete}

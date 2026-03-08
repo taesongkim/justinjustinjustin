@@ -794,6 +794,59 @@
   border-bottom: 1px solid var(--w-border);
 }
 
+.session-header-left,
+.session-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.session-header-right {
+  justify-content: flex-end;
+}
+
+.session-header-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.session-header-toggle {
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--w-border);
+  background: transparent;
+  color: var(--w-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.session-header-toggle:hover {
+  color: var(--w-text-secondary);
+  border-color: var(--w-text-muted);
+}
+
+.session-header-toggle.active {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--w-text);
+  border-color: var(--w-text-muted);
+}
+
+/* ─── Editor blur effect ────────────────────────────────── */
+
+.prompt-editor-area .tiptap {
+  transition: filter 0.8s cubic-bezier(0.25, 0.1, 0.25, 1),
+              scale 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.prompt-editor-area[data-blurred="true"] .tiptap {
+  filter: blur(0.5rem);
+  scale: 0.98;
+}
+
 .session-timer {
   font-family: var(--font-mono);
   font-size: 14px;

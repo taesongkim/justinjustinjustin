@@ -847,6 +847,23 @@
   scale: 0.98;
 }
 
+/* ─── Fade Privacy (per-character blur) ──────────────────── */
+
+@keyframes fadePrivacyBlur {
+  0% {
+    filter: blur(0);
+    opacity: 1;
+  }
+  100% {
+    filter: blur(0.4rem);
+    opacity: 0.3;
+  }
+}
+
+.fade-privacy-char {
+  animation: fadePrivacyBlur 2.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
 .session-timer {
   font-family: var(--font-mono);
   font-size: 14px;

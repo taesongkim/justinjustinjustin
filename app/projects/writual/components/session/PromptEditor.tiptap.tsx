@@ -4,19 +4,25 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { FadePrivacyExtension } from './FadePrivacyExtension';
 
 interface WritualEditorProps {
   onUpdate: (text: string) => void;
   disabled?: boolean;
   placeholder?: string;
+  fadePrivacy?: boolean;
 }
 
 export default function WritualEditor({
   onUpdate,
   disabled = false,
   placeholder = 'Start writing...',
+  fadePrivacy = false,
 }: WritualEditorProps) {
+  const fadePrivacyRef = useRef(fadePrivacy);
+  fadePrivacyRef.current = fadePrivacy;
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -35,6 +41,7 @@ export default function WritualEditor({
       }),
       Placeholder.configure({ placeholder }),
       Typography,
+      FadePrivacyExtension.configure({ enabled: fadePrivacy }),
     ],
     editorProps: {
       attributes: {
@@ -54,6 +61,14 @@ export default function WritualEditor({
       editor.setEditable(!disabled);
     }
   }, [editor, disabled]);
+
+  // Sync fade privacy on/off
+  useEffect(() => {
+    if (!editor) return;
+    editor.view.dispatch(
+      editor.state.tr.setMeta('fadePrivacyToggle', fadePrivacy)
+    );
+  }, [editor, fadePrivacy]);
 
   // Delay initial focus so the slide-in animation isn't interrupted
   useEffect(() => {

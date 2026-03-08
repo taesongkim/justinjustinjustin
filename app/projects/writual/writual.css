@@ -807,44 +807,102 @@
 }
 
 .session-header-center {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
   justify-content: center;
 }
 
-.session-header-toggle {
+/* ─── Privacy Toast ─────────────────────────────────────── */
+
+@keyframes privacyToastAnim {
+  0% { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  75% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-2px); }
+}
+
+.privacy-toast {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 11px;
-  padding: 4px 12px;
-  border-radius: 100px;
+  color: var(--w-text-secondary);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: privacyToastAnim 1.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+/* ─── Privacy Slider ────────────────────────────────────── */
+
+.privacy-slider {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--w-border);
+  border-radius: 100px;
+  padding: 2px;
+  gap: 0;
+}
+
+.privacy-slider-thumb {
+  position: absolute;
+  width: calc(100% / 3 - 2px);
+  height: calc(100% - 4px);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.1);
+  transition: left 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
+  pointer-events: none;
+  left: 2px;
+}
+
+.privacy-slider[data-level="peek"] .privacy-slider-thumb {
+  left: calc(100% / 3 + 1px);
+}
+
+.privacy-slider[data-level="full"] .privacy-slider-thumb {
+  left: calc(200% / 3);
+}
+
+.privacy-slider-opt {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 24px;
+  border: none;
   background: transparent;
   color: var(--w-text-muted);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: color 0.15s;
+  padding: 0;
 }
 
-.session-header-toggle:hover {
+.privacy-slider-opt:hover {
   color: var(--w-text-secondary);
-  border-color: var(--w-text-muted);
 }
 
-.session-header-toggle.active {
-  background: rgba(255, 255, 255, 0.08);
+.privacy-slider-opt[data-active="true"] {
   color: var(--w-text);
-  border-color: var(--w-text-muted);
 }
 
 /* ─── Editor blur effect ────────────────────────────────── */
 
 .prompt-editor-area .tiptap {
-  transition: filter 0.8s cubic-bezier(0.25, 0.1, 0.25, 1),
-              scale 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: filter 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .prompt-editor-area[data-blurred="true"] .tiptap {
-  filter: blur(0.5rem);
-  scale: 0.98;
+  filter: blur(0.4rem);
+}
+
+.prompt-editor-area[data-no-transition] .tiptap {
+  transition: none;
 }
 
 /* ─── Fade Privacy (per-character blur) ──────────────────── */
@@ -852,16 +910,31 @@
 @keyframes fadePrivacyBlur {
   0% {
     filter: blur(0);
-    opacity: 1;
   }
   100% {
     filter: blur(0.4rem);
-    opacity: 0.3;
   }
 }
 
 .fade-privacy-char {
-  animation: fadePrivacyBlur 2.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: fadePrivacyBlur 1s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.fade-privacy-char-instant {
+  filter: blur(0.4rem);
+}
+
+@keyframes fadePrivacyReveal {
+  0% {
+    filter: blur(0.4rem);
+  }
+  100% {
+    filter: blur(0);
+  }
+}
+
+.fade-privacy-char-reveal {
+  animation: fadePrivacyReveal 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 
 .session-timer {

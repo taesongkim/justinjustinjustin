@@ -12,6 +12,7 @@ interface WritualEditorProps {
   disabled?: boolean;
   placeholder?: string;
   fadePrivacy?: boolean;
+  fadePrivacyInstant?: boolean;
 }
 
 export default function WritualEditor({
@@ -19,6 +20,7 @@ export default function WritualEditor({
   disabled = false,
   placeholder = 'Start writing...',
   fadePrivacy = false,
+  fadePrivacyInstant = false,
 }: WritualEditorProps) {
   const fadePrivacyRef = useRef(fadePrivacy);
   fadePrivacyRef.current = fadePrivacy;
@@ -65,10 +67,24 @@ export default function WritualEditor({
   // Sync fade privacy on/off
   useEffect(() => {
     if (!editor) return;
+    const value = fadePrivacy ? (fadePrivacyInstant ? 'instant' : true) : false;
     editor.view.dispatch(
-      editor.state.tr.setMeta('fadePrivacyToggle', fadePrivacy)
+      editor.state.tr.setMeta('fadePrivacyToggle', value)
     );
-  }, [editor, fadePrivacy]);
+  }, [editor, fadePrivacy, fadePrivacyInstant]);
+
+  // Listen for reveal-done event to clean up decorations
+  useEffect(() => {
+    if (!editor) return;
+    const el = editor.view.dom;
+    const handler = () => {
+      editor.view.dispatch(
+        editor.state.tr.setMeta('fadePrivacyRevealDone', true)
+      );
+    };
+    el.addEventListener('fadePrivacyRevealDone', handler);
+    return () => el.removeEventListener('fadePrivacyRevealDone', handler);
+  }, [editor]);
 
   // Delay initial focus so the slide-in animation isn't interrupted
   useEffect(() => {

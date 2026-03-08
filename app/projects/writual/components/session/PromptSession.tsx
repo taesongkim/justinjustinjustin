@@ -30,8 +30,29 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   const [paused, setPaused] = useState(false);
   const [startTimestamp, setStartTimestamp] = useState(0);
   const [sessionOpenedAt] = useState(() => new Date());
-  const [privacyMode, setPrivacyMode] = useState(false);
-  const [fadePrivacy, setFadePrivacy] = useState(false);
+  type PrivacyLevel = 'off' | 'peek' | 'full';
+  const [privacyLevel, setPrivacyLevel] = useState<PrivacyLevel>('off');
+  const [fadePrivacyInstant, setFadePrivacyInstant] = useState(false);
+  const [skipTransition, setSkipTransition] = useState(false);
+  const [privacyToast, setPrivacyToast] = useState<string | null>(null);
+  const privacyToastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const privacyToastKey = useRef(0);
+
+  const privacyLabels: Record<PrivacyLevel, string> = {
+    off: 'privacy off',
+    peek: 'peek privacy on',
+    full: 'full privacy on',
+  };
+
+  const showPrivacyToast = useCallback((level: PrivacyLevel) => {
+    if (privacyToastTimer.current) clearTimeout(privacyToastTimer.current);
+    privacyToastKey.current += 1;
+    setPrivacyToast(privacyLabels[level]);
+    privacyToastTimer.current = setTimeout(() => {
+      setPrivacyToast(null);
+      privacyToastTimer.current = null;
+    }, 1200);
+  }, []);
   const hasAutoCompleted = useRef(false);
   const editorAreaRef = useRef<HTMLDivElement>(null);
 
@@ -129,13 +150,24 @@ export default function PromptSession({ practice }: PromptSessionProps) {
     return () => ro.disconnect();
   }, [setInfoPanelRect]);
 
-  // Cmd+Shift+P toggles privacy mode
+  // Cmd+Shift+P cycles privacy: off → peek → full → off
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.metaKey && e.shiftKey && e.key === 'p') {
         e.preventDefault();
-        setPrivacyMode(p => !p);
-        setFadePrivacy(false);
+        setPrivacyLevel(prev => {
+          if (prev === 'off') { showPrivacyToast('peek'); return 'peek'; }
+          if (prev === 'peek') {
+            setSkipTransition(true);
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => setSkipTransition(false));
+            });
+            showPrivacyToast('full');
+            return 'full';
+          }
+          showPrivacyToast('off');
+          return 'off';
+        });
       }
     };
     window.addEventListener('keydown', handler);
@@ -163,52 +195,78 @@ export default function PromptSession({ practice }: PromptSessionProps) {
           </button>
         </div>
         <div className="session-header-center">
-          <button
-            className={`session-header-toggle${privacyMode ? ' active' : ''}`}
-            onClick={() => { setPrivacyMode(p => !p); setFadePrivacy(false); }}
-            aria-label="Toggle privacy mode"
-            title="Privacy mode (⌘⇧P)"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {privacyMode ? (
-                <>
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </>
-              ) : (
-                <>
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </>
-              )}
-            </svg>
-          </button>
-          <button
-            className={`session-header-toggle${fadePrivacy ? ' active' : ''}`}
-            onClick={() => { setFadePrivacy(f => !f); setPrivacyMode(false); }}
-            aria-label="Toggle fade privacy"
-            title="Fade privacy"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              {fadePrivacy ? (
-                <>
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-                  <line x1="1" y1="1" x2="23" y2="23" />
-                </>
-              ) : (
-                <>
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  {/* Sparkle iris */}
-                  <line x1="12" y1="9" x2="12" y2="15" />
-                  <line x1="9" y1="12" x2="15" y2="12" />
-                  <line x1="10" y1="10" x2="14" y2="14" />
-                  <line x1="14" y1="10" x2="10" y2="14" />
-                </>
-              )}
-            </svg>
-          </button>
+          <div className="privacy-slider" data-level={privacyLevel} title="Privacy (⌘⇧P)">
+            {privacyToast && (
+              <span key={privacyToastKey.current} className="privacy-toast">{privacyToast}</span>
+            )}
+            <div className="privacy-slider-thumb" />
+            <button
+              className="privacy-slider-opt"
+              data-active={privacyLevel === 'off'}
+              onClick={() => { setPrivacyLevel('off'); showPrivacyToast('off'); }}
+              aria-label="Visible"
+            >
+              {/* Eye open — circle iris */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+            <button
+              className="privacy-slider-opt"
+              data-active={privacyLevel === 'peek'}
+              onClick={() => {
+                if (privacyLevel === 'full') {
+                  // full → peek: start chars already blurred
+                  setFadePrivacyInstant(true);
+                  setSkipTransition(true);
+                  setPrivacyLevel('peek');
+                  setTimeout(() => {
+                    setFadePrivacyInstant(false);
+                    requestAnimationFrame(() => setSkipTransition(false));
+                  }, 80);
+                } else {
+                  setPrivacyLevel('peek');
+                }
+                showPrivacyToast('peek');
+              }}
+              aria-label="Peek privacy"
+            >
+              {/* Eye open — sparkle iris */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <line x1="12" y1="9" x2="12" y2="15" />
+                <line x1="9" y1="12" x2="15" y2="12" />
+                <line x1="10" y1="10" x2="14" y2="14" />
+                <line x1="14" y1="10" x2="10" y2="14" />
+              </svg>
+            </button>
+            <button
+              className="privacy-slider-opt"
+              data-active={privacyLevel === 'full'}
+              onClick={() => {
+                if (privacyLevel === 'peek') {
+                  // peek → full: instant transition
+                  setSkipTransition(true);
+                  setPrivacyLevel('full');
+                  requestAnimationFrame(() => {
+                    requestAnimationFrame(() => setSkipTransition(false));
+                  });
+                } else {
+                  setPrivacyLevel('full');
+                }
+                showPrivacyToast('full');
+              }}
+              aria-label="Full privacy"
+            >
+              {/* Eye closed */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+          </div>
         </div>
         <div className="session-header-right">
           {complete && <span className="completion-badge">Complete</span>}
@@ -219,12 +277,13 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       </div>
 
       {/* TipTap editor — live inline formatting */}
-      <div className="prompt-editor-area" ref={editorAreaRef} data-blurred={privacyMode}>
+      <div className="prompt-editor-area" ref={editorAreaRef} data-blurred={privacyLevel === 'full'} data-no-transition={skipTransition || undefined}>
         <WritualEditor
           onUpdate={handleUpdate}
           disabled={complete}
           placeholder="Start writing..."
-          fadePrivacy={fadePrivacy}
+          fadePrivacy={privacyLevel === 'peek'}
+          fadePrivacyInstant={fadePrivacyInstant}
         />
       </div>
 

@@ -612,13 +612,13 @@
   font-size: 10px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--w-text-muted);
+  color: var(--start-color, #d4d4d4);
   font-weight: 500;
 }
 
 .practice-card-start-arrow {
   font-size: 14px;
-  color: var(--w-text-muted);
+  color: var(--start-color, #d4d4d4);
   animation: pulse-arrow 1s linear infinite;
 }
 

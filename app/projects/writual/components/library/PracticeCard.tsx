@@ -128,7 +128,7 @@ export default function PracticeCard({
         </div>
       </div>
 
-      <div className="practice-card-start">
+      <div className="practice-card-start" style={practice.favorite?.enabled ? { '--start-color': practice.favorite.color } as React.CSSProperties : undefined}>
         <span className="practice-card-start-text">START SESSION</span>
         <span className="practice-card-start-arrow">→</span>
       </div>

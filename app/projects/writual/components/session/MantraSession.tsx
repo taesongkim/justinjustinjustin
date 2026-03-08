@@ -111,6 +111,9 @@ export default function MantraSession({ practice }: MantraSessionProps) {
 
       {/* Typing Area */}
       <div className="mantra-container w-material-1">
+        {practice.favorite?.enabled && (
+          <div className="w-session-fav-bar" style={{ background: practice.favorite.color, color: practice.favorite.color }} />
+        )}
         <div className="mantra-overlay">
           <div className="mantra-overlay-ghost mantra-ghost" style={settings.ghostVisible ? undefined : { visibility: 'hidden' }}>{ghostText}</div>
           {/* Styled character overlay — only when completion detection is on */}

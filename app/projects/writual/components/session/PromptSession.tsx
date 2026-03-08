@@ -282,6 +282,9 @@ export default function PromptSession({ practice }: PromptSessionProps) {
 
       {/* TipTap editor — live inline formatting */}
       <div className="prompt-editor-area w-material-1" ref={editorAreaRef} data-blurred={privacyLevel === 'full'} data-no-transition={skipTransition || undefined}>
+        {practice.favorite?.enabled && (
+          <div className="w-session-fav-bar" style={{ background: practice.favorite.color, color: practice.favorite.color }} />
+        )}
         <WritualEditor
           onUpdate={handleUpdate}
           disabled={false}

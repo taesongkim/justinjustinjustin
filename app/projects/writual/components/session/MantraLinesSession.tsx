@@ -190,6 +190,9 @@ export default function MantraLinesSession({ practice }: MantraLinesSessionProps
 
       {/* Lines */}
       <div className="mantra-lines-list w-material-1">
+        {practice.favorite?.enabled && (
+          <div className="w-session-fav-bar" style={{ background: practice.favorite.color, color: practice.favorite.color }} />
+        )}
         {lines.map((line, i) => (
           <MantraLine
             key={i}

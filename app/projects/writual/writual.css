@@ -526,6 +526,18 @@
   opacity: var(--fav-glow-opacity, 1);
 }
 
+/* Session favorite bar — left edge of writing area */
+.w-session-fav-bar {
+  position: absolute;
+  left: 0;
+  top: 16px;
+  width: 1px;
+  height: calc(16px * 1.8);
+  border-radius: 0 1px 1px 0;
+  box-shadow: 0 0 var(--fav-glow-spread, 6px) currentColor;
+  z-index: 1;
+}
+
 /* Favorite color picker in editors */
 .w-favorite-colors {
   display: flex;

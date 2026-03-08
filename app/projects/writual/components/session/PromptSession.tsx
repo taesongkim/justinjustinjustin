@@ -51,7 +51,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
     privacyToastTimer.current = setTimeout(() => {
       setPrivacyToast(null);
       privacyToastTimer.current = null;
-    }, 1200);
+    }, 600);
   }, []);
   const hasAutoCompleted = useRef(false);
   const editorAreaRef = useRef<HTMLDivElement>(null);

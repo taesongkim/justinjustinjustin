@@ -817,22 +817,22 @@
 /* ─── Privacy Toast ─────────────────────────────────────── */
 
 @keyframes privacyToastAnim {
-  0% { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  75% { opacity: 1; transform: translateX(-50%) translateY(0); }
-  100% { opacity: 0; transform: translateX(-50%) translateY(-2px); }
+  0% { opacity: 0; translate: -50% 4px; }
+  15% { opacity: 1; translate: -50% 0; }
+  75% { opacity: 1; translate: -50% 0; }
+  100% { opacity: 0; translate: -50% -2px; }
 }
 
 .privacy-toast {
   position: absolute;
   bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: var(--toast-x);
+  translate: -50% 0;
   font-size: 11px;
   color: var(--w-text-secondary);
   white-space: nowrap;
   pointer-events: none;
-  animation: privacyToastAnim 1.2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: privacyToastAnim 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 
 /* ─── Privacy Slider ────────────────────────────────────── */
@@ -846,7 +846,11 @@
   border-radius: 100px;
   padding: 2px;
   gap: 0;
+  --toast-x: 16.67%;
 }
+
+.privacy-slider[data-level="peek"] { --toast-x: 50%; }
+.privacy-slider[data-level="full"] { --toast-x: 83.33%; }
 
 .privacy-slider-thumb {
   position: absolute;

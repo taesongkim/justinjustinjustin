@@ -506,7 +506,6 @@
   font-size: 20px;
   line-height: 1.6;
   font-family: var(--font-tight);
-  min-height: 100px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 16px 20px;
@@ -558,21 +557,25 @@
 }
 
 .mantra-overlay-ghost {
+  position: relative;
+  z-index: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.mantra-overlay-input {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 0;
-}
-
-.mantra-overlay-input {
-  position: relative;
+  bottom: 0;
   z-index: 2;
   background: transparent;
   color: var(--w-text);
   border: none;
   outline: none;
   width: 100%;
+  height: 100%;
   font: inherit;
   line-height: inherit;
   resize: none;

@@ -113,7 +113,7 @@ export default function PromptEditor({ practice }: PromptEditorProps) {
         </div>
 
         <div className="w-toggle-row">
-          <span style={{ fontSize: 13 }}>Info panel visible</span>
+          <span style={{ fontSize: 13 }}>Show Info Panel by Default</span>
           <button
             className="w-toggle"
             data-on={settings.infoPanelVisible}

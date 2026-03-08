@@ -137,6 +137,7 @@ export default function PromptSession({ practice }: PromptSessionProps) {
   }, [practice.title, practice.content, settings.instructions, practiceSessions, setInfoPanelData, setShowInfoPanel, setInfoPanelRect]);
 
   // Track editor area position for the info panel
+  // Re-measure after slide animation settles (ResizeObserver only fires on size changes, not position)
   useEffect(() => {
     const el = editorAreaRef.current;
     if (!el) return;
@@ -145,9 +146,11 @@ export default function PromptSession({ practice }: PromptSessionProps) {
       setInfoPanelRect({ top: rect.top, height: rect.height, left: rect.left });
     };
     sync();
+    // Re-measure after slide animation completes (300ms + buffer)
+    const timer = setTimeout(sync, 400);
     const ro = new ResizeObserver(sync);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => { clearTimeout(timer); ro.disconnect(); };
   }, [setInfoPanelRect]);
 
   // Cmd+Shift+P cycles privacy: off → peek → full → off

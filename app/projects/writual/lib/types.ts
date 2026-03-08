@@ -103,7 +103,7 @@ export const DEFAULT_PROMPT_SETTINGS: PromptSettings = {
   wordCountEnabled: true,
   completionDetection: false,
   targetWordCount: 200,
-  infoPanelVisible: false,
+  infoPanelVisible: true,
 };
 
 // ─── Type Guards ────────────────────────────────────────

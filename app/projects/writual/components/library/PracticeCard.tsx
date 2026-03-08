@@ -5,9 +5,23 @@ import { Practice } from '../../lib/types';
 
 interface PracticeCardProps {
   practice: Practice;
+  index: number;
+  isDragging: boolean;
+  onDragStart: (index: number) => void;
+  onDragEnd: () => void;
+  onDragOver: (e: React.DragEvent, index: number) => void;
+  onDrop: (e: React.DragEvent, index: number) => void;
 }
 
-export default function PracticeCard({ practice }: PracticeCardProps) {
+export default function PracticeCard({
+  practice,
+  index,
+  isDragging,
+  onDragStart,
+  onDragEnd,
+  onDragOver,
+  onDrop,
+}: PracticeCardProps) {
   const { navigate } = useWritual();
 
   const typeLabels: Record<string, string> = {
@@ -22,7 +36,12 @@ export default function PracticeCard({ practice }: PracticeCardProps) {
       : practice.content;
 
   return (
-    <div className="practice-card-row">
+    <div
+      className="practice-card-row"
+      data-dragging={isDragging || undefined}
+      onDragOver={(e) => onDragOver(e, index)}
+      onDrop={(e) => onDrop(e, index)}
+    >
       <div
         className="w-card"
         style={{ position: 'relative', cursor: 'pointer', flex: 1 }}
@@ -46,7 +65,28 @@ export default function PracticeCard({ practice }: PracticeCardProps) {
           </svg>
         </button>
 
-        <div style={{ marginBottom: 12 }}>
+        {/* Drag handle — 2×3 dot grid */}
+        <div
+          className="practice-card-drag"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', String(index));
+            onDragStart(index);
+          }}
+          onDragEnd={onDragEnd}
+          onClick={(e) => e.stopPropagation()}
+          aria-label="Drag to reorder"
+        >
+          <span className="practice-card-drag-dot" />
+          <span className="practice-card-drag-dot" />
+          <span className="practice-card-drag-dot" />
+          <span className="practice-card-drag-dot" />
+          <span className="practice-card-drag-dot" />
+          <span className="practice-card-drag-dot" />
+        </div>
+
+        <div style={{ marginBottom: 12, paddingRight: 36 }}>
           <span
             style={{
               fontSize: 11,
@@ -65,7 +105,6 @@ export default function PracticeCard({ practice }: PracticeCardProps) {
               fontWeight: 500,
               color: 'var(--w-text)',
               marginBottom: 6,
-              paddingRight: 28,
             }}
           >
             {practice.title}

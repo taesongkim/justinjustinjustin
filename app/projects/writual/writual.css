@@ -456,6 +456,58 @@
   color: var(--w-text);
 }
 
+/* Drag handle — 2×3 dot grid */
+.practice-card-drag {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 2px);
+  gap: 3px;
+  padding: 4px 6px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity var(--w-transition);
+}
+
+.practice-card-drag:active {
+  cursor: grabbing;
+}
+
+.w-card:hover .practice-card-drag {
+  opacity: 1;
+}
+
+.practice-card-drag-dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: var(--w-text-muted);
+}
+
+/* Dragging state */
+.practice-card-row[data-dragging] {
+  opacity: 0.4;
+}
+
+/* Drop indicator */
+.drop-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--w-accent);
+  border-radius: 1px;
+  z-index: 2;
+  pointer-events: none;
+}
+.drop-indicator-top {
+  top: -7px;
+}
+.drop-indicator-bottom {
+  bottom: -7px;
+}
+
 .practice-card-row {
   display: flex;
   align-items: center;

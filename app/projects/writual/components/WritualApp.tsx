@@ -60,6 +60,7 @@ interface WritualContextValue {
   ) => Practice;
   updatePractice: (id: string, updates: Partial<Practice>) => void;
   deletePractice: (id: string) => void;
+  reorderPractice: (fromIndex: number, toIndex: number) => void;
   recordSession: (session: Omit<SessionRecord, 'id'>) => void;
   deleteSession: (id: string) => void;
   addHighlight: (text: string) => void;
@@ -283,6 +284,15 @@ export default function WritualApp() {
     setPractices((prev) => prev.filter((p) => p.id !== id));
   }, []);
 
+  const reorderPractice = useCallback((fromIndex: number, toIndex: number) => {
+    setPractices((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, moved);
+      return next;
+    });
+  }, []);
+
   const recordSession = useCallback(
     (session: Omit<SessionRecord, 'id'>) => {
       // Snapshot practice title/type so history survives practice deletion
@@ -328,6 +338,7 @@ export default function WritualApp() {
       createPractice,
       updatePractice,
       deletePractice,
+      reorderPractice,
       recordSession,
       deleteSession,
       addHighlight,
@@ -339,7 +350,7 @@ export default function WritualApp() {
       infoPanelRect,
       setInfoPanelRect,
     }),
-    [practices, flows, sessions, highlights, page, navigate, createPractice, updatePractice, deletePractice, recordSession, deleteSession, addHighlight, deleteHighlight, showInfoPanel, infoPanelData, infoPanelRect]
+    [practices, flows, sessions, highlights, page, navigate, createPractice, updatePractice, deletePractice, reorderPractice, recordSession, deleteSession, addHighlight, deleteHighlight, showInfoPanel, infoPanelData, infoPanelRect]
   );
 
   // ── Render ──────────────────────────────────────────

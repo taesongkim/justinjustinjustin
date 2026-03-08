@@ -6,8 +6,28 @@ import PracticeCard from './PracticeCard';
 import { PracticeType } from '../../lib/types';
 
 export default function PracticeLibrary() {
-  const { practices, navigate } = useWritual();
+  const { practices, navigate, reorderPractice } = useWritual();
   const [showNewMenu, setShowNewMenu] = useState(false);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dropIndex, setDropIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => setDragIndex(index);
+  const handleDragEnd = () => { setDragIndex(null); setDropIndex(null); };
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragIndex !== null && index !== dragIndex) {
+      setDropIndex(index);
+    }
+  };
+  const handleDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (dragIndex !== null && dragIndex !== index) {
+      reorderPractice(dragIndex, index);
+    }
+    setDragIndex(null);
+    setDropIndex(null);
+  };
 
   const handleNew = (type: PracticeType) => {
     setShowNewMenu(false);
@@ -123,8 +143,24 @@ export default function PracticeLibrary() {
         </div>
       ) : (
         <div className="w-card-grid">
-          {practices.map((p) => (
-            <PracticeCard key={p.id} practice={p} />
+          {practices.map((p, i) => (
+            <div key={p.id} style={{ position: 'relative' }}>
+              {dropIndex === i && dragIndex !== null && dragIndex > i && (
+                <div className="drop-indicator drop-indicator-top" />
+              )}
+              <PracticeCard
+                practice={p}
+                index={i}
+                isDragging={dragIndex === i}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              />
+              {dropIndex === i && dragIndex !== null && dragIndex < i && (
+                <div className="drop-indicator drop-indicator-bottom" />
+              )}
+            </div>
           ))}
         </div>
       )}

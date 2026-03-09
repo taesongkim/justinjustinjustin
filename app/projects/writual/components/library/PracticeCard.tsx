@@ -43,8 +43,8 @@ export default function PracticeCard({
       onDrop={(e) => onDrop(e, index)}
     >
       <div
-        className="w-card"
-        style={{ position: 'relative', cursor: 'pointer', flex: 1 }}
+        className="w-card w-material-1"
+        style={{ position: 'relative', cursor: 'pointer', flex: 1, ...(practice.favorite?.enabled ? { '--card-glow': practice.favorite.color + '40' } as React.CSSProperties : {}) }}
         onClick={() => navigate({ name: 'session', practiceId: practice.id })}
       >
         {practice.favorite?.enabled && (

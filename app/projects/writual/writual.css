@@ -38,7 +38,8 @@
   backdrop-filter: blur(4px);
 }
 
-.w-material-1::after {
+.w-material-1::after,
+.w-material-1b::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -48,6 +49,18 @@
   pointer-events: none;
   border-radius: inherit;
   z-index: 0;
+}
+
+/* Material 1b — same material, half texture opacity */
+.w-material-1b {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.w-material-1b::after {
+  opacity: 0.15;
 }
 
 .writual::before {
@@ -439,15 +452,15 @@
 /* ─── Cards ──────────────────────────────────────────────── */
 
 .w-card {
-  background: var(--w-surface);
-  border: 1px solid var(--w-border);
+  border: none;
   border-radius: var(--w-radius);
   padding: 20px;
-  transition: border-color var(--w-transition);
+  transition: filter var(--w-transition), box-shadow var(--w-transition);
 }
 
 .w-card:hover {
-  border-color: var(--w-border-focus);
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.1), 0 0 4px var(--card-glow, rgba(255, 255, 255, 0.25));
 }
 
 .w-card-grid {

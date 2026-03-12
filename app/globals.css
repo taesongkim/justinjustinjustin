@@ -67,7 +67,7 @@ body {
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding-left: clamp(24px, 25%, 360px); /* ~3 cols on a 12-col grid */
+  padding-left: clamp(12px, 6%, 90px);
 }
 
 .home-feed {

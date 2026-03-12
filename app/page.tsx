@@ -5,6 +5,11 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import notificationsRaw from "./data/notifications.json";
 import { DottedSurface } from "./components/DottedSurface";
+import { PineParticles } from "./components/PineParticles";
+
+// ─── Background Selection ────────────────────────────────────
+// Switch between 'dots' and 'pine' to change the homepage background
+const BACKGROUND = 'pine' as 'dots' | 'pine';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -209,8 +214,8 @@ export default function Home() {
 
   return (
     <div className="home-root">
-      {/* Dotted surface background */}
-      <DottedSurface />
+      {/* Background animation */}
+      {BACKGROUND === 'dots' ? <DottedSurface /> : <PineParticles />}
 
       {/* Top bar */}
       <div style={{

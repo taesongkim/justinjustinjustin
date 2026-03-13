@@ -170,11 +170,11 @@ function NotificationCard({ notification, index }: { notification: Notification;
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut", delay: index * 0.05 }}
       style={{
-        background:           "rgba(255, 255, 255, 0.04)",
-        backdropFilter:       "blur(18px) saturate(160%)",
-        WebkitBackdropFilter: "blur(18px) saturate(160%)",
-        border:               "1px solid rgba(255, 255, 255, 0.07)",
-        borderRadius:         6,
+        background:           "rgba(255, 255, 255, 0.008)",
+        backdropFilter:       "blur(14px) saturate(120%)",
+        WebkitBackdropFilter: "blur(14px) saturate(120%)",
+        border:               "1px solid rgba(255, 255, 255, 0.05)",
+        borderRadius:         4,
         padding:              "11px 14px",
       }}
     >
@@ -188,6 +188,7 @@ function NotificationCard({ notification, index }: { notification: Notification;
             letterSpacing: "0.06em",
             textTransform: "uppercase",
             color,
+            textShadow:    `0 0 10px ${color}88, 0 0 20px ${color}33`,
           }}>
             {notification.category}
           </span>
@@ -198,7 +199,7 @@ function NotificationCard({ notification, index }: { notification: Notification;
       </div>
 
       {/* Message */}
-      <p style={{ fontSize: 13, color: "#999999", lineHeight: 1.6, margin: 0 }}>
+      <p style={{ fontSize: 13, color: "#999999", lineHeight: 1.6, margin: 0, textShadow: "0 0 8px rgba(255,255,255,0.15), 0 0 16px rgba(255,255,255,0.06)" }}>
         {notification.message}
       </p>
     </motion.div>

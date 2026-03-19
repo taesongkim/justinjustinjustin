@@ -1,5 +1,23 @@
 [
   {
+    "id": "27",
+    "category": "published",
+    "message": "writual hold screen now published on writual.com",
+    "timestamp": "2026-03-19T00:39:00.000Z"
+  },
+  {
+    "id": "26",
+    "category": "update",
+    "message": "acquired writual.com domain",
+    "timestamp": "2026-03-19T00:38:00.000Z"
+  },
+  {
+    "id": "25",
+    "category": "update",
+    "message": "created new calendar app for long term intention planning. standalone electron app, so it can run in the mac os desktop. probably keeping private for now, but fun to have another one-day tool ready to use.",
+    "timestamp": "2026-03-13T22:44:00.000Z"
+  },
+  {
     "id": "24",
     "category": "learned",
     "message": "learned how to use Claude skills to audit for design systems and organizations, first electron app built and running on my machine",

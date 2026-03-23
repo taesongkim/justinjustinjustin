@@ -153,7 +153,20 @@ export const visionsStorage = {
   load(): Vision[] {
     try {
       const data = localStorage.getItem(VISIONS_KEY);
-      return data ? JSON.parse(data) : [];
+      if (!data) return [];
+      const visions: Vision[] = JSON.parse(data);
+      // Migrate: backfill order for visions created before drag support
+      let migrated = false;
+      for (let i = 0; i < visions.length; i++) {
+        if (visions[i].order === undefined || visions[i].order === null) {
+          visions[i].order = i;
+          migrated = true;
+        }
+      }
+      if (migrated) {
+        localStorage.setItem(VISIONS_KEY, JSON.stringify(visions));
+      }
+      return visions;
     } catch {
       return [];
     }

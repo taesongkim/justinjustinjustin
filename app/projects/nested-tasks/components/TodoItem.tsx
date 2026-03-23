@@ -518,10 +518,12 @@ export default function TodoItemComponent({
     };
   }, [item.id, actions]);
 
-  // Auto-resize textarea when text changes
+  // Auto-resize textarea when text, checked, or putAside changes.
+  // checked and putAside affect WaitingButton visibility which changes
+  // available flex width; putAside also unmounts/remounts the textarea entirely.
   useEffect(() => {
     autoResize(inputRef.current);
-  }, [item.text]);
+  }, [item.text, item.checked, item.putAside]);
 
   // ─── Auto-check/uncheck parent based on children state ────
   //

@@ -34,6 +34,7 @@ export interface AppEvent {
   description: string;
   timestamp: number; // ms since epoch
   timezone: string; // IANA timezone, e.g. "America/New_York"
+  dateOnly?: boolean; // true = time portion is meaningless, display date only
   link?: string;
   notes?: string;
   visionRef?: string; // optional Vision id
@@ -52,6 +53,7 @@ export interface Vision {
   id: string;
   title: string;
   description: string;
+  order: number; // manual sort order (lower = higher in list)
   createdAt: number;
   updatedAt: number;
 }
@@ -71,13 +73,15 @@ export function createAppEvent(
 
 export function createVision(
   title: string = "",
-  description: string = ""
+  description: string = "",
+  order: number = 0
 ): Vision {
   const now = Date.now();
   return {
     id: generateId(),
     title,
     description,
+    order,
     createdAt: now,
     updatedAt: now,
   };

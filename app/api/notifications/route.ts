@@ -1,15 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-
-const DATA_PATH = path.join(process.cwd(), "app/data/notifications.json");
-
-type Notification = {
-  id: string;
-  category: string;
-  message: string;
-  timestamp: string;
-};
+import { supabase } from "@/app/lib/supabase";
 
 function getAdminPassword() {
   return process.env.ADMIN_PASSWORD;
@@ -19,20 +9,26 @@ function authError() {
   return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
 }
 
-async function readNotifications(): Promise<Notification[]> {
-  const raw = await fs.readFile(DATA_PATH, "utf-8");
-  return JSON.parse(raw);
-}
-
-async function writeNotifications(data: Notification[]) {
-  await fs.writeFile(DATA_PATH, JSON.stringify(data, null, 2), "utf-8");
-}
-
 // GET — return all notifications (requires password header)
 export async function GET(req: NextRequest) {
   const pw = req.headers.get("x-admin-password");
   if (!getAdminPassword() || pw !== getAdminPassword()) return authError();
-  const notifications = await readNotifications();
+
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("*")
+    .order("timestamp", { ascending: false });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Map id to string for backward compat with admin page
+  const notifications = (data ?? []).map((n) => ({
+    ...n,
+    id: String(n.id),
+  }));
+
   return NextResponse.json(notifications);
 }
 
@@ -57,20 +53,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
-  const notifications = await readNotifications();
-  const maxId = notifications.reduce((max, n) => Math.max(max, parseInt(n.id, 10)), 0);
   const ts = new Date(timestamp).toISOString();
 
-  const newEntry: Notification = {
-    id: String(maxId + 1),
-    category,
-    message,
-    timestamp: ts,
-  };
+  const { data, error } = await supabase
+    .from("notifications")
+    .insert({ category, message, timestamp: ts })
+    .select()
+    .single();
 
-  notifications.unshift(newEntry);
-  await writeNotifications(notifications);
-  return NextResponse.json({ ok: true, entry: newEntry });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const entry = { ...data, id: String(data.id) };
+  return NextResponse.json({ ok: true, entry });
 }
 
 // DELETE — remove a notification by id
@@ -81,13 +77,16 @@ export async function DELETE(req: NextRequest) {
   const { id } = await req.json();
   if (!id) return NextResponse.json({ error: "Missing id." }, { status: 400 });
 
-  const notifications = await readNotifications();
-  const filtered = notifications.filter((n) => n.id !== String(id));
+  const { error, count } = await supabase
+    .from("notifications")
+    .delete()
+    .eq("id", Number(id))
+    .select();
 
-  if (filtered.length === notifications.length) {
-    return NextResponse.json({ error: "Not found." }, { status: 404 });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  await writeNotifications(filtered);
+  // count may be undefined with .select(), check data length instead
   return NextResponse.json({ ok: true });
 }

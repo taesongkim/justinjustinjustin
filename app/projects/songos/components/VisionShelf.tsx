@@ -1,8 +1,46 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Reorder, useDragControls } from "framer-motion";
 import { Vision, createVision } from "../lib/types";
+
+// ─── Drag Handle ──────────────────────────────────────────────
+
+function DragHandle({ dragControls }: { dragControls: ReturnType<typeof useDragControls> }) {
+  return (
+    <div
+      onPointerDown={(e) => {
+        e.preventDefault();
+        dragControls.start(e);
+      }}
+      style={{
+        cursor: "grab",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 2,
+        padding: "4px 2px",
+        opacity: 0.15,
+        transition: "opacity 0.15s",
+        flexShrink: 0,
+        touchAction: "none",
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.5")}
+      onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.15")}
+    >
+      {/* Six-dot grip icon */}
+      <svg width="8" height="14" viewBox="0 0 8 14" fill="currentColor" style={{ color: "var(--nt-text-muted)" }}>
+        <circle cx="2" cy="2" r="1.2" />
+        <circle cx="6" cy="2" r="1.2" />
+        <circle cx="2" cy="7" r="1.2" />
+        <circle cx="6" cy="7" r="1.2" />
+        <circle cx="2" cy="12" r="1.2" />
+        <circle cx="6" cy="12" r="1.2" />
+      </svg>
+    </div>
+  );
+}
 
 // ─── Vision Card ─────────────────────────────────────────────
 
@@ -10,17 +48,16 @@ function VisionCard({
   vision,
   onUpdate,
   onDelete,
-  index,
 }: {
   vision: Vision;
   onUpdate: (updated: Vision) => void;
   onDelete: (id: string) => void;
-  index: number;
 }) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(vision.title);
   const [description, setDescription] = useState(vision.description);
   const titleRef = useRef<HTMLInputElement>(null);
+  const dragControls = useDragControls();
 
   useEffect(() => {
     if (editing && titleRef.current) {
@@ -58,25 +95,36 @@ function VisionCard({
   };
 
   return (
-    <motion.div
+    <Reorder.Item
+      value={vision}
+      dragListener={false}
+      dragControls={dragControls}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 6 }}
-      transition={{ duration: 0.25, ease: "easeOut", delay: index * 0.03 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+      whileDrag={{
+        boxShadow: "0 0 12px rgba(255, 255, 255, 0.08)",
+        cursor: "grabbing",
+      }}
       style={{
-        background: "var(--nt-surface)",
-        border: "1px solid var(--nt-border)",
+        background: "rgba(255, 255, 255, 0.04)",
+        backdropFilter: "blur(18px) saturate(160%)",
+        WebkitBackdropFilter: "blur(18px) saturate(160%)",
+        border: "1px solid rgba(255, 255, 255, 0.07)",
         borderRadius: 8,
         padding: 16,
-        transition: "border-color 0.15s",
+        transition: "border-color 0.15s, background 0.15s",
         position: "relative",
-        outline: "2px dashed #ff69b4", // DEBUG: individual vision card (pink)
+        listStyle: "none",
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = "var(--nt-text-muted)";
+      onMouseEnter={(e: React.MouseEvent<HTMLLIElement>) => {
+        e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
+        e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
       }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = "var(--nt-border)";
+      onMouseLeave={(e: React.MouseEvent<HTMLLIElement>) => {
+        e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.07)";
+        e.currentTarget.style.background = "rgba(255, 255, 255, 0.04)";
       }}
     >
       {editing ? (
@@ -136,85 +184,88 @@ function VisionCard({
           </div>
         </div>
       ) : (
-        <>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: 8,
-            }}
-          >
-            <h3
+        <div style={{ display: "flex", gap: 8 }}>
+          <DragHandle dragControls={dragControls} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
               style={{
-                fontFamily: "var(--font-crimson-pro), serif",
-                fontSize: 32,
-                fontWeight: 400,
-                color: "rgba(255, 255, 255, 0.85)",
-                margin: 0,
-                lineHeight: 1.3,
-                cursor: "pointer",
-                letterSpacing: 0,
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 8,
               }}
-              onClick={() => setEditing(true)}
             >
-              {vision.title || "Untitled Vision"}
-            </h3>
-            <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
-              <button
+              <h3
+                style={{
+                  fontFamily: "var(--font-crimson-pro), serif",
+                  fontSize: 32,
+                  fontWeight: 400,
+                  color: "rgba(255, 255, 255, 0.85)",
+                  margin: 0,
+                  lineHeight: 1.3,
+                  cursor: "pointer",
+                  letterSpacing: 0,
+                }}
                 onClick={() => setEditing(true)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "var(--nt-text-muted)",
-                  fontSize: 12,
-                  padding: "2px 4px",
-                  opacity: 0.5,
-                  transition: "opacity 0.15s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.5")}
-                title="Edit"
               >
-                ✎
-              </button>
-              <button
-                onClick={() => onDelete(vision.id)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#ef4444",
-                  fontSize: 12,
-                  padding: "2px 4px",
-                  opacity: 0.4,
-                  transition: "opacity 0.15s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
-                onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.4")}
-                title="Delete"
-              >
-                ×
-              </button>
+                {vision.title || "Untitled Vision"}
+              </h3>
+              <div style={{ display: "flex", gap: 4, flexShrink: 0 }}>
+                <button
+                  onClick={() => setEditing(true)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--nt-text-muted)",
+                    fontSize: 12,
+                    padding: "2px 4px",
+                    opacity: 0.5,
+                    transition: "opacity 0.15s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.5")}
+                  title="Edit"
+                >
+                  ✎
+                </button>
+                <button
+                  onClick={() => onDelete(vision.id)}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#ef4444",
+                    fontSize: 12,
+                    padding: "2px 4px",
+                    opacity: 0.4,
+                    transition: "opacity 0.15s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.4")}
+                  title="Delete"
+                >
+                  ×
+                </button>
+              </div>
             </div>
+            {vision.description && (
+              <p
+                style={{
+                  fontFamily: "var(--font-inter), sans-serif",
+                  fontSize: 13,
+                  color: "rgba(255, 255, 255, 0.4)",
+                  lineHeight: 1.6,
+                  margin: "6px 0 0",
+                }}
+              >
+                {vision.description}
+              </p>
+            )}
           </div>
-          {vision.description && (
-            <p
-              style={{
-                fontFamily: "var(--font-inter), sans-serif",
-                fontSize: 13,
-                color: "rgba(255, 255, 255, 0.4)",
-                lineHeight: 1.6,
-                margin: "6px 0 0",
-              }}
-            >
-              {vision.description}
-            </p>
-          )}
-        </>
+        </div>
       )}
-    </motion.div>
+    </Reorder.Item>
   );
 }
 
@@ -245,8 +296,10 @@ export default function VisionShelf({
       setAdding(false);
       return;
     }
-    const vision = createVision(newTitle.trim(), newDesc.trim());
-    onVisionsChange([vision, ...visions]);
+    const vision = createVision(newTitle.trim(), newDesc.trim(), 0);
+    // Push existing orders down by 1 to insert new at top
+    const reordered = visions.map((v) => ({ ...v, order: v.order + 1 }));
+    onVisionsChange([vision, ...reordered]);
     setNewTitle("");
     setNewDesc("");
     setAdding(false);
@@ -266,7 +319,20 @@ export default function VisionShelf({
     [visions, onVisionsChange]
   );
 
-  const sorted = [...visions].sort((a, b) => b.createdAt - a.createdAt);
+  // Sort by order field
+  const sorted = [...visions].sort((a, b) => a.order - b.order);
+
+  const handleReorder = useCallback(
+    (reordered: Vision[]) => {
+      // Reorder fires with the new array order — stamp sequential order values
+      const updated = reordered.map((v, i) => ({
+        ...v,
+        order: i,
+      }));
+      onVisionsChange(updated);
+    },
+    [onVisionsChange]
+  );
 
   const inputStyle: React.CSSProperties = {
     background: "var(--nt-bg)",
@@ -281,7 +347,7 @@ export default function VisionShelf({
   };
 
   return (
-    <div style={{ padding: "24px 32px", maxWidth: 420, outline: "2px dashed #39ff14" /* DEBUG: vision shelf outer container (green) */ }}>
+    <div style={{ padding: "24px 32px", maxWidth: 420,  }}>
       {/* Header */}
       <div
         style={{
@@ -416,47 +482,48 @@ export default function VisionShelf({
         )}
       </AnimatePresence>
 
-      {/* Vision grid */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "1fr",
-          gap: 12,
-          outline: "2px dashed #dda0dd", // DEBUG: vision grid area (plum)
-        }}
-      >
-        <AnimatePresence>
-          {sorted.length === 0 && !adding ? (
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              style={{
-                fontSize: 13,
-                color: "var(--nt-text-muted)",
-                padding: "20px 0",
-                gridColumn: "1 / -1",
-                textAlign: "center",
-              }}
-            >
-              No visions yet.
-              <br />
-              <span style={{ fontSize: 12, opacity: 0.7 }}>
-                Click "+ Add Vision" to create one.
-              </span>
-            </motion.p>
-          ) : (
-            sorted.map((vision, i) => (
+      {/* Vision list */}
+      {sorted.length === 0 && !adding ? (
+        <p
+          style={{
+            fontSize: 13,
+            color: "var(--nt-text-muted)",
+            padding: "20px 0",
+            textAlign: "center",
+          }}
+        >
+          No visions yet.
+          <br />
+          <span style={{ fontSize: 12, opacity: 0.7 }}>
+            Click &quot;+ Add Vision&quot; to create one.
+          </span>
+        </p>
+      ) : (
+        <Reorder.Group
+          axis="y"
+          values={sorted}
+          onReorder={handleReorder}
+          style={{
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 12,
+            }}
+        >
+          <AnimatePresence>
+            {sorted.map((vision) => (
               <VisionCard
                 key={vision.id}
                 vision={vision}
                 onUpdate={handleUpdate}
                 onDelete={handleDelete}
-                index={i}
               />
-            ))
-          )}
-        </AnimatePresence>
-      </div>
+            ))}
+          </AnimatePresence>
+        </Reorder.Group>
+      )}
     </div>
   );
 }

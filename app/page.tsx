@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import notificationsRaw from "./data/notifications.json";
+import { supabase } from "./lib/supabase";
 import { DottedSurface } from "./components/DottedSurface";
 import { PineParticles } from "./components/PineParticles";
 
@@ -19,10 +19,6 @@ interface Notification {
   message: string;
   timestamp: string;
 }
-
-// ─── Constants ────────────────────────────────────────────────
-
-const notifications: Notification[] = notificationsRaw as Notification[];
 
 const CATEGORY_COLORS: Record<string, string> = {
   update:           "#60a5fa",
@@ -209,9 +205,30 @@ function NotificationCard({ notification, index }: { notification: Notification;
 // ─── Page ─────────────────────────────────────────────────────
 
 export default function Home() {
-  const sorted = [...notifications].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
+  const [sorted, setSorted] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchNotifications() {
+      const { data, error } = await supabase
+        .from("notifications")
+        .select("*")
+        .order("timestamp", { ascending: false });
+
+      if (!error && data) {
+        setSorted(
+          data.map((n) => ({
+            id: String(n.id),
+            category: n.category,
+            message: n.message,
+            timestamp: n.timestamp,
+          }))
+        );
+      }
+      setLoading(false);
+    }
+    fetchNotifications();
+  }, []);
 
   return (
     <div className="home-root">
@@ -283,7 +300,9 @@ export default function Home() {
           </motion.span>
 
           <div className="home-feed-inner">
-            {sorted.length === 0 ? (
+            {loading ? (
+              <p style={{ fontSize: 13, color: "#333333", padding: "8px 0" }}>Loading...</p>
+            ) : sorted.length === 0 ? (
               <p style={{ fontSize: 13, color: "#333333", padding: "8px 0" }}>Nothing yet.</p>
             ) : (
               sorted.map((n, i) => (

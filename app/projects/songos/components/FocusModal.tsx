@@ -160,9 +160,9 @@ export default function FocusModal({
     >
       <motion.div
         key="focus-modal-card"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 6 }}
         transition={{ duration: 0.15 }}
         onClick={(e) => e.stopPropagation()}
         style={{

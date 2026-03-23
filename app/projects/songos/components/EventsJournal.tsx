@@ -27,20 +27,40 @@ function tzAbbrev(tz: string): string {
   }
 }
 
-function formatEventTime(timestamp: number, timezone?: string): string {
+function formatEventTime(timestamp: number, timezone?: string, dateOnly?: boolean): string {
   const now = new Date();
   const date = new Date(timestamp);
+  const tz = timezone || getLocalTimezone();
+  const localTz = getLocalTimezone();
+  const showTz = tz !== localTz;
+  const suffix = showTz ? ` ${tzAbbrev(tz)}` : "";
+
+  // Date-only events: never show relative time or clock time
+  if (dateOnly) {
+    const nowDate = new Date(now.toLocaleDateString("en-US", { timeZone: tz }));
+    const eventDate = new Date(date.toLocaleDateString("en-US", { timeZone: tz }));
+    const dayDiff = Math.round((nowDate.getTime() - eventDate.getTime()) / 86400000);
+
+    if (dayDiff === 0) return "Today";
+    if (dayDiff === 1) return "Yesterday";
+    if (dayDiff < 7 && dayDiff > 0) {
+      return date.toLocaleDateString("en-US", { weekday: "long", timeZone: tz });
+    }
+    const sameYear = date.getFullYear() === now.getFullYear();
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: tz,
+      ...(sameYear ? {} : { year: "numeric" }),
+    }) + suffix;
+  }
+
+  // Full datetime events: relative + absolute
   const diffMs = now.getTime() - date.getTime();
   const diffSec = Math.floor(diffMs / 1000);
   const diffMin = Math.floor(diffSec / 60);
   const diffHour = Math.floor(diffMin / 60);
   const diffDay = Math.floor(diffHour / 24);
-
-  const tz = timezone || getLocalTimezone();
-  const abbr = tzAbbrev(tz);
-  const localTz = getLocalTimezone();
-  const showTz = tz !== localTz;
-  const suffix = showTz ? ` ${abbr}` : "";
 
   if (diffSec < 60) return "just now";
   if (diffMin < 60) return `${diffMin}m ago`;
@@ -82,6 +102,32 @@ function toDatetimeLocal(ts: number, timezone?: string): string {
   return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
 }
 
+function toDateLocal(ts: number, timezone?: string): string {
+  const tz = timezone || getLocalTimezone();
+  const d = new Date(ts);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(d);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value || "00";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function toTimeLocal(ts: number, timezone?: string): string {
+  const tz = timezone || getLocalTimezone();
+  const d = new Date(ts);
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: tz,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value || "00";
+  return `${get("hour")}:${get("minute")}`;
+}
+
 function fromDatetimeLocal(val: string, timezone?: string): number {
   const tz = timezone || getLocalTimezone();
   const [datePart, timePart] = val.split("T");
@@ -96,6 +142,14 @@ function fromDatetimeLocal(val: string, timezone?: string): number {
   const offsetMs = utcDate.getTime() - tzDate.getTime();
 
   return new Date(year, month - 1, day, hour, minute).getTime() + offsetMs;
+}
+
+function fromDateAndTime(dateVal: string, timeVal: string | null, timezone?: string): number {
+  if (timeVal) {
+    return fromDatetimeLocal(`${dateVal}T${timeVal}`, timezone);
+  }
+  // Date-only: store as creation time but the date portion matters for display
+  return fromDatetimeLocal(`${dateVal}T00:00`, timezone);
 }
 
 // ─── Shared Styles ───────────────────────────────────────────
@@ -137,16 +191,17 @@ function EventCard({
 }) {
   const color = EVENT_CATEGORY_COLORS[event.category];
   const tz = event.timezone || getLocalTimezone();
-  const [timeStr, setTimeStr] = useState(() => formatEventTime(event.timestamp, tz));
+  const [timeStr, setTimeStr] = useState(() => formatEventTime(event.timestamp, tz, event.dateOnly));
 
   useEffect(() => {
-    setTimeStr(formatEventTime(event.timestamp, tz));
+    setTimeStr(formatEventTime(event.timestamp, tz, event.dateOnly));
+    if (event.dateOnly) return; // no need to refresh date-only events
     const id = setInterval(
-      () => setTimeStr(formatEventTime(event.timestamp, tz)),
+      () => setTimeStr(formatEventTime(event.timestamp, tz, event.dateOnly)),
       30_000
     );
     return () => clearInterval(id);
-  }, [event.timestamp, tz]);
+  }, [event.timestamp, tz, event.dateOnly]);
 
   return (
     <motion.div
@@ -280,8 +335,9 @@ function EventEditModal({
   const [category, setCategory] = useState(event.category);
   const eventTz = event.timezone || getLocalTimezone();
   const [timezone] = useState(eventTz);
-  const [timestamp, setTimestamp] = useState(
-    toDatetimeLocal(event.timestamp, eventTz)
+  const [dateVal, setDateVal] = useState(toDateLocal(event.timestamp, eventTz));
+  const [timeVal, setTimeVal] = useState<string | null>(
+    event.dateOnly ? null : toTimeLocal(event.timestamp, eventTz)
   );
   const [link, setLink] = useState(event.link || "");
   const [visionRef, setVisionRef] = useState(event.visionRef || "");
@@ -294,13 +350,16 @@ function EventEditModal({
     }
   }, []);
 
+  const isDateOnly = timeVal === null;
+
   const handleSave = () => {
     onSave({
       ...event,
       description: desc,
       category,
       timezone,
-      timestamp: fromDatetimeLocal(timestamp, timezone),
+      timestamp: fromDateAndTime(dateVal, timeVal, timezone),
+      dateOnly: isDateOnly || undefined,
       link: link || undefined,
       visionRef: visionRef || undefined,
     });
@@ -331,8 +390,10 @@ function EventEditModal({
         transition={{ duration: 0.2, ease: "easeOut" }}
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: "var(--nt-surface)",
-          border: "1px solid var(--nt-border)",
+          background: "rgba(30, 30, 30, 0.15)",
+          backdropFilter: "blur(7px)",
+          WebkitBackdropFilter: "blur(7px)",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
           borderRadius: 10,
           padding: 24,
           width: "100%",
@@ -421,21 +482,75 @@ function EventEditModal({
           />
         </div>
 
-        {/* Timestamp + Timezone */}
+        {/* Date + Optional Time */}
         <div>
           <span style={labelStyle}>When</span>
-          <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <input
-              type="datetime-local"
-              value={timestamp}
-              onChange={(e) => setTimestamp(e.target.value)}
+              type="date"
+              value={dateVal}
+              onChange={(e) => setDateVal(e.target.value)}
               style={{ ...inputStyle, flex: 1 }}
             />
+            {timeVal !== null ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <input
+                  type="time"
+                  value={timeVal}
+                  onChange={(e) => setTimeVal(e.target.value)}
+                  style={{ ...inputStyle, width: 110 }}
+                />
+                <button
+                  onClick={() => setTimeVal(null)}
+                  title="Remove time"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 14,
+                    color: "var(--nt-text-muted)",
+                    padding: "0 2px",
+                    lineHeight: 1,
+                    opacity: 0.6,
+                    transition: "opacity 0.15s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.6")}
+                >
+                  ×
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setTimeVal(toTimeLocal(Date.now(), timezone))}
+                style={{
+                  background: "none",
+                  border: "1px solid var(--nt-border)",
+                  borderRadius: 4,
+                  padding: "5px 10px",
+                  fontSize: 11,
+                  color: "var(--nt-text-muted)",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  whiteSpace: "nowrap",
+                  transition: "border-color 0.15s, color 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = "var(--nt-accent)";
+                  e.currentTarget.style.color = "var(--nt-accent)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = "var(--nt-border)";
+                  e.currentTarget.style.color = "var(--nt-text-muted)";
+                }}
+              >
+                + Time
+              </button>
+            )}
             <span
               style={{
                 fontSize: 11,
                 color: "var(--nt-text-muted)",
-                padding: "8px 0",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
               }}
@@ -643,7 +758,7 @@ function NotesPanel({
                 marginLeft: 6,
               }}
             >
-              {formatEventTime(event.timestamp, tz)}
+              {formatEventTime(event.timestamp, tz, event.dateOnly)}
             </span>
           </div>
           <button
@@ -902,7 +1017,6 @@ export default function EventsJournal({
             alignItems: "center",
             gap: 16,
             overflowX: "auto",
-            outline: "2px dashed #ff6b6b", // DEBUG: filter bar (red)
           }}
         >
           {/* Category pills */}
@@ -1080,7 +1194,6 @@ export default function EventsJournal({
             borderRight: "1px solid var(--nt-border)",
             height: "100%",
             overflow: "hidden",
-            outline: "2px dashed #ffa500", // DEBUG: events card stack section (orange)
           }}
         >
           {/* Header */}
@@ -1176,7 +1289,7 @@ export default function EventsJournal({
         </div>
 
         {/* Right: notes panel */}
-        <div style={{ flex: 1, minWidth: 0, overflow: "hidden", outline: "2px dashed #00bfff" /* DEBUG: notes panel right side (cyan) */ }}>
+        <div style={{ flex: 1, minWidth: 0, overflow: "hidden" }}>
           <AnimatePresence mode="wait">
             {selectedEvent ? (
               <NotesPanel

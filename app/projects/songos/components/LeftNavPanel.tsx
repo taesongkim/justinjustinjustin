@@ -64,7 +64,6 @@ export default function LeftNavPanel({
         flexShrink: 0,
         position: "sticky",
         top: 0,
-        outline: "2px dashed #9370db", // DEBUG: left nav panel (purple)
       }}
     >
       {/* Toggle button */}

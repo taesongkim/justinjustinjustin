@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/app/lib/supabase";
+import { supabase } from "../../lib/supabase";
 
 function getAdminPassword() {
   return process.env.ADMIN_PASSWORD;

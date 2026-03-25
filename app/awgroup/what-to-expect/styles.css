@@ -1,0 +1,468 @@
+/* ── AW Participant Guide — scoped styles ── */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Cormorant+SC:wght@300;400;500&family=Jost:wght@300;400&display=swap');
+
+.aw-shell {
+  --cream: #f7f3ec;
+  --parchment: #ede7da;
+  --warm-mid: #d4c5b0;
+  --sienna: #a0806a;
+  --umber: #7a5c48;
+  --ink: #2e2319;
+  --ink-mid: #4a3828;
+  --ink-light: #7a6555;
+  --accent: #c4834a;
+  --accent-light: #e8c9a8;
+  --rule: #cfc0ad;
+
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 32px;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  overflow: hidden;
+}
+
+/* ── top bar ── */
+.aw-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 0 0;
+  flex-shrink: 0;
+}
+
+.aw-book-title {
+  font-family: 'Cormorant SC', serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: var(--ink-light);
+  text-transform: uppercase;
+}
+
+.aw-page-counter {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: var(--warm-mid);
+}
+
+/* ── rules ── */
+.aw-top-rule,
+.aw-bottom-rule {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--rule) 20%, var(--rule) 80%, transparent);
+  flex-shrink: 0;
+}
+.aw-top-rule { margin: 16px 0 0; }
+
+/* ── slide area ── */
+.aw-slides-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+.aw-slide {
+  position: absolute;
+  inset: 0;
+  padding: 44px 0 24px;
+  overflow-y: auto;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  pointer-events: none;
+  scrollbar-width: none;
+}
+.aw-slide::-webkit-scrollbar { display: none; }
+
+.aw-slide-active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: all;
+}
+
+.aw-slide-exit {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+/* ── typography ── */
+.aw-section-label {
+  font-family: 'Cormorant SC', serif;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.aw-shell h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 38px;
+  font-weight: 300;
+  line-height: 1.15;
+  color: var(--ink);
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+}
+
+.aw-shell h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+
+.aw-shell h3 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink-mid);
+  margin: 32px 0 10px;
+  letter-spacing: 0.01em;
+}
+.aw-shell h3:first-of-type { margin-top: 0; }
+
+.aw-shell h4 {
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--sienna);
+  text-transform: uppercase;
+  margin: 28px 0 10px;
+}
+
+.aw-subtitle {
+  font-size: 17px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--ink-light);
+  margin-bottom: 32px;
+  line-height: 1.5;
+}
+
+.aw-shell p {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--ink-mid);
+  margin-bottom: 16px;
+}
+.aw-shell p:last-child { margin-bottom: 0; }
+
+.aw-shell em { font-style: italic; color: var(--ink); }
+.aw-shell strong { font-weight: 500; color: var(--ink); }
+
+/* ── cover slide ── */
+.aw-cover-ornament {
+  font-size: 28px;
+  color: var(--accent-light);
+  margin-bottom: 32px;
+  letter-spacing: 0.3em;
+}
+
+.aw-cover-rule {
+  width: 48px;
+  height: 1px;
+  background: var(--accent);
+  margin: 24px 0;
+  opacity: 0.6;
+}
+
+.aw-cover-meta {
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  color: var(--ink-light);
+  text-transform: uppercase;
+}
+
+.aw-quote-attr {
+  font-size: 13px;
+  color: var(--warm-mid);
+  font-style: normal;
+  font-family: 'Jost', sans-serif;
+}
+
+/* ── lists ── */
+.aw-shell ul,
+.aw-shell ol {
+  padding-left: 0;
+  list-style: none;
+  margin: 0 0 20px;
+}
+
+.aw-shell ul li,
+.aw-shell ol li {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  padding: 5px 0 5px 22px;
+  position: relative;
+  border-bottom: 1px solid var(--parchment);
+}
+
+.aw-shell ul li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--warm-mid);
+  font-weight: 300;
+}
+
+.aw-shell ol { counter-reset: items; }
+.aw-shell ol li { counter-increment: items; }
+.aw-shell ol li::before {
+  content: counter(items);
+  position: absolute;
+  left: 0;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--accent);
+  top: 8px;
+}
+
+/* ── blockquote ── */
+.aw-shell blockquote {
+  border-left: 2px solid var(--accent-light);
+  margin: 20px 0;
+  padding: 12px 0 12px 20px;
+}
+.aw-shell blockquote p {
+  font-size: 16px;
+  font-style: italic;
+  color: var(--ink-light);
+  margin: 0;
+  line-height: 1.65;
+}
+
+/* ── callout box ── */
+.aw-callout {
+  background: var(--parchment);
+  border: 1px solid var(--warm-mid);
+  border-radius: 2px;
+  padding: 20px 24px;
+  margin: 20px 0;
+}
+.aw-callout p {
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.7;
+}
+.aw-callout-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--sienna);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ── principles ── */
+.aw-principle {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--parchment);
+}
+.aw-principle:first-of-type { border-top: 1px solid var(--parchment); }
+.aw-principle-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.aw-principle-body {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--ink-light);
+  margin: 0;
+}
+
+/* ── time table ── */
+.aw-time-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 16px;
+}
+.aw-time-table tr {
+  border-bottom: 1px solid var(--parchment);
+}
+.aw-time-table td {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  padding: 10px 0;
+  color: var(--ink-mid);
+  font-weight: 300;
+  line-height: 1.4;
+}
+.aw-time-table td:last-child {
+  text-align: right;
+  color: var(--sienna);
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+.aw-time-table tr.aw-total td {
+  font-weight: 500;
+  color: var(--ink);
+  border-top: 1px solid var(--rule);
+  padding-top: 14px;
+}
+.aw-time-table tr.aw-total td:last-child {
+  color: var(--accent);
+}
+
+/* ── week arc ── */
+.aw-arc-phase { margin-bottom: 24px; }
+.aw-arc-phase-label {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.aw-arc-weeks {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.aw-arc-week {
+  background: var(--parchment);
+  border: 1px solid var(--warm-mid);
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-mid);
+  font-family: 'Jost', sans-serif;
+  letter-spacing: 0.04em;
+}
+.aw-phase-a .aw-arc-week { border-color: #c9a882; background: #f0e8db; }
+.aw-phase-b .aw-arc-week { border-color: #b8a48a; background: #ebe0d0; }
+.aw-phase-c .aw-arc-week { border-color: #a89070; background: #e5d8c6; }
+
+/* ── exercise cards ── */
+.aw-exercise-card {
+  background: var(--parchment);
+  border-left: 3px solid var(--accent-light);
+  padding: 16px 18px;
+  margin: 14px 0;
+  border-radius: 0 2px 2px 0;
+}
+.aw-exercise-type {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--sienna);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.aw-exercise-card p {
+  font-size: 15px;
+  font-style: italic;
+  color: var(--ink-mid);
+  margin: 0;
+  line-height: 1.65;
+}
+.aw-exercise-week {
+  font-style: normal;
+  font-size: 12px;
+  color: var(--warm-mid);
+  font-family: 'Jost', sans-serif;
+  display: block;
+  margin-top: 6px;
+}
+
+/* ── closing ── */
+.aw-closing {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--parchment);
+}
+.aw-closing-note {
+  font-size: 14px;
+  color: var(--ink-light);
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* ── bottom nav ── */
+.aw-bottom-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0 24px;
+  flex-shrink: 0;
+}
+
+.aw-nav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  padding: 8px 0;
+  transition: color 0.2s;
+  min-width: 64px;
+}
+.aw-nav-btn:hover { color: var(--accent); }
+.aw-nav-btn:disabled { color: var(--warm-mid); cursor: default; }
+.aw-next { text-align: right; }
+.aw-prev { text-align: left; }
+
+/* ── dots ── */
+.aw-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.aw-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--warm-mid);
+  cursor: pointer;
+  transition: background 0.25s, transform 0.25s;
+  border: none;
+  padding: 0;
+}
+.aw-dot-active {
+  background: var(--accent);
+  transform: scale(1.3);
+}
+.aw-dot:hover:not(.aw-dot-active) { background: var(--sienna); }
+
+/* ── mobile ── */
+@media (max-width: 600px) {
+  .aw-shell { padding: 0 20px; }
+  .aw-shell h1 { font-size: 30px; }
+  .aw-shell h2 { font-size: 24px; }
+  .aw-arc-weeks { gap: 4px; }
+  .aw-arc-week { padding: 4px 8px; font-size: 12px; }
+}

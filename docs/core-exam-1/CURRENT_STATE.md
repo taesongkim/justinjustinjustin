@@ -1,7 +1,7 @@
 # Core Exam 1 — Current-State Audit
 
-**Date:** 2026-07-28  
-**Current source:** `CoreStudies/Y2Exam`  
+**Date:** 2026-07-28
+**Current source:** `CoreStudies/Y2Exam`
 **Target route:** `https://justinjustinjustin.com/core-exam-1`
 
 ## Executive summary
@@ -102,4 +102,3 @@ At audit time, the personal-site repository was on `main` with unrelated modifie
 5. Preserve attribution when accounts are suspended or display names change.
 6. Keep revision and verification history append-only.
 7. Do not invent an author for old local verification marks.
-

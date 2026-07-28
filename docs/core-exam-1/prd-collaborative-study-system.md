@@ -1,7 +1,7 @@
 # PRD: Core Exam 1 Collaborative Study System
 
-**Date:** 2026-07-28  
-**Route:** `/core-exam-1`  
+**Date:** 2026-07-28
+**Route:** `/core-exam-1`
 **Status:** Planning draft
 
 ---

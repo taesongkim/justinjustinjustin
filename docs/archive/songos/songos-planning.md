@@ -121,5 +121,3 @@ _Tech decisions, data flow, how things connect._
 
 ## Stream
 _Raw thought-stream. Just go._
-
-

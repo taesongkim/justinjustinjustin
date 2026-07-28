@@ -1,6 +1,6 @@
 # Supabase Data Model
 
-**Status:** Proposed  
+**Status:** Proposed
 **Project:** Existing environment-backed Supabase project for `justinjustinjustin.com`
 
 ## Boundary

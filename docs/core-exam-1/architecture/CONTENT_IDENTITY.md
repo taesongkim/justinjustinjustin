@@ -1,6 +1,6 @@
 # Content Identity and Migration Contract
 
-**Status:** Proposed  
+**Status:** Proposed
 **Applies to:** canonical content, citations, comments, notes, pins, uploads, activity, and deep links
 
 ## Principle
@@ -114,4 +114,3 @@ The system must not infer Justin as actor solely because data came from his brow
 - Stable keys remain unchanged after representative text edits.
 - All notes, comments, verification events, attachments, pins, and activity targets use foreign keys—not loose text anchors.
 - Alias resolution is tested.
-

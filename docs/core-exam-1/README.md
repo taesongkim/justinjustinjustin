@@ -1,6 +1,6 @@
 # Core Exam 1 Planning Package
 
-**Target:** `https://justinjustinjustin.com/core-exam-1`  
+**Target:** `https://justinjustinjustin.com/core-exam-1`
 **Prepared:** 2026-07-28
 
 ## Read in this order

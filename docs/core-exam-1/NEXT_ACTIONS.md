@@ -2,22 +2,11 @@
 
 ## Immediate next actions
 
-### 1. Approve or override the proposed defaults
+### 1. Approved defaults and copy
 
-Reply with either:
-
-```text
-Ship the proposed defaults.
-```
-
-or overrides such as:
-
-```text
-6 → 50 MB member uploads
-9 → fixed-width commentary column
-```
-
-The numbered list is in `README.md`.
+Justin approved the proposed defaults and labeled user-visible copy on
+2026-07-28. Future overrides should be recorded in the PRD before
+implementation changes.
 
 ### 2. Review the preserved repository cleanup
 

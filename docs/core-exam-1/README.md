@@ -34,7 +34,9 @@
 - The complete approved source corpus is available through an authenticated in-site library/viewer
 - Existing personal-site Supabase project should be reused
 
-## Proposed defaults awaiting explicit approval
+## Approved defaults
+
+Approved by Justin on 2026-07-28.
 
 1. One shared verification state with append-only history.
 2. Users may edit canonical content and their own contributions, but not another person’s note or definition.
@@ -47,7 +49,8 @@
 9. Desktop discussion uses a collapsible/resizable neighboring column, with final proportions chosen in a live visual review.
 10. Mobile discussion uses Content/Discussion tabs with independent scroll and draft preservation.
 
-Justin may approve all with “ship the proposed defaults” or override individual numbers.
+Future behavioral changes require an explicit override and a corresponding PRD
+or architecture update.
 
 ## Required Justin review checkpoints
 
@@ -70,6 +73,5 @@ material. These changes remain uncommitted for Justin's review.
 Before implementation:
 
 1. Review and approve the repository-cleanup diff and commit grouping.
-2. Approve or override the proposed product defaults and labeled copy.
-3. Establish a clean Core Exam feature branch/worktree after cleanup lands.
-4. Establish scoped Supabase access and a staging migration workflow.
+2. Establish a clean Core Exam feature branch/worktree after cleanup lands.
+3. Establish scoped Supabase access and a staging migration workflow.

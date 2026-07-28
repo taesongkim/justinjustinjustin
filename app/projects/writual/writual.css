@@ -29,7 +29,7 @@
 }
 
 /* ─── Material Style 1 ──────────────────────────────────── */
-/* Reusable material token: background color + dust texture overlay */
+/* Reusable translucent material token */
 
 .w-material-1 {
   position: relative;
@@ -38,40 +38,12 @@
   backdrop-filter: blur(4px);
 }
 
-.w-material-1::after,
-.w-material-1b::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('/lowdusttexture3.jpg') center / cover no-repeat;
-  mix-blend-mode: screen;
-  opacity: 0.3;
-  pointer-events: none;
-  border-radius: inherit;
-  z-index: 0;
-}
-
-/* Material 1b — same material, half texture opacity */
+/* Material 1b — matching translucent material */
 .w-material-1b {
   position: relative;
   background: rgba(255, 255, 255, 0.03);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
-}
-
-.w-material-1b::after {
-  opacity: 0.15;
-}
-
-.writual::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: url('/dusttexture.jpg') center / cover no-repeat;
-  mix-blend-mode: screen;
-  opacity: 0.35;
-  pointer-events: none;
-  z-index: 0;
 }
 
 /* ─── Layout ─────────────────────────────────────────────── */

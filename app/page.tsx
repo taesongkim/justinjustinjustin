@@ -29,6 +29,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const PROJECTS = [
+  { label: "Vimyasa",           href: "/vimyasa" },
   { label: "Writual",            href: "/projects/writual" },
   { label: "Nested Tasks",      href: "/projects/nested-tasks" },
   { label: "CE Lineage Visual", href: "/projects/ce-lineage-visual" },

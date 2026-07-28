@@ -1,0 +1,80 @@
+{
+  "manifestVersion": 1,
+  "spaceKey": "core-exam-1",
+  "scope": "canonical-topic-pages",
+  "status": "review-required",
+  "nodes": [
+    {
+      "stableKey": "topic-01.mask-lower-higher",
+      "kind": "topic",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 7
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs",
+      "kind": "topic",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 55
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern",
+      "kind": "topic",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 10
+    },
+    {
+      "stableKey": "topic-04.merging-pattern",
+      "kind": "topic",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 47
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern",
+      "kind": "topic",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 83
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern",
+      "kind": "topic",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 119
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern",
+      "kind": "topic",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 157
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development",
+      "kind": "topic",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 82
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion",
+      "kind": "topic",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 104
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear",
+      "kind": "topic",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 127
+    },
+    {
+      "stableKey": "topic-11.narcissism",
+      "kind": "topic",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 147
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis",
+      "kind": "topic",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 167
+    }
+  ]
+}

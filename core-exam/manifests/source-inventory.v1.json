@@ -1,0 +1,175 @@
+{
+  "inventoryVersion": 1,
+  "spaceKey": "core-exam-1",
+  "contentBoundary": "private",
+  "sources": [
+    {
+      "sourceKey": "book.core-energetics",
+      "kind": "pdf",
+      "bytes": 40077390,
+      "sha256": "e46437277857159247de09d6b02f917d0eab29d7c931887d1661293ca90f6a6b",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "book.character-styles",
+      "kind": "pdf",
+      "bytes": 31826894,
+      "sha256": "ccb04052942c34707d84b686b42ed4db49d8bb16d9454e2cb164c04d224572fd",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "book.five-personality-patterns",
+      "kind": "pdf",
+      "bytes": 4139048,
+      "sha256": "164a6d9839b0026bfed4e987bce764e59c40bff0ef2bee417479fe42dccab99c",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "book.undefended-self",
+      "kind": "pdf",
+      "bytes": 2648358,
+      "sha256": "f4d95c3dc8859ca3a33f4b32a2790240398bbb879328440f11ca604dcf88d426",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "lecture.pathwork-30",
+      "kind": "pdf",
+      "bytes": 79820,
+      "sha256": "dcdd74848009e9602d7ce22f48ae990e0cbff9100f4ec2b24cfdae796b55ee45",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "lecture.pathwork-43",
+      "kind": "pdf",
+      "bytes": 85793,
+      "sha256": "0bfdee502c2cf54ceed6ae41becb565d46bfdd9a0abd70c20041f563eb84f00a",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "lecture.pathwork-84",
+      "kind": "pdf",
+      "bytes": 91326,
+      "sha256": "74ff14f686f7d99045dbe0f861256aaca12e2d15dbf0c58f79dc4cef11db73d9",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "canonical.extraction-record",
+      "kind": "markdown",
+      "bytes": 13433,
+      "sha256": "6ace6c0178f36b755d888f149b8f1775823e990cf3dc820bfe23e9b0126657b2",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.master-toc",
+      "kind": "markdown",
+      "bytes": 9750,
+      "sha256": "bfdfc3faa64653974fcbba395f69101bca4624eaaded0c86970126b0061e6c6e",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.conflict-register",
+      "kind": "markdown",
+      "bytes": 21006,
+      "sha256": "c4a6d6960cd1dfe5f236b5ae60070354ad2388fd096b2b3635f2c813a0e1f32b",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.crosswalk",
+      "kind": "markdown",
+      "bytes": 9582,
+      "sha256": "dbe556c25e8fb71d84e3585f42e7a1fb9ca533f9a7a7bd81a4fa3d3ec2b36a06",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.five-patterns",
+      "kind": "markdown",
+      "bytes": 31510,
+      "sha256": "7903f01a7f5e4eb8aae1b9bcafae7c73e1c0c1cafe15742bbcf60dc9dd1a29bb",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.seven-topics",
+      "kind": "markdown",
+      "bytes": 32444,
+      "sha256": "d034aeee86f08fb05eec768627afea99ae0f4b2b4cb25adfe468356d8fc61599",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.gap-register",
+      "kind": "markdown",
+      "bytes": 15063,
+      "sha256": "be2907ce95442327622e38d74d2068a35ed846ae7aeddb77335a192900e2b631",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.kessler-chart",
+      "kind": "markdown",
+      "bytes": 15928,
+      "sha256": "ad2e88ac7be01b2a687b0a6587e393ac0f764f838a7e2491149f9bda1e997f8b",
+      "viewer": "canonical-document"
+    },
+    {
+      "sourceKey": "canonical.corrections-register",
+      "kind": "markdown",
+      "bytes": 10880,
+      "sha256": "3a75e5f7ef3cc235b9600d7bff44152e2333131daad063f2ef5ccc937daa8c7f",
+      "viewer": "migration-evidence"
+    },
+    {
+      "sourceKey": "lecture.extract-14",
+      "kind": "text",
+      "bytes": 34433,
+      "sha256": "b5b6357172a27afe886a99a8411b1371e6416268f8b8bf46f2d62ef70372777c",
+      "viewer": "private-text"
+    },
+    {
+      "sourceKey": "lecture.extract-38",
+      "kind": "text",
+      "bytes": 29814,
+      "sha256": "b64096c4aa86226446e58786ca9cbb8468e688e2a7e9130288de5ac9e779f0ad",
+      "viewer": "private-text"
+    },
+    {
+      "sourceKey": "lecture.extract-39",
+      "kind": "text",
+      "bytes": 33853,
+      "sha256": "d9469ce1a2c5ed2c71c4ff9ceb35fc8b73b756a871b63193ce2f92a365b6f2d0",
+      "viewer": "private-text"
+    },
+    {
+      "sourceKey": "lecture.extract-41",
+      "kind": "text",
+      "bytes": 41801,
+      "sha256": "dd98e4e11712fc65880a62ca2c252e3fd526789734e3dbf3d788bdd19b778425",
+      "viewer": "private-text"
+    },
+    {
+      "sourceKey": "lecture.extract-83",
+      "kind": "text",
+      "bytes": 34293,
+      "sha256": "9abaf06bc64d0ecedd0a71898be257bf879317dc02e56b113c6c862a7a79ba54",
+      "viewer": "private-text"
+    },
+    {
+      "sourceKey": "lecture.extract-192",
+      "kind": "text",
+      "bytes": 35074,
+      "sha256": "febb7c1039055c5c5ef0691c874f8783975b3d3426405dac2e5a63a3da8f6fc3",
+      "viewer": "private-text"
+    },
+    {
+      "sourceKey": "evidence.kessler-chart-ocr",
+      "kind": "text",
+      "bytes": 12103,
+      "sha256": "48b88857d1af78301ce2379ce0f8858ca82066e851eddb1a7c20c2c49e518a76",
+      "viewer": "migration-evidence"
+    },
+    {
+      "sourceKey": "evidence.kessler-chart-review",
+      "kind": "html",
+      "bytes": 34025,
+      "sha256": "d76b5528726851bb40b3c67ac88ba95f330ea3cfd9efd33d4b6c04d771e18df2",
+      "viewer": "migration-evidence"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "core-exam-v1",
+  "topNode": "doc",
+  "allowedBlockNodes": [
+    "paragraph",
+    "heading",
+    "bulletList",
+    "orderedList",
+    "listItem",
+    "blockquote",
+    "table",
+    "tableRow",
+    "tableHeader",
+    "tableCell",
+    "horizontalRule",
+    "coreExamCallout",
+    "sourceCitation"
+  ],
+  "allowedInlineNodes": ["text", "hardBreak"],
+  "allowedMarks": ["bold", "italic", "code", "link"],
+  "headingLevels": [2, 3, 4],
+  "requiredAddressableAttribute": "stableKey",
+  "allowedLinkProtocols": ["https:", "http:"],
+  "allowsImages": false,
+  "allowsRawHtml": false
+}

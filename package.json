@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "core-exam:validate": "node scripts/core-exam/validate-foundation.mjs",
+    "core-exam:verify-sources": "node scripts/core-exam/validate-foundation.mjs --verify-files"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

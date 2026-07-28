@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local historical/private material (never deploy or commit)
+/.local-archive/
+
 # vercel
 .vercel
 

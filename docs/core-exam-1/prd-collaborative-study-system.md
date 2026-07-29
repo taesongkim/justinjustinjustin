@@ -306,6 +306,14 @@ Build Core Exam 1 as a native Next.js application at `/core-exam-1`, backed by t
 - **G5** Updated-pin marker: `"Updated since you pinned this"`
 - **G6** Print action: `"Print study sheet"`
 
+### H. Product-frame preview copy awaiting checkpoint review
+
+- **H1** Source-unavailable heading: `"Private source unavailable"`
+- **H2** Source-unavailable body: `"Connect the local source map to preview canonical study content."`
+- **H3** Comment placeholder: `"Add to the group discussion…"`
+- **H4** Preview identity label: `"Studying as"`
+- **H5** Mobile topic-menu label: `"Topics"`
+
 ---
 
 ## Technical Context

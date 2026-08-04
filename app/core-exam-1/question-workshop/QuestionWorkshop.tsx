@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import styles from "./QuestionWorkshop.module.css";
+import { CoreStudyLogo } from "../CoreStudyLogo";
 import type {
   QuestionBankDocument,
   WorkshopAction,
@@ -419,7 +420,7 @@ export function QuestionWorkshop({
     <main className={styles.shell}>
       <header className={styles.header}>
         <Link className={styles.brand} href="/core-exam-1">
-          <span>CE</span>
+          <CoreStudyLogo className="ce-brand-logo" />
           <div>
             <small>Development workspace</small>
             <strong>Question Workshop</strong>

@@ -1208,7 +1208,7 @@ export function CoreExamFrame({
             className="ce-quiet-button"
             href="/core-exam-1?view=all-questions"
           >
-            Questions
+            All Questions
           </Link>
           <ActivityPanel
             currentTopicStableKey={selectedTopic.stableKey}

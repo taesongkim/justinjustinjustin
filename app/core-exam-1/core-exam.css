@@ -301,10 +301,19 @@ textarea {
 
 .ce-index-nav a {
   padding: 8px 10px;
+  border: 1px solid transparent;
   border-radius: 8px;
+  background: transparent;
   color: var(--ce-muted);
-  font-size: 11px;
+  font-size: 12px;
   text-decoration: none;
+}
+
+.ce-index-nav a:hover,
+.ce-index-nav a:focus-visible {
+  border-color: var(--ce-line);
+  background: white;
+  color: var(--ce-ink);
 }
 
 .ce-index-nav a[aria-current="page"] {

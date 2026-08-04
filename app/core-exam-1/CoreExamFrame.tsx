@@ -23,7 +23,7 @@ import type {
   CoreExamActivityItem,
 } from "./lib/activity";
 import type { PageContributions } from "./lib/contributions";
-import { hueNameStyle } from "./lib/hue";
+import { hueNameStyle, hueTintStyle } from "./lib/hue";
 import { createCoreExamBrowserClient } from "./lib/supabase/browser";
 import type {
   QuestionLikelihood,
@@ -210,7 +210,11 @@ function CommentThread({
       {topLevel.length > 0 && (
         <div className="ce-card-comments">
           {topLevel.map((comment) => (
-            <article id={`ce-comment-${comment.id}`} key={comment.id}>
+            <article
+              id={`ce-comment-${comment.id}`}
+              key={comment.id}
+              style={hueTintStyle(comment.authorColor)}
+            >
               <div>
                 <strong style={hueNameStyle(comment.authorColor)}>
                   {comment.authorName}
@@ -233,6 +237,7 @@ function CommentThread({
                     className="ce-card-reply"
                     id={`ce-comment-${reply.id}`}
                     key={reply.id}
+                    style={hueTintStyle(reply.authorColor, "var(--ce-paper)")}
                   >
                     <div>
                       <strong style={hueNameStyle(reply.authorColor)}>
@@ -284,6 +289,9 @@ type GroupDiscussionEntry = {
   actor: string;
   actorColor: string | null;
   body: string;
+  // true when body is the member's own words (answer/comment/contribution), so
+  // it takes their hue; false when it identifies a question (stays neutral).
+  bodyIsUserContent: boolean;
   contributionId: string | null;
   createdAt: string;
   label: string;
@@ -312,6 +320,7 @@ function buildGroupDiscussionEntries({
         body: comment.body,
         createdAt: comment.createdAt,
         contributionId: null,
+        bodyIsUserContent: true,
         label: "commented on a question",
         target: `ce-comment-${comment.id}`,
       }));
@@ -322,6 +331,7 @@ function buildGroupDiscussionEntries({
           body: question.prompt,
           createdAt: question.createdAt,
           contributionId: null,
+          bodyIsUserContent: false,
           label: "submitted a question",
           target: questionTarget,
         });
@@ -339,6 +349,7 @@ function buildGroupDiscussionEntries({
           body: answer.plainText,
           createdAt: answer.editedAt,
           contributionId: null,
+          bodyIsUserContent: true,
           label: "updated an answer",
           target: `ce-answer-${answer.id}`,
         },
@@ -348,6 +359,7 @@ function buildGroupDiscussionEntries({
           body: comment.body,
           createdAt: comment.createdAt,
           contributionId: null,
+          bodyIsUserContent: true,
           label: `commented on ${answer.authorName}’s answer`,
           target: `ce-comment-${comment.id}`,
         })),
@@ -359,6 +371,7 @@ function buildGroupDiscussionEntries({
       verification.history.map((event) => ({
         actor: event.actorName,
         actorColor: event.actorColor,
+        bodyIsUserContent: false,
         body:
           event.note ??
           labelForContentStableKey(
@@ -383,6 +396,7 @@ function buildGroupDiscussionEntries({
         .map((contribution) => ({
           actor: contribution.authorName,
           actorColor: contribution.authorColor,
+          bodyIsUserContent: true,
           body: contribution.plainText,
           contributionId: contribution.id,
           createdAt: contribution.editedAt,
@@ -401,6 +415,7 @@ function buildGroupDiscussionEntries({
     .map((event) => ({
       actor: event.actorName,
       actorColor: event.actorColor,
+      bodyIsUserContent: false,
       body: event.prompt,
       contributionId: null,
       createdAt: event.createdAt,
@@ -477,7 +492,15 @@ function GroupDiscussionFeed({
                 {formatAnswerTimestamp(entry.createdAt)}
               </small>
             </span>
-            <p>{entry.body}</p>
+            <p
+              style={
+                entry.bodyIsUserContent
+                  ? hueNameStyle(entry.actorColor)
+                  : undefined
+              }
+            >
+              {entry.body}
+            </p>
           </span>
         </button>
       ))}
@@ -717,6 +740,7 @@ function QuestionCard({
             {(["likely", "unsure", "unlikely"] as const).map((option) => (
               <button
                 aria-pressed={question.myLikelihood === option}
+                data-likelihood={option}
                 key={option}
                 onClick={() => setLikelihood(option)}
                 title={

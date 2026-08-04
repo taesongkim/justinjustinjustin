@@ -259,7 +259,10 @@ export function ActivityPanel({
                         <p>{event.prompt}</p>
                         {event.action === "verification_changed" &&
                           event.metadata.note && (
-                            <p className="ce-activity-note">
+                            <p
+                              className="ce-activity-note"
+                              style={hueNameStyle(event.actorColor)}
+                            >
                               {event.metadata.note}
                             </p>
                           )}

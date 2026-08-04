@@ -2045,10 +2045,35 @@ textarea {
   text-transform: capitalize;
 }
 
-.ce-likelihood-options button[aria-pressed="true"] {
-  border-color: var(--ce-highlight-border);
-  background: var(--ce-highlight);
+/* Meaning colors: likely = green, unsure = grayscale, unlikely = red. */
+.ce-likelihood-options button[data-likelihood="likely"] {
+  color: var(--ce-accent-strong);
+}
+
+.ce-likelihood-options button[data-likelihood="unsure"] {
+  color: var(--ce-muted);
+}
+
+.ce-likelihood-options button[data-likelihood="unlikely"] {
+  color: var(--ce-danger-ink);
+}
+
+.ce-likelihood-options button[data-likelihood="likely"][aria-pressed="true"] {
+  border-color: var(--ce-accent);
+  background: var(--ce-accent-soft);
+  color: var(--ce-accent-strong);
+}
+
+.ce-likelihood-options button[data-likelihood="unsure"][aria-pressed="true"] {
+  border-color: var(--ce-line-strong);
+  background: var(--ce-panel);
   color: var(--ce-ink-strong);
+}
+
+.ce-likelihood-options button[data-likelihood="unlikely"][aria-pressed="true"] {
+  border-color: var(--ce-danger-ink);
+  background: var(--ce-danger-soft);
+  color: var(--ce-danger-ink);
 }
 
 .ce-likelihood-options small {
@@ -2057,12 +2082,12 @@ textarea {
   min-width: 16px;
   height: 16px;
   border-radius: 999px;
-  background: rgba(var(--ce-accent-rgb), 0.1);
+  background: color-mix(in oklch, currentColor, transparent 88%);
   font-size: 8px;
 }
 
 .ce-likelihood-options button[aria-pressed="true"] small {
-  background: rgba(var(--ce-highlight-rgb), 0.12);
+  background: color-mix(in oklch, currentColor, transparent 80%);
 }
 
 .ce-likelihood-attribution {
@@ -2170,9 +2195,16 @@ textarea {
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--ce-accent);
+  color: var(--ce-muted);
   cursor: pointer;
   font-size: 8px;
+}
+
+.ce-card-comments article > button:hover,
+.ce-card-comments article > button:focus-visible,
+.ce-card-comment-composer > button:hover,
+.ce-card-comment-composer > button:focus-visible {
+  color: var(--ce-ink);
 }
 
 .ce-card-comments .ce-card-reply {

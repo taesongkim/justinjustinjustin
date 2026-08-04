@@ -45,6 +45,14 @@ for (const member of members) {
   if (!["owner", "member"].includes(member.role)) {
     throw new Error(`Role for ${member.email} must be owner or member`);
   }
+  if (
+    member.participation !== undefined &&
+    !["assistant", "active", "observer"].includes(member.participation)
+  ) {
+    throw new Error(
+      `Participation for ${member.email} must be assistant, active, or observer`,
+    );
+  }
 }
 
 const { apiUrl, serviceRoleKey, mode } = await resolveAdminTarget();
@@ -121,6 +129,7 @@ for (const member of members) {
         user_id: user.id,
         role: member.role,
         status: "active",
+        participation: member.participation ?? "active",
       },
       { onConflict: "space_id,user_id" },
     );

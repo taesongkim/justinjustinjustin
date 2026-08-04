@@ -5,13 +5,20 @@ deployment and contains no project references or credentials.
 
 ## Current release status
 
-Go-live in progress (2026-08-04). Schema is pushed to the live project
-(`supabase db push`; all `core_exam_*` tables present and empty). Remaining
-before friends are invited: provision members (Phase 2), import content +
-sources + reconciled questions/answers (Phase 3), configure hosted Auth (Site
-URL + magic-link callback allowlist), deploy with `CORE_EXAM_PREVIEW_ENABLED`
-off, then flip it on and run the smoke test. The user-hue system + top-bar
-scoreboard (added 2026-08-04) ship with this release.
+**LIVE (2026-08-04)** at `justinjustinjustin.com/core-exam-1`. All phases done:
+schema pushed, 6 members provisioned (owner + 5 friends), content/sources/
+questions/answers imported (80 questions / 80 AI answers), hosted Auth
+configured (redirect URL `…/core-exam-1/auth/callback`), deployed via PR #4, and
+`CORE_EXAM_PREVIEW_ENABLED=true` set in Vercel Production. Owner sign-in verified
+end-to-end. A production login-redirect loop (the login page redirected to the
+reader whenever `NODE_ENV !== development`, bouncing anonymous visitors) was
+fixed in PR #5.
+
+**Kill switch:** set `CORE_EXAM_PREVIEW_ENABLED` off in Vercel Production →
+`/core-exam-1` 404s, rest of the site untouched.
+
+**Parked:** dark mode + light/dark toggle; the dev-only Question Workshop header
+still shows the "CE" mark.
 
 ## Environment contract
 

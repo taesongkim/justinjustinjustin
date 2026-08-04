@@ -68,32 +68,48 @@ export function QuestionIndexView({
         </Link>
         <Scoreboard members={scoreboard} />
         <nav className="ce-index-nav" aria-label="Study">
-          <Link href="/core-exam-1">Reader</Link>
+          <Link href="/core-exam-1">Home</Link>
           <ActivityPanel
             events={activity.events}
             initialHasUnviewed={activity.hasUnviewed}
             latestOtherEventId={activity.latestOtherEventId}
           />
         </nav>
-        <button className="ce-index-identity" onClick={signOut} type="button">
-          <span
-            className="ce-avatar"
-            style={{ background: viewer.avatarColor }}
-            aria-hidden="true"
-          >
-            {viewer.displayName[0]}
-          </span>
-          <span>
-            {viewer.displayName}
-            <small>Sign out</small>
-          </span>
-        </button>
+        <details className="ce-identity-menu">
+          <summary className="ce-identity">
+            <span
+              className="ce-avatar"
+              style={{ background: viewer.avatarColor }}
+              aria-hidden="true"
+            >
+              {viewer.displayName[0]}
+            </span>
+            <span>
+              <small>Studying as</small>
+              {viewer.displayName}
+            </span>
+          </summary>
+          <div className="ce-identity-popover">
+            <strong>{viewer.displayName}</strong>
+            <span>{viewer.email}</span>
+            <span className="ce-identity-role">{viewer.role}</span>
+            {viewer.role === "owner" &&
+              process.env.NODE_ENV === "development" && (
+                <Link href="/core-exam-1/question-workshop">
+                  Question Workshop
+                </Link>
+              )}
+            <button onClick={signOut} type="button">
+              Sign out
+            </button>
+          </div>
+        </details>
       </header>
 
       <div className="ce-index-shell">
         <header className="ce-index-heading">
           <p className="ce-eyebrow">Across every topic</p>
-          <h2>Questions</h2>
+          <h2>All Questions</h2>
           <p>
             Every question in the exam — your answer, the group’s activity, and
             what’s still open.

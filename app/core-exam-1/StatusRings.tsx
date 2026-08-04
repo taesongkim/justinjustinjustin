@@ -7,8 +7,9 @@ export type RingMember = {
 };
 
 // Per-question group answer status: one ring per active member, filled when
-// they've answered, dimmed when they've hidden it. Color rides on the --ring
-// CSS var so the fill/border/glow can be tuned in core-exam.css.
+// they've answered, dimmed when they've hidden it. Drawn as an SVG circle (not
+// a CSS box) so it stays perfectly round at any size/pixel density. Color rides
+// on the --ring var so the fill/stroke/glow are tunable in core-exam.css.
 export function GroupRings({
   roster,
   answeredBy,
@@ -27,40 +28,21 @@ export function GroupRings({
         const isAnswered = answered.has(member.userId);
         const isHidden = hidden.has(member.userId);
         return (
-          <span
+          <svg
             className="ce-ring"
             data-filled={isAnswered ? "true" : undefined}
             data-hidden={isHidden ? "true" : undefined}
             key={member.userId}
             style={{ "--ring": member.avatarColor } as CSSProperties}
-            title={`${member.displayName}: ${
+            viewBox="0 0 12 12"
+          >
+            <title>{`${member.displayName}: ${
               isAnswered ? "answered" : "not answered"
-            }${isHidden ? " (hidden for them)" : ""}`}
-          />
+            }${isHidden ? " (hidden for them)" : ""}`}</title>
+            <circle cx="6" cy="6" r="5" />
+          </svg>
         );
       })}
-    </span>
-  );
-}
-
-// x-of-y as a row of neutral, theme-aware rings; the first `filled` are solid.
-export function ProgressRings({
-  filled,
-  total,
-}: {
-  filled: number;
-  total: number;
-}) {
-  if (total <= 0) return null;
-  return (
-    <span className="ce-progress-rings" aria-hidden="true">
-      {Array.from({ length: total }, (_, index) => (
-        <span
-          className="ce-ring"
-          data-filled={index < filled ? "true" : undefined}
-          key={index}
-        />
-      ))}
     </span>
   );
 }

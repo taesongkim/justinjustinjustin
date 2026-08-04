@@ -36,7 +36,8 @@ import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { useLiveActivity } from "./useLiveActivity";
-import { GroupRings, ProgressRings, type RingMember } from "./StatusRings";
+import { GroupRings, type RingMember } from "./StatusRings";
+import { QuestionTOC } from "./QuestionTOC";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
 import { VerificationControl } from "./VerificationControl";
 
@@ -1101,6 +1102,8 @@ export function CoreExamFrame({
     (question) => !question.isHiddenForMe,
   );
   const countedTotal = countedQuestions.length;
+  // Non-hidden questions in order — the sticky TOC's jump targets.
+  const tocQuestionIds = countedQuestions.map((question) => question.id);
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;
@@ -1293,6 +1296,9 @@ export function CoreExamFrame({
       </header>
 
       <div className="ce-body">
+        {selectedTopic.kind === "topic" && tocQuestionIds.length > 0 && (
+          <QuestionTOC questionIds={tocQuestionIds} />
+        )}
         <aside className="ce-sidebar" aria-label="Study topics">
           <p className="ce-sidebar-label">Exam topics</p>
           <nav>
@@ -1421,33 +1427,25 @@ export function CoreExamFrame({
                           : `Topic ${selectedTopic.number}`
                         : "Reference"}
                     </p>
-                    <span className="ce-status-group">
-                      {countedTotal > 0 && (
-                        <ProgressRings
-                          filled={answeredCount}
-                          total={countedTotal}
-                        />
-                      )}
-                      <span
-                        className="ce-status"
-                        data-progress={
-                          countedTotal === 0
-                            ? "na"
-                            : answeredCount === 0
-                              ? "none"
-                              : answeredCount === countedTotal
-                                ? "complete"
-                                : "partial"
-                        }
-                      >
-                        {countedTotal > 0
-                          ? `${answeredCount} of ${countedTotal} answered`
-                          : selectedTopic.kind === "reference"
-                            ? "Supporting reference"
-                            : collaborativeEmpty
-                              ? "Open for contributions"
-                              : "No questions yet"}
-                      </span>
+                    <span
+                      className="ce-status"
+                      data-progress={
+                        countedTotal === 0
+                          ? "na"
+                          : answeredCount === 0
+                            ? "none"
+                            : answeredCount === countedTotal
+                              ? "complete"
+                              : "partial"
+                      }
+                    >
+                      {countedTotal > 0
+                        ? `${answeredCount} of ${countedTotal} answered`
+                        : selectedTopic.kind === "reference"
+                          ? "Supporting reference"
+                          : collaborativeEmpty
+                            ? "Open for contributions"
+                            : "No questions yet"}
                     </span>
                   </div>
                   <div className="ce-topic-title-row">

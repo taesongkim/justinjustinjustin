@@ -9,6 +9,14 @@
     "start": "next start",
     "lint": "eslint",
     "core-exam:validate": "node scripts/core-exam/validate-foundation.mjs",
+    "core-exam:propose-content-identity": "node scripts/core-exam/build-content-identity-proposal.mjs",
+    "core-exam:local-env": "node scripts/core-exam/write-local-env.mjs",
+    "core-exam:local-auth-fixture": "node scripts/core-exam/create-local-auth-fixture.mjs",
+    "core-exam:import-content-nodes": "node scripts/core-exam/import-local-content-nodes.mjs",
+    "core-exam:import-content-revisions": "node scripts/core-exam/import-local-content-revisions.mjs",
+    "core-exam:import-source-library": "node scripts/core-exam/import-local-source-library.mjs",
+    "core-exam:import-question-bank": "node scripts/core-exam/import-local-question-bank.mjs",
+    "core-exam:import-ai-answers": "node scripts/core-exam/import-ai-assistant-answers.mjs",
     "core-exam:verify-sources": "node scripts/core-exam/validate-foundation.mjs --verify-files",
     "core-exam:test-db": "node scripts/core-exam/test-db.mjs"
   },
@@ -16,7 +24,8 @@
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@react-three/postprocessing": "^3.0.4",
-    "@supabase/supabase-js": "^2.95.3",
+    "@supabase/ssr": "0.8.0",
+    "@supabase/supabase-js": "2.95.3",
     "@tiptap/extension-placeholder": "^3.20.0",
     "@tiptap/extension-typography": "^3.20.0",
     "@tiptap/pm": "^3.20.0",
@@ -28,6 +37,8 @@
     "postprocessing": "^6.38.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "three": "^0.182.0"
   },
   "devDependencies": {

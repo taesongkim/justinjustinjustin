@@ -1,0 +1,590 @@
+.shell {
+  --workshop-ink: #22312b;
+  --workshop-muted: #6d7974;
+  --workshop-line: #dce2df;
+  --workshop-paper: #f7f8f5;
+  --workshop-panel: #eef1ed;
+  --workshop-accent: #2f7b68;
+  min-height: 100vh;
+  padding-bottom: 92px;
+  background: var(--workshop-paper);
+  color: var(--workshop-ink);
+  font-family: var(--font-inter), sans-serif;
+}
+
+.shell :is(h1, h2, strong, summary) {
+  font-weight: 500;
+}
+
+.shell button,
+.shell textarea,
+.shell input {
+  font: inherit;
+}
+
+.shell ::selection {
+  background: #f3e39a;
+  color: #26332d;
+}
+
+.header {
+  position: sticky;
+  z-index: 10;
+  top: 0;
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  border-bottom: 1px solid var(--workshop-line);
+  background: rgba(247, 248, 245, 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  color: inherit;
+  gap: 11px;
+  text-decoration: none;
+}
+
+.brand > span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--workshop-ink);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.brand div {
+  display: grid;
+  gap: 1px;
+}
+
+.brand small,
+.headerMeta,
+.editorHeading p,
+.editorHeading span {
+  color: var(--workshop-muted);
+  font-size: 11px;
+}
+
+.brand strong {
+  font-size: 14px;
+}
+
+.headerMeta {
+  display: flex;
+  gap: 16px;
+}
+
+.workspace {
+  display: grid;
+  min-height: calc(100vh - 160px);
+  grid-template-columns: 286px minmax(0, 1fr);
+}
+
+.topicRail {
+  position: sticky;
+  top: 68px;
+  height: calc(100vh - 160px);
+  padding: 24px 18px;
+  overflow: auto;
+  border-right: 1px solid var(--workshop-line);
+  background: var(--workshop-panel);
+}
+
+.summary {
+  display: flex;
+  padding: 0 10px 18px;
+  color: var(--workshop-muted);
+  font-size: 11px;
+  gap: 14px;
+}
+
+.summary strong {
+  color: var(--workshop-ink);
+  font-weight: 600;
+}
+
+.topicRail nav {
+  display: grid;
+  gap: 3px;
+}
+
+.topicRail button {
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  grid-template-columns: 24px minmax(0, 1fr) 24px;
+  align-items: center;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--workshop-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.topicRail button:hover,
+.topicRail button[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.topicRail button > span:first-child,
+.topicRail button small {
+  color: var(--workshop-muted);
+  font-size: 10px;
+}
+
+.topicRail button > span:nth-child(2) {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.topicRail button small {
+  text-align: right;
+}
+
+.editor {
+  width: min(100%, 920px);
+  padding: 54px 48px 80px;
+  margin: 0 auto;
+}
+
+.editorHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  gap: 24px;
+}
+
+.editorHeading p {
+  margin: 0 0 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editorHeading h1 {
+  margin: 0 0 9px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+}
+
+.editorHeading span {
+  display: block;
+  max-width: 500px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.addButton,
+.primaryActions button,
+.secondaryActions button,
+.secondaryActions label,
+.confirmDialog button {
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid #cbd3cf;
+  border-radius: 8px;
+  background: white;
+  color: var(--workshop-ink);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.addButton {
+  flex: 0 0 auto;
+  border-color: var(--workshop-accent);
+  color: var(--workshop-accent);
+}
+
+.questionList {
+  display: grid;
+  padding: 0;
+  margin: 0;
+  gap: 10px;
+  list-style: none;
+}
+
+.question {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px 34px minmax(0, 1fr);
+  padding: 17px 18px;
+  border: 1px solid var(--workshop-line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 5px 20px rgba(34, 49, 43, 0.035);
+  gap: 8px;
+  transition:
+    border-color 140ms ease,
+    opacity 140ms ease,
+    transform 140ms ease;
+}
+
+.question:focus-within {
+  border-color: #aebdb6;
+}
+
+.question.dragging {
+  opacity: 0.5;
+  transform: scale(0.995);
+}
+
+/* Drop-target preview line showing where the dragged question will land. */
+.question.dropBefore::before,
+.question.dropAfter::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  background: var(--workshop-accent);
+  border-radius: 2px;
+  box-shadow: 0 0 0 3px rgba(47, 123, 104, 0.14);
+}
+
+.question.dropBefore::before {
+  top: -6px;
+}
+
+.question.dropAfter::after {
+  bottom: -6px;
+}
+
+.dragHandle {
+  padding-top: 8px;
+  color: #a0aaa5;
+  cursor: grab;
+  font-size: 16px;
+}
+
+.questionNumber {
+  padding-top: 9px;
+  color: var(--workshop-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.questionEditor textarea {
+  width: 100%;
+  min-height: 58px;
+  padding: 7px 8px;
+  resize: vertical;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  outline: none;
+  background: transparent;
+  color: var(--workshop-ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.questionEditor textarea:hover {
+  border-color: var(--workshop-line);
+}
+
+.questionEditor textarea:focus {
+  border-color: #9eb5ab;
+  background: white;
+}
+
+.questionActions {
+  display: flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 2px 8px 0;
+  gap: 10px;
+}
+
+.questionActions button,
+.removed button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--workshop-muted);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.questionActions button:last-child {
+  margin-left: auto;
+  color: #8b6157;
+}
+
+.questionActions button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.questionActions span {
+  padding: 3px 6px;
+  border-radius: 99px;
+  background: #dcece6;
+  color: var(--workshop-accent);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.empty {
+  padding: 54px;
+  border: 1px dashed #cbd3cf;
+  border-radius: 12px;
+  color: var(--workshop-muted);
+  text-align: center;
+}
+
+.removed {
+  margin-top: 28px;
+  border-top: 1px solid var(--workshop-line);
+}
+
+.removed summary {
+  padding: 18px 2px;
+  color: var(--workshop-muted);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.removed > div {
+  display: grid;
+  gap: 7px;
+}
+
+.removed article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 13px;
+  border-radius: 8px;
+  background: #eceeeb;
+  gap: 16px;
+}
+
+.removed p {
+  margin: 0;
+  color: var(--workshop-muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.removed button {
+  flex: 0 0 auto;
+  color: var(--workshop-accent);
+}
+
+.actionBar {
+  position: fixed;
+  z-index: 20;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: grid;
+  min-height: 92px;
+  grid-template-columns: minmax(120px, 1fr) auto auto;
+  align-items: center;
+  padding: 16px 28px;
+  border-top: 1px solid var(--workshop-line);
+  background: rgba(247, 248, 245, 0.96);
+  box-shadow: 0 -12px 38px rgba(34, 49, 43, 0.06);
+  backdrop-filter: blur(18px);
+  gap: 18px;
+}
+
+.actionBar p {
+  max-width: 500px;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.successStatus {
+  color: var(--workshop-accent);
+}
+
+.errorStatus {
+  color: #9a5042;
+}
+
+.secondaryActions,
+.primaryActions {
+  display: flex;
+  gap: 8px;
+}
+
+.secondaryActions label {
+  display: grid;
+  place-items: center;
+}
+
+.secondaryActions input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.primaryActions button:disabled,
+.confirmDialog button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.primaryActions .finalizeButton,
+.confirmDialog .finalizeButton {
+  border-color: var(--workshop-ink);
+  background: var(--workshop-ink);
+  color: white;
+}
+
+.confirmBackdrop {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(25, 35, 31, 0.36);
+  backdrop-filter: blur(5px);
+}
+
+.confirmDialog {
+  width: min(100%, 520px);
+  padding: 30px;
+  border: 1px solid var(--workshop-line);
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 26px 90px rgba(25, 35, 31, 0.22);
+}
+
+.confirmDialog > p:first-child {
+  margin: 0 0 8px;
+  color: var(--workshop-muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.confirmDialog h2 {
+  margin: 0 0 18px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 29px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.confirmDialog h2 + p,
+.confirmDialog h2 + p + p {
+  color: var(--workshop-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.confirmDialog > div {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+  gap: 8px;
+}
+
+@media (max-width: 840px) {
+  .header {
+    padding: 0 16px;
+  }
+
+  .headerMeta span:first-child {
+    display: none;
+  }
+
+  .workspace {
+    display: block;
+  }
+
+  .topicRail {
+    position: static;
+    width: 100%;
+    height: auto;
+    padding: 12px 16px;
+    overflow-x: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--workshop-line);
+  }
+
+  .summary {
+    display: none;
+  }
+
+  .topicRail nav {
+    display: flex;
+    width: max-content;
+  }
+
+  .topicRail button {
+    width: 170px;
+    grid-template-columns: 20px minmax(0, 1fr) 18px;
+  }
+
+  .editor {
+    padding: 34px 18px 150px;
+  }
+
+  .editorHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .question {
+    grid-template-columns: 20px 26px minmax(0, 1fr);
+    padding: 13px 10px;
+  }
+
+  .questionActions {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .questionActions button:last-child {
+    width: 100%;
+    margin: 3px 0 0;
+    text-align: left;
+  }
+
+  .actionBar {
+    min-height: 132px;
+    grid-template-columns: 1fr;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .actionBar > div:first-child:empty {
+    display: none;
+  }
+
+  .secondaryActions,
+  .primaryActions {
+    overflow-x: auto;
+  }
+
+  .primaryActions button,
+  .secondaryActions button,
+  .secondaryActions label {
+    flex: 0 0 auto;
+  }
+}

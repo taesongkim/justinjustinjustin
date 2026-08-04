@@ -1,8 +1,22 @@
 {
   "manifestVersion": 1,
   "spaceKey": "core-exam-1",
-  "scope": "canonical-topic-pages",
-  "status": "review-required",
+  "scope": "canonical-addressable-blocks",
+  "status": "approved-2026-07-29",
+  "generatedFrom": "content-identity.pages.v1.json",
+  "generationPolicy": "Frozen proposal: do not regenerate after review without preserving existing keys or adding aliases.",
+  "reviewNotes": {
+    "keyCollisions": []
+  },
+  "counts": {
+    "topic": 16,
+    "reference": 5,
+    "section": 139,
+    "claim": 237,
+    "table": 21,
+    "chart_row": 60,
+    "reference_entry": 72
+  },
   "nodes": [
     {
       "stableKey": "topic-01.mask-lower-higher",
@@ -26,25 +40,25 @@
       "stableKey": "topic-04.merging-pattern",
       "kind": "topic",
       "sourceKey": "canonical.five-patterns",
-      "legacyLine": 47
+      "legacyLine": 52
     },
     {
       "stableKey": "topic-05.enduring-pattern",
       "kind": "topic",
       "sourceKey": "canonical.five-patterns",
-      "legacyLine": 83
+      "legacyLine": 93
     },
     {
       "stableKey": "topic-06.aggressive-pattern",
       "kind": "topic",
       "sourceKey": "canonical.five-patterns",
-      "legacyLine": 119
+      "legacyLine": 134
     },
     {
       "stableKey": "topic-07.rigid-pattern",
       "kind": "topic",
       "sourceKey": "canonical.five-patterns",
-      "legacyLine": 157
+      "legacyLine": 177
     },
     {
       "stableKey": "topic-08.ego-functions-development",
@@ -75,6 +89,4982 @@
       "kind": "topic",
       "sourceKey": "canonical.seven-topics",
       "legacyLine": 167
+    },
+    {
+      "stableKey": "topic-13.ethics",
+      "kind": "topic",
+      "contentStatus": "collaborative-empty"
+    },
+    {
+      "stableKey": "topic-14.polyvagal-theory",
+      "kind": "topic",
+      "contentStatus": "collaborative-empty"
+    },
+    {
+      "stableKey": "topic-15.touch-soft-techniques",
+      "kind": "topic",
+      "contentStatus": "collaborative-empty"
+    },
+    {
+      "stableKey": "topic-16.transference-countertransference",
+      "kind": "topic",
+      "contentStatus": "collaborative-empty"
+    },
+    {
+      "stableKey": "reference.study-guide",
+      "kind": "reference",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 1
+    },
+    {
+      "stableKey": "reference.conflict-register",
+      "kind": "reference",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 1
+    },
+    {
+      "stableKey": "reference.crosswalks",
+      "kind": "reference",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 1
+    },
+    {
+      "stableKey": "reference.gaps-question-bank",
+      "kind": "reference",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 1
+    },
+    {
+      "stableKey": "reference.kessler-chart",
+      "kind": "reference",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 1
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "kind": "section",
+      "parentStableKey": "topic-01.mask-lower-higher",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 9,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.mask",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 10,
+      "citations": [
+        "[ICE §Phase 1]",
+        "[T ch.6]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.lower-self",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 11,
+      "citations": [
+        "[ICE §Step 2]",
+        "[T ch.7 \"What Is the Lower Self?\"]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.higher-self",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 12,
+      "citations": [
+        "[ICE §The Higher Self]",
+        "[T ch.6]",
+        "[T ch.8 \"What Is the Higher Self?\"]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.higher-self.pl-14-p-1",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 14,
+      "citations": [
+        "[PL 14 p.1]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.lower-self-formation",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 15,
+      "citations": [
+        "[PL 14 p.1]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.lower-self-contents",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 16,
+      "citations": [
+        "[PL 14 p.1]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.emotional-illness",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 17,
+      "citations": [
+        "[PL 14 p.1]",
+        "[PL 14 p.3]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.being-true-to-oneself",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 18,
+      "citations": [
+        "[PL 14 p.3]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.mask-sensory-signature",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 19,
+      "citations": [
+        "[PL 14 pp.3–4]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.order-of-operations",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 20,
+      "citations": [
+        "[PL 14 p.3]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.t1-card-the-three-definitions.pl-14-s-mask-etiology-differs-from-ice-s-and",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.t1-card-the-three-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 21,
+      "citations": [
+        "[PL 14 p.2]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.section.the-energy-signatures-ce-s-addition-register",
+      "kind": "section",
+      "parentStableKey": "topic-01.mask-lower-higher",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 23,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.the-energy-signatures-ce-s-addition-register.mask",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.the-energy-signatures-ce-s-addition-register",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 24,
+      "citations": [
+        "[ICE §§Phase 1–2]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.section.formation-and-lifetime-arc-the-model-of-how",
+      "kind": "section",
+      "parentStableKey": "topic-01.mask-lower-higher",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 26,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.formation-and-lifetime-arc-the-model-of-how.wounding-image-wrong-conclusion-mask-as-fals",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.formation-and-lifetime-arc-the-model-of-how",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 27,
+      "citations": [
+        "[T ch.6; PL 38 p.1]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.formation-and-lifetime-arc-the-model-of-how.ego-identifies-with-the-mask-we-start-believ",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.formation-and-lifetime-arc-the-model-of-how",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 28,
+      "citations": [
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.formation-and-lifetime-arc-the-model-of-how.the-mask-s-false-promise",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.formation-and-lifetime-arc-the-model-of-how",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 29,
+      "citations": [
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.formation-and-lifetime-arc-the-model-of-how.the-lower-self-forms-from-the-ego-s-attempt",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.formation-and-lifetime-arc-the-model-of-how",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 30,
+      "citations": [
+        "[ICE §Step 2]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.formation-and-lifetime-arc-the-model-of-how.owning-the-lower-self-liberates-the-bound-en",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.formation-and-lifetime-arc-the-model-of-how",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 31,
+      "citations": [
+        "[ICE §Step 2]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.formation-and-lifetime-arc-the-model-of-how.paradox-to-quote",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.formation-and-lifetime-arc-the-model-of-how",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 32,
+      "citations": [
+        "[ICE §Phase 3]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.section.mask-as-distortion-of-the-person-s-own-highe",
+      "kind": "section",
+      "parentStableKey": "topic-01.mask-lower-higher",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 34,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.mask-as-distortion-of-the-person-s-own-highe.every-mask-is-some-form-of-distortion-of-the",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.mask-as-distortion-of-the-person-s-own-highe",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 35,
+      "citations": [
+        "[ICE §Phase 1]",
+        "[ICE §Phase 1]",
+        "[T ch.6 exercises]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.section.the-four-phases-stages-the-therapeutic-arc-b",
+      "kind": "section",
+      "parentStableKey": "topic-01.mask-lower-higher",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 37,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19",
+      "kind": "table",
+      "parentStableKey": "topic-01.mask-lower-higher.section.the-four-phases-stages-the-therapeutic-arc-b",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 38
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19.1-penetrating-the-mask",
+      "kind": "reference_entry",
+      "parentStableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 40,
+      "citations": [
+        "[P p.~232]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19.2-transforming-the-lower-self",
+      "kind": "reference_entry",
+      "parentStableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 41,
+      "citations": []
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19.3-centering-in-the-higher-self",
+      "kind": "reference_entry",
+      "parentStableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 42,
+      "citations": []
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19.4-connection-to-the-universal-life-plan",
+      "kind": "reference_entry",
+      "parentStableKey": "topic-01.mask-lower-higher.table.the-four-phases-stages-the-therapeutic-arc-b.ice-article-pierrakos-ch-19",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 43,
+      "citations": []
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.the-four-phases-stages-the-therapeutic-arc-b.seam-add-to-register-t-class",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.the-four-phases-stages-the-therapeutic-arc-b",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 45,
+      "citations": [
+        "[ICE §intro]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.section.thesenga-s-imagery-memorable-quotable",
+      "kind": "section",
+      "parentStableKey": "topic-01.mask-lower-higher",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 47,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.thesenga-s-imagery-memorable-quotable.the-mask-is-like-the-pharisee-putting-on-a-s",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.thesenga-s-imagery-memorable-quotable",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 48,
+      "citations": [
+        "[T ch.6]",
+        "[T ch.7]"
+      ]
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-01.mask-lower-higher",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 50,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-01.mask-lower-higher.claim.flags.mask-often-modeled-on-the-least-accepting-pa",
+      "kind": "claim",
+      "parentStableKey": "topic-01.mask-lower-higher.section.flags",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 51,
+      "citations": [
+        "[T ch.6]",
+        "[T ch.7]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.section.t1-card-definitions",
+      "kind": "section",
+      "parentStableKey": "topic-02.images-real-false-needs",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 57,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.t1-card-definitions.image",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.t1-card-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 58,
+      "citations": [
+        "[PL 38 p.1]",
+        "[PL 38 p.1]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.t1-card-definitions.real-needs-child",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.t1-card-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 59,
+      "citations": [
+        "[PL 192 p.3]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.t1-card-definitions.real-needs-adult",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.t1-card-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 60,
+      "citations": [
+        "[PL 192 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.t1-card-definitions.false-need",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.t1-card-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 61,
+      "citations": [
+        "[PL 192 p.3]",
+        "[PL 192 p.5]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.t1-card-definitions.the-weld-between-the-two-halves-of-this-topi",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.t1-card-definitions",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 62,
+      "citations": [
+        "[PL 192 p.3]",
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.section.how-images-form-pl-41-s-mechanism-the-exam-s",
+      "kind": "section",
+      "parentStableKey": "topic-02.images-real-false-needs",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 64,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.how-images-form-pl-41-s-mechanism-the-exam-s.shock-sudden-or-a-more-gradual-discovery-tha",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.how-images-form-pl-41-s-mechanism-the-exam-s",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 65,
+      "citations": [
+        "[PL 41 pp.2–4]",
+        "[PL 41 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.section.how-you-know-an-image-exists-how-to-find-it",
+      "kind": "section",
+      "parentStableKey": "topic-02.images-real-false-needs",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 67,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.how-you-know-an-image-exists-how-to-find-it.two-indicators",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.how-you-know-an-image-exists-how-to-find-it",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 68,
+      "citations": [
+        "[PL 38 p.2]",
+        "[PL 38 pp.4–5; PL 39 pp.2–3]",
+        "[PL 38 p.4]",
+        "[PL 39 pp.2–3]",
+        "[PL 38 p.3; PL 39 p.1]",
+        "[PL 41 pp.4–5]",
+        "[PL 41 p.6]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.section.the-idealized-self-image-pl-83-bridges-image",
+      "kind": "section",
+      "parentStableKey": "topic-02.images-real-false-needs",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 71,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.the-idealized-self-image-pl-83-bridges-image.creation",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.the-idealized-self-image-pl-83-bridges-image",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 72,
+      "citations": [
+        "[PL 83 p.2]",
+        "[PL 83 p.1]",
+        "[T ch.6]",
+        "[PL 83 pp.2–3]",
+        "[PL 83 p.3; PL 84 p.4]",
+        "[PL 84 pp.6–7]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.section.hard-pain-vs-soft-pain-the-clinical-marker-e",
+      "kind": "section",
+      "parentStableKey": "topic-02.images-real-false-needs",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 74,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.hard-pain-vs-soft-pain-the-clinical-marker-e.hard-pain-is-a-result-of-fighting-against-wh",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.hard-pain-vs-soft-pain-the-clinical-marker-e",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 75,
+      "citations": [
+        "[PL 192 p.6]",
+        "[PL 192 pp.6–7]",
+        "[PL 192 p.7]",
+        "[PL 192 p.7]"
+      ]
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-02.images-real-false-needs",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 77,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-02.images-real-false-needs.claim.flags.images-seldom-form-in-this-life-alone-carry",
+      "kind": "claim",
+      "parentStableKey": "topic-02.images-real-false-needs.section.flags",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 78,
+      "citations": [
+        "[PL 38 p.2; PL 192 p.3]",
+        "[PL 192 p.3]",
+        "[PL 192 p.5]",
+        "[PL 192 p.5]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 12,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.aliases",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 13,
+      "citations": [
+        "[K chart p.86]",
+        "[J ch.5]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.stage-window",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 14,
+      "citations": [
+        "[K chart p.87; K p.49]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.wound-sentence",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 15,
+      "citations": [
+        "[K p.49]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.injunction",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 16,
+      "citations": [
+        "[J p.156]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.strategy",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 17,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.holding-pattern",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 18,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.gift",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 19,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.pseudo-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 20,
+      "citations": [
+        "[ICE §Phase 1; PL 84 p.5]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.life-task",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 21,
+      "citations": [
+        "[ICE §Phase 4]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.human-need",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 22,
+      "citations": [
+        "[K chart p.93]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.t1-card.getting-out-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 23,
+      "citations": [
+        "[K p.~138]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.origins-and-mechanism",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 25,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.origins-and-mechanism.kessler-grounds-this-pattern-in-the-incarnat",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.origins-and-mechanism",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 26,
+      "citations": [
+        "[K pp.106–107]",
+        "[K p.108]",
+        "[K p.49]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.in-full-bloom",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 28,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.in-full-bloom.body",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.in-full-bloom",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 29,
+      "citations": [
+        "[K pp.115–116]",
+        "[K chart pp.89–91]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.getting-out",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 32,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.getting-out.signs",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.getting-out",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 33,
+      "citations": [
+        "[K pp.~138–139]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.healing",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 35,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.healing.they-are-comfortable-experiencing-themselves",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.healing",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 36,
+      "citations": [
+        "[K p.142]",
+        "[K p.142]",
+        "[K p.143]",
+        "[K pp.143–144]",
+        "[J pp.302–304]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.school-notes-layer",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 39,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.school-notes-layer.the-school-notes-describe-the-first-task-as",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 40,
+      "citations": [
+        "[School Leaving Notes pp. 1–2]",
+        "[School Leaving Notes p. 2]",
+        "[School Leaving Notes p. 3]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.school-notes-layer.the-school-formulation-separates-three-voice",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 42,
+      "citations": [
+        "[School Leaving Notes p. 3]",
+        "[School Leaving Notes p. 3]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.pierrakos-layer",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 44,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.pierrakos-layer.the-adult-personality-is-an-unstable-composi",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.pierrakos-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 45,
+      "citations": [
+        "[P p.98]",
+        "[P p.99]",
+        "[P p.123]"
+      ]
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-03.leaving-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 47,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-03.leaving-pattern.claim.flags.aura-field-specifics-90-field-rotation-near",
+      "kind": "claim",
+      "parentStableKey": "topic-03.leaving-pattern.section.flags",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 48,
+      "citations": [
+        "[P p.99]",
+        "[K chart p.93]",
+        "[K chart p.93]",
+        "[K chart p.92]",
+        "[ICE §Phase 4]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 54,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.aliases",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 55,
+      "citations": [
+        "[K chart p.86; K p.50]",
+        "[J ch.6]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.stage-window",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 56,
+      "citations": [
+        "[K chart p.87]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.wound-sentence",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 57,
+      "citations": [
+        "[K p.50]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.injunction",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 58,
+      "citations": [
+        "[J p.156]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.strategy",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 59,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.holding-pattern",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 60,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.gift",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 61,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.pseudo-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 62,
+      "citations": [
+        "[PL 84 pp.1–3]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.life-task",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 63,
+      "citations": [
+        "[ICE §Phase 4]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.t1-card.getting-out-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 64,
+      "citations": [
+        "[K p.186]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.origins-and-mechanism",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 66,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.origins-and-mechanism.the-instinctive-sequence-is-need-ask-receive",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.origins-and-mechanism",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 67,
+      "citations": [
+        "[K pp.168–169]",
+        "[K p.169]",
+        "[K pp.169–170]",
+        "[PL 192 p.3]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.in-full-bloom",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 69,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.in-full-bloom.body",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.in-full-bloom",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 70,
+      "citations": [
+        "[K pp.175–176]",
+        "[K chart pp.89–92]",
+        "[K pp.~310–311]",
+        "[K chart p.89]",
+        "[K chart p.90]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.getting-out",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 73,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.getting-out.signs",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.getting-out",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 74,
+      "citations": [
+        "[K pp.186–187]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.healing",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 76,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.healing.unmet-need",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.healing",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 77,
+      "citations": [
+        "[K p.188]",
+        "[K p.188]",
+        "[K pp.189–190]",
+        "[J pp.304–306]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.school-notes-layer",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 80,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.school-notes-layer.the-school-notes-make-the-broken-taking-in-s",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 81,
+      "citations": [
+        "[School Merging Notes p. 2]",
+        "[School Merging Notes p. 2]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.school-notes-layer.consequences-include-difficulty-recognizing",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 83,
+      "citations": [
+        "[School Merging Notes p. 3]",
+        "[School Merging Notes p. 3]",
+        "[School Merging Notes p. 4; PL 192]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.pierrakos-layer",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 85,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.pierrakos-layer.mask-message",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.pierrakos-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 86,
+      "citations": [
+        "[P p.94]",
+        "[P p.94]",
+        "[P p.122]",
+        "[ICE §Step 2]"
+      ]
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-04.merging-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 88,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-04.merging-pattern.claim.flags.pure-vs",
+      "kind": "claim",
+      "parentStableKey": "topic-04.merging-pattern.section.flags",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 89,
+      "citations": [
+        "[J p.305]",
+        "[K chart p.91]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 95,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.aliases",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 96,
+      "citations": [
+        "[K chart p.86]",
+        "[J ch.9]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.stage-window",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 97,
+      "citations": [
+        "[K chart p.87; K p.51]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.wound-sentence",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 98,
+      "citations": [
+        "[K p.51]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.wound-event",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 99,
+      "citations": [
+        "[K chart p.87]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.strategy",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 100,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.holding-pattern",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 101,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.gift",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 102,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.pseudo-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 103,
+      "citations": [
+        "[register S4]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.life-task",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 104,
+      "citations": [
+        "[ICE §Phase 4]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.t1-card.getting-out-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 105,
+      "citations": [
+        "[K p.277]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.origins-and-mechanism",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 107,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.origins-and-mechanism.merging-s-difficulty-is-taking-in",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.origins-and-mechanism",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 108,
+      "citations": [
+        "[K p.228]",
+        "[K p.228]",
+        "[K p.229]",
+        "[K p.51]",
+        "[K p.229]",
+        "[J ch.9 research ¶¶]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.in-full-bloom",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 110,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.in-full-bloom.body",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.in-full-bloom",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 111,
+      "citations": [
+        "[K pp.240–241]",
+        "[K p.241]",
+        "[K chart pp.89–92]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.getting-out",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 114,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.getting-out.signs",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.getting-out",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 115,
+      "citations": [
+        "[K pp.277–279]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.healing",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 117,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.healing.turn-the-will-around",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.healing",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 118,
+      "citations": [
+        "[K p.279]",
+        "[K p.280]",
+        "[K pp.279–280]",
+        "[J pp.309–310]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.school-notes-layer",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 121,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.school-notes-layer.the-school-notes-describe-the-autonomy-bind",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 122,
+      "citations": [
+        "[School Enduring Notes p. 1]",
+        "[School Enduring Notes pp. 1–2]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.school-notes-layer.their-distinctive-addition-is-the-internaliz",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 124,
+      "citations": [
+        "[School Enduring Notes p. 2]",
+        "[School Enduring Notes pp. 2–3]",
+        "[School Enduring Notes p. 3]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.pierrakos-layer",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 126,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.pierrakos-layer.etiology-sketch",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.pierrakos-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 127,
+      "citations": [
+        "[P p.95]",
+        "[P pp.95–96]",
+        "[P pp.122–123]"
+      ]
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-05.enduring-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 129,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-05.enduring-pattern.claim.flags.pl-192-s-hard-pain-warning-lands-hardest-her",
+      "kind": "claim",
+      "parentStableKey": "topic-05.enduring-pattern.section.flags",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 130,
+      "citations": [
+        "[PL 192 p.7]",
+        "[K chart p.92]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 136,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.aliases",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 137,
+      "citations": [
+        "[K chart p.86]",
+        "[P p.170]",
+        "[register S2]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.stage-window",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 138,
+      "citations": [
+        "[K chart p.87]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.wound-sentence",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 139,
+      "citations": [
+        "[K p.52]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.wound-event",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 140,
+      "citations": [
+        "[K p.297; chart p.87]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.strategy",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 141,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.holding-pattern",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 142,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.gift",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 143,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.pseudo-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 144,
+      "citations": [
+        "[PL 84 pp.3–4]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.life-task",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 145,
+      "citations": [
+        "[ICE §Phase 4]",
+        "[K p.354]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.t1-card.getting-out-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 146,
+      "citations": [
+        "[K chart p.93]",
+        "[K p.352]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.origins-and-mechanism",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 148,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.origins-and-mechanism.the-wound-is-to-trust-in-others",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.origins-and-mechanism",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 149,
+      "citations": [
+        "[K p.297]",
+        "[K pp.297–298]",
+        "[K pp.298–299]",
+        "[K p.299]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.origins-and-mechanism.rapprochement-and-the-love-power-split",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.origins-and-mechanism",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 151,
+      "citations": [
+        "[K pp.~298–300]",
+        "[K p.~300]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.in-full-bloom",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 153,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.in-full-bloom.body",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.in-full-bloom",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 154,
+      "citations": [
+        "[K pp.308–309; chart p.88]",
+        "[K p.309]",
+        "[K pp.309–310]",
+        "[K chart pp.89–92]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.getting-out",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 157,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.getting-out.signs",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.getting-out",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 158,
+      "citations": [
+        "[K pp.352–353]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.healing",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 160,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.healing.need",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.healing",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 161,
+      "citations": [
+        "[K p.354]",
+        "[K p.354]",
+        "[K pp.354–355]",
+        "[K pp.355–356]",
+        "[J pp.307–308]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.school-notes-layer",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 164,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.school-notes-layer.the-school-notes-frame-aggressive-as-a-wound",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 165,
+      "citations": [
+        "[School Aggressive Notes pp. 1–2]",
+        "[School Aggressive Notes p. 2]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.school-notes-layer.the-school-diagnostic-cluster-includes-fight",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 167,
+      "citations": [
+        "[School Aggressive Notes pp. 2–3]",
+        "[School Aggressive Notes p. 3]",
+        "[School Aggressive Notes pp. 2–4]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.pierrakos-layer",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 169,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.pierrakos-layer.ego",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.pierrakos-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 170,
+      "citations": [
+        "[P p.123]",
+        "[P p.170]"
+      ]
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-06.aggressive-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 172,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-06.aggressive-pattern.claim.flags.the-s2-knot-now-sharper",
+      "kind": "claim",
+      "parentStableKey": "topic-06.aggressive-pattern.section.flags",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 173,
+      "citations": [
+        "[K pp.~298–300, 354]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 179,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.aliases",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 180,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.stage-window",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 181,
+      "citations": [
+        "[K chart p.87]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.wound-sentence",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 182,
+      "citations": [
+        "[K p.52]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.wound-event",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 183,
+      "citations": [
+        "[K chart p.87]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.strategy",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 184,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.holding-pattern",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 185,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.gift",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 186,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.life-task",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 188,
+      "citations": [
+        "[ICE §Phase 4]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.t1-card.getting-out-solution",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.t1-card",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 189,
+      "citations": [
+        "[K p.~427]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.origins-and-mechanism",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 191,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.origins-and-mechanism.two-common-paths",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.origins-and-mechanism",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 192,
+      "citations": [
+        "[K p.373]",
+        "[K pp.373–375]",
+        "[K p.52]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.in-full-bloom",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 194,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.in-full-bloom.body",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.in-full-bloom",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 195,
+      "citations": [
+        "[K pp.385–386]",
+        "[K pp.386–387]",
+        "[K p.387]",
+        "[P p.123]",
+        "[K chart pp.87–92]",
+        "[K chart p.91]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.getting-out",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 198,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.getting-out.signs",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.getting-out",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 199,
+      "citations": [
+        "[K pp.~427–429]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.healing",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 201,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.healing.unmet-need",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.healing",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 202,
+      "citations": [
+        "[K p.430]",
+        "[K p.430]",
+        "[K pp.430–431]",
+        "[J pp.310–311]",
+        "[J pp.313–314]",
+        "[J pp.~311–312]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.school-notes-layer",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 206,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.school-notes-layer.the-school-notes-foreground-the-sexual-oedip",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 207,
+      "citations": [
+        "[School Rigid Notes pp. 1–2]",
+        "[School Rigid Notes pp. 2–3]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.school-notes-layer.this-school-account-also-supplies-a-healthy",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.school-notes-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 209,
+      "citations": [
+        "[School Rigid Notes p. 2]",
+        "[School Rigid Notes p. 3]",
+        "[School Rigid Notes p. 4]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.pierrakos-layer",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 211,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.pierrakos-layer.ego-appears-strong-but-is-cut-off-from-the-h",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.pierrakos-layer",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 212,
+      "citations": [
+        "[P p.123]",
+        "[P p.100 — attribution inferred, verify in print]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 214,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.flags.rigid-is-where-the-five-vs-seven-decision-co",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.flags",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 215,
+      "citations": [
+        "[K chart p.86]",
+        "[School Rigid Notes pp. 1–3]",
+        "[K chart p.88]",
+        "[K pp.386–387]"
+      ]
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.section.register-updates-from-this-pass",
+      "kind": "section",
+      "parentStableKey": "topic-07.rigid-pattern",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 219,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-07.rigid-pattern.claim.register-updates-from-this-pass.s2-upgraded",
+      "kind": "claim",
+      "parentStableKey": "topic-07.rigid-pattern.section.register-updates-from-this-pass",
+      "sourceKey": "canonical.five-patterns",
+      "legacyLine": 220,
+      "citations": [
+        "[K p.354]",
+        "[K pp.~298–300]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-08.ego-functions-development",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 84,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.t1-card.positive-functions-pierrakos",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 85,
+      "citations": [
+        "[P p.113]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.t1-card.proper-role",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 86,
+      "citations": [
+        "[P p.113]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.t1-card.the-ce-difference-from-psychoanalysis-stated",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 87,
+      "citations": [
+        "[P p.113]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.t1-card.negative-aspect",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 88,
+      "citations": [
+        "[P p.113]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.t1-card.little-ego-vs-creative-ego",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 89,
+      "citations": [
+        "[PL 30 p.3]",
+        "[ICE §The Higher Self]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.section.development-three-frames-tiered-together",
+      "kind": "section",
+      "parentStableKey": "topic-08.ego-functions-development",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 91,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.development-three-frames-tiered-together.kessler-s-five-stages-as-ego-capacity-acquis",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.development-three-frames-tiered-together",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 92,
+      "citations": [
+        "[K pp.49–52]",
+        "[P pp.122–123]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.development-three-frames-tiered-together.johnson-s-ego-psychology-frame",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.development-three-frames-tiered-together",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 93,
+      "citations": [
+        "[J p.155]",
+        "[J pp.39–40]",
+        "[J p.293]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.development-three-frames-tiered-together.thesenga-s-working-triad",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.development-three-frames-tiered-together",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 94,
+      "citations": [
+        "[T ch.4 title + exercises]",
+        "[T ch.4 exercise: \"Bring the positive adult ego into dialogue with the inner child\"]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.section.the-apparent-contradiction-resolved-as-seque",
+      "kind": "section",
+      "parentStableKey": "topic-08.ego-functions-development",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 96,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.the-apparent-contradiction-resolved-as-seque.hindrance-stream",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.the-apparent-contradiction-resolved-as-seque",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 97,
+      "citations": [
+        "[PL 30 pp.3–4; PL 192 p.1]",
+        "[ICE §Preliminary Steps]",
+        "[J p.304]",
+        "[P p.113]"
+      ]
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.section.cross-link-to-pride-self-will-fear",
+      "kind": "section",
+      "parentStableKey": "topic-08.ego-functions-development",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 99,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-08.ego-functions-development.claim.cross-link-to-pride-self-will-fear.the-progenitors-of-this-confusion-are-self-w",
+      "kind": "claim",
+      "parentStableKey": "topic-08.ego-functions-development.section.cross-link-to-pride-self-will-fear",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 100,
+      "citations": [
+        "[P pp.123–124]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-09.reason-will-emotion",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 106,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.t1-card.three-basic-personality-types-each-governing",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 107,
+      "citations": [
+        "[PL 43 p.2]",
+        "[PL 43 pp.5–6]",
+        "[PL 43 p.6]",
+        "[PL 43 p.3]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.section.the-three-types-produce-any-one-fluently",
+      "kind": "section",
+      "parentStableKey": "topic-09.reason-will-emotion",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 109,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.the-three-types-produce-any-one-fluently.reason-type",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.the-three-types-produce-any-one-fluently",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 110,
+      "citations": [
+        "[PL 43 pp.2–3]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.the-three-types-produce-any-one-fluently.emotion-type",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.the-three-types-produce-any-one-fluently",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 111,
+      "citations": [
+        "[PL 43 p.3]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.the-three-types-produce-any-one-fluently.will-type",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.the-three-types-produce-any-one-fluently",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 112,
+      "citations": [
+        "[PL 43 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.the-three-types-produce-any-one-fluently.mutual-dynamic",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.the-three-types-produce-any-one-fluently",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 113,
+      "citations": [
+        "[PL 43 pp.3–4]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.section.complications-worth-citing-under-pressure",
+      "kind": "section",
+      "parentStableKey": "topic-09.reason-will-emotion",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 115,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.complications-worth-citing-under-pressure.mask-type",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.complications-worth-citing-under-pressure",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 116,
+      "citations": [
+        "[PL 43 p.4]",
+        "[PL 43 p.7]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.complications-worth-citing-under-pressure.most-people",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.complications-worth-citing-under-pressure",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 117,
+      "citations": [
+        "[PL 43 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.complications-worth-citing-under-pressure.types-persist-after-purification",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.complications-worth-citing-under-pressure",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 118,
+      "citations": [
+        "[PL 43 p.7]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.complications-worth-citing-under-pressure.physical-correlation-affirmed",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.complications-worth-citing-under-pressure",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 119,
+      "citations": [
+        "[PL 43 p.5]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.complications-worth-citing-under-pressure.situational-typing-exists-reacting-with-emot",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.complications-worth-citing-under-pressure",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 120,
+      "citations": [
+        "[PL 43 p.5]"
+      ]
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.section.bridge-to-pl-84-and-the-patterns-d3-separate",
+      "kind": "section",
+      "parentStableKey": "topic-09.reason-will-emotion",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 122,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-09.reason-will-emotion.claim.bridge-to-pl-84-and-the-patterns-d3-separate.pl-43-s-triad-perfects-as-wisdom-love-courag",
+      "kind": "claim",
+      "parentStableKey": "topic-09.reason-will-emotion.section.bridge-to-pl-84-and-the-patterns-d3-separate",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 123,
+      "citations": [
+        "[PL 84 p.1]",
+        "[register S4; crosswalk T4]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-10.pride-self-will-fear",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 129,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.t1-card.the-three-basic-hindrances-to-perfection-whi",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 130,
+      "citations": [
+        "[PL 30 p.3]",
+        "[PL 30 p.3]",
+        "[PL 30 p.3]",
+        "[PL 30 p.3]",
+        "[PL 30 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.section.the-mechanics-how-one-generates-another",
+      "kind": "section",
+      "parentStableKey": "topic-10.pride-self-will-fear",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 132,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-mechanics-how-one-generates-another.self-will-fear",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-mechanics-how-one-generates-another",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 133,
+      "citations": [
+        "[PL 30 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-mechanics-how-one-generates-another.pride-fear",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-mechanics-how-one-generates-another",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 134,
+      "citations": [
+        "[PL 30 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-mechanics-how-one-generates-another.self-will-pride",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-mechanics-how-one-generates-another",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 135,
+      "citations": [
+        "[PL 30 p.5]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-mechanics-how-one-generates-another.remedy-direction",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-mechanics-how-one-generates-another",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 136,
+      "citations": [
+        "[PL 30 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.section.the-welds-this-topic-s-real-exam-value-is-it",
+      "kind": "section",
+      "parentStableKey": "topic-10.pride-self-will-fear",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 138,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-welds-this-topic-s-real-exam-value-is-it.to-images",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-welds-this-topic-s-real-exam-value-is-it",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 139,
+      "citations": [
+        "[PL 38 p.4]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-welds-this-topic-s-real-exam-value-is-it.to-the-five-patterns-global",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-welds-this-topic-s-real-exam-value-is-it",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 140,
+      "citations": [
+        "[P p.93]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-welds-this-topic-s-real-exam-value-is-it.to-the-patterns-per-structure-partial",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-welds-this-topic-s-real-exam-value-is-it",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 141,
+      "citations": [
+        "[P p.94]",
+        "[P p.99]",
+        "[register E3]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-welds-this-topic-s-real-exam-value-is-it.to-the-ego-and-the-mask",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-welds-this-topic-s-real-exam-value-is-it",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 142,
+      "citations": [
+        "[P p.123]"
+      ]
+    },
+    {
+      "stableKey": "topic-10.pride-self-will-fear.claim.the-welds-this-topic-s-real-exam-value-is-it.to-false-needs",
+      "kind": "claim",
+      "parentStableKey": "topic-10.pride-self-will-fear.section.the-welds-this-topic-s-real-exam-value-is-it",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 143,
+      "citations": [
+        "[PL 192 p.5]",
+        "[PL 192 p.1]"
+      ]
+    },
+    {
+      "stableKey": "topic-11.narcissism.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-11.narcissism",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 149,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-11.narcissism.claim.t1-card.the-two-keys",
+      "kind": "claim",
+      "parentStableKey": "topic-11.narcissism.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 150,
+      "citations": [
+        "[J p.155]"
+      ]
+    },
+    {
+      "stableKey": "topic-11.narcissism.claim.t1-card.the-injury",
+      "kind": "claim",
+      "parentStableKey": "topic-11.narcissism.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 151,
+      "citations": [
+        "[J p.155]"
+      ]
+    },
+    {
+      "stableKey": "topic-11.narcissism.claim.t1-card.the-injury-s-message",
+      "kind": "claim",
+      "parentStableKey": "topic-11.narcissism.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 152,
+      "citations": [
+        "[J pp.155–156]"
+      ]
+    },
+    {
+      "stableKey": "topic-11.narcissism.claim.t1-card.dual-status-register-s2",
+      "kind": "claim",
+      "parentStableKey": "topic-11.narcissism.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 153,
+      "citations": [
+        "[J pp.156–157]",
+        "[J p.156]"
+      ]
+    },
+    {
+      "stableKey": "topic-11.narcissism.section.the-three-expressions-vertical-split",
+      "kind": "section",
+      "parentStableKey": "topic-11.narcissism",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 155,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-11.narcissism.claim.the-three-expressions-vertical-split.structure",
+      "kind": "claim",
+      "parentStableKey": "topic-11.narcissism.section.the-three-expressions-vertical-split",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 156,
+      "citations": [
+        "[J ch.8 §\"Three Expressions of Narcissism,\" pp.~171–172]",
+        "[J p.172]",
+        "[J p.172]",
+        "[J p.172]"
+      ]
+    },
+    {
+      "stableKey": "topic-11.narcissism.section.etiology-mechanics",
+      "kind": "section",
+      "parentStableKey": "topic-11.narcissism",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 158,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-11.narcissism.claim.etiology-mechanics.narcissistic-cathexis",
+      "kind": "claim",
+      "parentStableKey": "topic-11.narcissism.section.etiology-mechanics",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 159,
+      "citations": [
+        "[J p.159]",
+        "[J p.159]",
+        "[J ch.8, ~p.160]",
+        "[J pp.156–157]",
+        "[J p.159]"
+      ]
+    },
+    {
+      "stableKey": "topic-11.narcissism.section.in-the-five-pattern-frame-d1-translation",
+      "kind": "section",
+      "parentStableKey": "topic-11.narcissism",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 161,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-11.narcissism.claim.in-the-five-pattern-frame-d1-translation.as-dimension",
+      "kind": "claim",
+      "parentStableKey": "topic-11.narcissism.section.in-the-five-pattern-frame-d1-translation",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 162,
+      "citations": [
+        "[J p.156]",
+        "[K p.297]",
+        "[J pp.155–156, 160]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.section.t1-card",
+      "kind": "section",
+      "parentStableKey": "topic-12.rapprochement-crisis",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 169,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.t1-card.mahler-s-subphase-via-johnson",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 170,
+      "citations": [
+        "[J p.37; J ch.7 development ¶¶]",
+        "[J p.159; J ch.7]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.t1-card.why-a-crisis",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 171,
+      "citations": [
+        "[K pp.~298–299]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.t1-card.johnson",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 173,
+      "citations": [
+        "[J pp.158–159]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.t1-card.kessler",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 174,
+      "citations": [
+        "[K p.~299]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.t1-card.even-under-the-best-of-circumstances-this-in",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.t1-card",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 175,
+      "citations": [
+        "[J p.158; K p.~299]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.section.which-structures-it-produces-the-multi-patte",
+      "kind": "section",
+      "parentStableKey": "topic-12.rapprochement-crisis",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 177,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.which-structures-it-produces-the-multi-patte.johnson-s-split",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.which-structures-it-produces-the-multi-patte",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 178,
+      "citations": [
+        "[J pp.158–159]",
+        "[J ch.9]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.which-structures-it-produces-the-multi-patte.kessler-s-version",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.which-structures-it-produces-the-multi-patte",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 179,
+      "citations": [
+        "[K pp.~299–300]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.which-structures-it-produces-the-multi-patte.plus-the-dimension-claim",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.which-structures-it-produces-the-multi-patte",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 180,
+      "citations": [
+        "[J p.156]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.section.what-good-enough-parenting-looks-like-here",
+      "kind": "section",
+      "parentStableKey": "topic-12.rapprochement-crisis",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 183,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.what-good-enough-parenting-looks-like-here.this-is-the-subphase-in-which-it-appears-to",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.what-good-enough-parenting-looks-like-here",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 184,
+      "citations": [
+        "[J p.159]",
+        "[J p.159]",
+        "[K p.~300]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.section.flags",
+      "kind": "section",
+      "parentStableKey": "topic-12.rapprochement-crisis",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 186,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.section.register-updates-from-this-pass",
+      "kind": "section",
+      "parentStableKey": "topic-12.rapprochement-crisis",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 191,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.register-updates-from-this-pass.t3-d2-partially-resolved",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.register-updates-from-this-pass",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 192,
+      "citations": [
+        "[T ch.6]"
+      ]
+    },
+    {
+      "stableKey": "topic-12.rapprochement-crisis.claim.register-updates-from-this-pass.pl-14-upgraded-from-web-to-in-corpus",
+      "kind": "claim",
+      "parentStableKey": "topic-12.rapprochement-crisis.section.register-updates-from-this-pass",
+      "sourceKey": "canonical.seven-topics",
+      "legacyLine": 195,
+      "citations": [
+        "[T ch.6]"
+      ]
+    },
+    {
+      "stableKey": "reference.study-guide.section.the-documents",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 5,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role",
+      "kind": "table",
+      "parentStableKey": "reference.study-guide.section.the-documents",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 6
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.00mastertoc-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 8,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.00extractionrecord-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 9,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.01conflictregister-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 10,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.02crosswalk-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 11,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.03fivepatterns-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 12,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.04seventopics-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 13,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.05gapregister-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 14,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.06kesslerchartverified-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 15,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.07correctionstodo-md",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 16,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.table.the-documents.file-role.cesources",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.study-guide.table.the-documents.file-role",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 17,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.study-guide.section.topic-1-mask-lower-self-higher-self-04-1",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 21,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.topic-2-images-and-real-and-false-needs-04-2",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 25,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.topics-3-7-the-five-patterns-03-02-tables",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 29,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.topic-8-ego-functions-and-development-04-3-0",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 37,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.topic-9-reason-will-and-emotion-04-4-02-t4-b",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 40,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.topic-10-pride-self-will-and-fear-04-5",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 44,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.topic-11-narcissism-04-6",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 48,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.topic-12-the-rapprochement-crisis-04-7",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 51,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.user-owned-topics",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 55,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.pass-4-complete-05gapregister-md",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 60,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.study-guide.section.phase-1-is-complete-into-phase-2-memorisatio",
+      "kind": "section",
+      "parentStableKey": "reference.study-guide",
+      "sourceKey": "canonical.master-toc",
+      "legacyLine": 71,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.conflict-register.section.citation-legend-all-phase-1-documents",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 5,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "kind": "table",
+      "parentStableKey": "reference.conflict-register.section.citation-legend-all-phase-1-documents",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 7
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.k-p-n",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 9,
+      "citations": [
+        "[K p.N]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.k-chart-p-n",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 10,
+      "citations": [
+        "[K chart p.N]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.j-p-n",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 11,
+      "citations": [
+        "[J p.N]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.j-ch-n",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 12,
+      "citations": [
+        "[J ch.N \"…\"]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.p-p-n",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 13,
+      "citations": [
+        "[P p.N]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.pl-nn-p-n",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 14,
+      "citations": [
+        "[PL nn p.N]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.ice",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 15,
+      "citations": [
+        "[ICE §…]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means.pl-14-p-n",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.conflict-register.table.citation-legend-all-phase-1-documents.key-means",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 16,
+      "citations": [
+        "[PL 14 p.N]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.citation-legend-all-phase-1-documents.known-scan-gap",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.citation-legend-all-phase-1-documents",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 18,
+      "citations": [
+        "[P p.123]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s-substantive-conflicts",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 22,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s1-how-many-structures-five-or-seven",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 24,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s1-how-many-structures-five-or-seven.kessler-five",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s1-how-many-structures-five-or-seven",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 25,
+      "citations": [
+        "[K p.8 TOC; chs. 7–11]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s1-how-many-structures-five-or-seven.pierrakos-five",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s1-how-many-structures-five-or-seven",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 26,
+      "citations": [
+        "[P p.93]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s1-how-many-structures-five-or-seven.johnson-seven",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s1-how-many-structures-five-or-seven",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 27,
+      "citations": [
+        "[J TOC pp. ix–xi]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s1-how-many-structures-five-or-seven.ice-article-five",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s1-how-many-structures-five-or-seven",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 28,
+      "citations": [
+        "[ICE §Phase 4 life-task paragraph]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s1-how-many-structures-five-or-seven.if-asked",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s1-how-many-structures-five-or-seven",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 30,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s2-where-does-narcissism-live",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 32,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s2-where-does-narcissism-live.johnson-dual-status",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s2-where-does-narcissism-live",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 33,
+      "citations": [
+        "[J p.156]",
+        "[J pp.156–157, naming Adler, Blanck & Blanck, Miller, Lowen as lineage for the generalized view]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s2-where-does-narcissism-live.kessler-not-a-pattern",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s2-where-does-narcissism-live",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 34,
+      "citations": [
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s2-where-does-narcissism-live.pierrakos-not-a-structure",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s2-where-does-narcissism-live",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 35,
+      "citations": [
+        "[P p.100 — attribution caveat above]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s2-where-does-narcissism-live.the-tension-inside-the-crosswalk",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s2-where-does-narcissism-live",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 36,
+      "citations": [
+        "[P p.170]",
+        "[J pp.37, 156]",
+        "[K pp.51–52]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s2-where-does-narcissism-live.pass-2-upgrade",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s2-where-does-narcissism-live",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 37,
+      "citations": [
+        "[K pp.~298–300]",
+        "[K p.354]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s2-where-does-narcissism-live.verified-pass-5",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s2-where-does-narcissism-live",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 38,
+      "citations": [
+        "[K chart p.87; see `06_KESSLER_CHART_VERIFIED.md`]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s3-what-causes-a-pattern-etiology-ontology",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 41,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s3-what-causes-a-pattern-etiology-ontology.johnson",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s3-what-causes-a-pattern-etiology-ontology",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 42,
+      "citations": [
+        "[J ch. 5–11 spines]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s3-what-causes-a-pattern-etiology-ontology.kessler-four-factors",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s3-what-causes-a-pattern-etiology-ontology",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 43,
+      "citations": [
+        "[K pp.54–55]",
+        "[K p.54]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s3-what-causes-a-pattern-etiology-ontology.pathwork",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s3-what-causes-a-pattern-etiology-ontology",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 44,
+      "citations": [
+        "[PL 38 p.2; PL 192 p.3 repeats the mechanism]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s3-what-causes-a-pattern-etiology-ontology.pierrakos",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s3-what-causes-a-pattern-etiology-ontology",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 45,
+      "citations": [
+        "[P p.93]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s4-three-pseudo-solutions-cannot-partition-f",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 48,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s4-three-pseudo-solutions-cannot-partition-f.pl-84",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s4-three-pseudo-solutions-cannot-partition-f",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 49,
+      "citations": [
+        "[PL 84 p.1]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s4-three-pseudo-solutions-cannot-partition-f.ice",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s4-three-pseudo-solutions-cannot-partition-f",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 50,
+      "citations": [
+        "[ICE §Phase 1]",
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s4-three-pseudo-solutions-cannot-partition-f.evidence-for-the-two-candidate-answers-on-ri",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s4-three-pseudo-solutions-cannot-partition-f",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 52,
+      "citations": [
+        "[K chart pp.86, 88, 90]",
+        "[K chart pp.87, 89]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s5-how-fixed-is-character-state-or-type",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 55,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s5-how-fixed-is-character-state-or-type.kessler",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s5-how-fixed-is-character-state-or-type",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 56,
+      "citations": [
+        "[K p.29, section title \"Your Survival Patterns Are Not Who You Are\"]",
+        "[K p.37]",
+        "[K ch.12, p.441]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s5-how-fixed-is-character-state-or-type.pierrakos",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s5-how-fixed-is-character-state-or-type",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 57,
+      "citations": [
+        "[P p.93]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s5-how-fixed-is-character-state-or-type.johnson",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s5-how-fixed-is-character-state-or-type",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 58,
+      "citations": [
+        "[J ch.1]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s6-lower-self-eliminate-or-transform",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 61,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s6-lower-self-eliminate-or-transform.pathwork-pl-14",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s6-lower-self-eliminate-or-transform",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 62,
+      "citations": [
+        "[PL 14 p.1]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s6-lower-self-eliminate-or-transform.ice",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s6-lower-self-eliminate-or-transform",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 63,
+      "citations": [
+        "[ICE §Step 2]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s7-ego-hindrance-or-prerequisite",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 66,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s7-ego-hindrance-or-prerequisite.hindrance-stream",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s7-ego-hindrance-or-prerequisite",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 67,
+      "citations": [
+        "[PL 30 pp.3–4]",
+        "[PL 192 p.1]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s7-ego-hindrance-or-prerequisite.prerequisite-stream",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s7-ego-hindrance-or-prerequisite",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 68,
+      "citations": [
+        "[ICE §Preliminary Steps]",
+        "[ICE §The Higher Self]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s7-ego-hindrance-or-prerequisite.sharpened-pass-4-pl-14-goes-further-than-lit",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s7-ego-hindrance-or-prerequisite",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 69,
+      "citations": [
+        "[PL 14 p.1]",
+        "[P p.113]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s10-two-incompatible-origin-stories-for-the",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 72,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s10-two-incompatible-origin-stories-for-the.pl-14-moral-self-deception-ongoing-and-avoid",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s10-two-incompatible-origin-stories-for-the",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 73,
+      "citations": [
+        "[PL 14 pp.2–3]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s10-two-incompatible-origin-stories-for-the.ice-thesenga-childhood-defensive-adaptation",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s10-two-incompatible-origin-stories-for-the",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 74,
+      "citations": [
+        "[ICE §Phase 1]",
+        "[T ch.6]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s10-two-incompatible-origin-stories-for-the.why-it-matters-clinically",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s10-two-incompatible-origin-stories-for-the",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 75,
+      "citations": [
+        "[K p.29]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s8-express-or-contain-the-contraindication-r",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 78,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s8-express-or-contain-the-contraindication-r.pl-192",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s8-express-or-contain-the-contraindication-r",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 79,
+      "citations": [
+        "[PL 192 pp.6–7]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s8-express-or-contain-the-contraindication-r.ice",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s8-express-or-contain-the-contraindication-r",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 80,
+      "citations": [
+        "[ICE §Step 2]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s8-express-or-contain-the-contraindication-r.pierrakos",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s8-express-or-contain-the-contraindication-r",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 81,
+      "citations": [
+        "[P ch.19]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.s9-developmental-windows-don-t-line-up-clean",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 84,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s9-developmental-windows-don-t-line-up-clean.kessler-enduring-1-3-yrs-vs",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s9-developmental-windows-don-t-line-up-clean",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 86,
+      "citations": [
+        "[K p.51]",
+        "[J ch.9 \"The Defeated Child,\" research-review ¶¶ citing 18-month and two-year findings]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s9-developmental-windows-don-t-line-up-clean.kessler-aggressive-2-4-yrs-vs",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s9-developmental-windows-don-t-line-up-clean",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 87,
+      "citations": [
+        "[K pp.51–52]",
+        "[J p.37]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.s9-developmental-windows-don-t-line-up-clean.mahler-anchors-via-johnson",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.s9-developmental-windows-don-t-line-up-clean",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 88,
+      "citations": [
+        "[J ch.7 \"The Owned Child\" development ¶¶; J p.37]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.t-terminological-seams",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 93,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.conflict-register.section.t1-the-naming-crosswalk-is-not-1-1",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 95,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t1-the-naming-crosswalk-is-not-1-1.displaced-aggressive-psychopathic",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t1-the-naming-crosswalk-is-not-1-1",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 97,
+      "citations": [
+        "[P p.170]",
+        "[ICE §Phase 1 example; §Phase 4]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t1-the-naming-crosswalk-is-not-1-1.rigid-absorbs-two-of-johnson-s-structures",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t1-the-naming-crosswalk-is-not-1-1",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 98,
+      "citations": [
+        "[J chs. 10–11]",
+        "[K chart p.86]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t1-the-naming-crosswalk-is-not-1-1.symbiotic-has-no-home-in-the-five",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t1-the-naming-crosswalk-is-not-1-1",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 99,
+      "citations": [
+        "[J p.156]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.t2-wisdom-vs-serenity",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 101,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t2-wisdom-vs-serenity.pl-43-perfects-the-reason-type-as-the-angel",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t2-wisdom-vs-serenity",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 102,
+      "citations": [
+        "[PL 43 p.6]",
+        "[PL 84 p.1]",
+        "[ICE §opening]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.t3-mask-self-idealized-self-image",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 104,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t3-mask-self-idealized-self-image.the-mask-self-and-the-idealized-self-image-a",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t3-mask-self-idealized-self-image",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 105,
+      "citations": [
+        "[PL 83 p.1]",
+        "[PL 84 pp.1–5]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.t4-armor-vs-structure-vs-pattern",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 107,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t4-armor-vs-structure-vs-pattern.character-armor",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t4-armor-vs-structure-vs-pattern",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 108,
+      "citations": [
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t4-armor-vs-structure-vs-pattern.character-defense",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t4-armor-vs-structure-vs-pattern",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 109,
+      "citations": [
+        "[ICE §The Higher Self]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.t4-armor-vs-structure-vs-pattern.survival-pattern",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.t4-armor-vs-structure-vs-pattern",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 110,
+      "citations": [
+        "[K ch.2]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.e-extensions-and-asymmetries",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 115,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.conflict-register.section.e1-the-energy-economy-of-the-three-layers-is",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 117,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.e1-the-energy-economy-of-the-three-layers-is.correction-entered-pass-4",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.e1-the-energy-economy-of-the-three-layers-is",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 118,
+      "citations": [
+        "[PL 14 pp.1, 3]",
+        "[ICE §§Phase 1–2]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.e2-two-mechanisms-for-one-phenomenon-false-n",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 121,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.e2-two-mechanisms-for-one-phenomenon-false-n.pl-192",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.e2-two-mechanisms-for-one-phenomenon-false-n",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 122,
+      "citations": [
+        "[PL 192 pp.3, 5–6]",
+        "[PL 192 p.4]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.e2-two-mechanisms-for-one-phenomenon-false-n.kessler",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.e2-two-mechanisms-for-one-phenomenon-false-n",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 123,
+      "citations": [
+        "[K pp.29, 37; ch.2 section titles]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.e3-pierrakos-runs-pl-30-at-per-structure-res",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 126,
+      "headingLevel": 3
+    },
+    {
+      "stableKey": "reference.conflict-register.claim.e3-pierrakos-runs-pl-30-at-per-structure-res.beyond-the-global-claim-all-structures-root",
+      "kind": "claim",
+      "parentStableKey": "reference.conflict-register.section.e3-pierrakos-runs-pl-30-at-per-structure-res",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 127,
+      "citations": [
+        "[P p.93]",
+        "[P p.94]",
+        "[P p.99]"
+      ]
+    },
+    {
+      "stableKey": "reference.conflict-register.section.feeds-forward",
+      "kind": "section",
+      "parentStableKey": "reference.conflict-register",
+      "sourceKey": "canonical.conflict-register",
+      "legacyLine": 131,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.section.t1-master-naming-crosswalk",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 7,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t1-master-naming-crosswalk",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 9
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch.leaving",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 11,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch.merging",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 12,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch.enduring",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 13,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch.aggressive",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 14,
+      "citations": [
+        "[P p.170]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch.rigid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 15,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch.out-of-scope-d1",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t1-master-naming-crosswalk.kessler-exam-base-kessler-s-own-aliases-k-ch",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 16,
+      "citations": [
+        "[J p.156]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t1-master-naming-crosswalk.self-reliant-under-merging-kessler-s-compens",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t1-master-naming-crosswalk",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 19,
+      "citations": [
+        "[K p.50]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t1-master-naming-crosswalk.aggressive-narcissistic-is-a-neighborhood-no",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t1-master-naming-crosswalk",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 20,
+      "citations": [
+        "[J pp.37,156; K pp.51–52]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t1-master-naming-crosswalk.pierrakos-renamed-psychopathic-aggressive-to",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t1-master-naming-crosswalk",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 21,
+      "citations": [
+        "[P p.170]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.section.t2-developmental-windows",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 25,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t2-developmental-windows",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 27
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52.leaving",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 29,
+      "citations": [
+        "[K chart p.87]",
+        "[J ch.2 pp.21–27]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52.merging",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 30,
+      "citations": [
+        "[K chart p.87]",
+        "[J ch.2 pp.27–34]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52.enduring",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 31,
+      "citations": [
+        "[K chart p.87]",
+        "[J ch.9 research ¶¶]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52.aggressive",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 32,
+      "citations": [
+        "[K chart p.87]",
+        "[J pp.37,156]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52.rigid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t2-developmental-windows.pattern-kessler-stage-k-pp-49-52",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 33,
+      "citations": [
+        "[K chart p.87]",
+        "[J ch.4; \"oedipal\" stage refs, ch.10]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t2-developmental-windows.mahler-anchors-via-johnson",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t2-developmental-windows",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 35,
+      "citations": [
+        "[J p.37; J ch.7 development ¶¶]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.section.t3-wound-injunction-doubts-and-fears",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 39,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t3-wound-injunction-doubts-and-fears",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 41
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156.leaving",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 43,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156.merging",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 44,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156.enduring",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 45,
+      "citations": [
+        "[P p.95]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156.aggressive",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 46,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156.rigid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-parental-injunction-j-p-156",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 47,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t3-wound-injunction-doubts-and-fears.doubts",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t3-wound-injunction-doubts-and-fears",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 49,
+      "citations": [
+        "[K chart p.89]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t3-wound-injunction-doubts-and-fears",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 51
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89.leaving",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 53,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89.merging",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 54,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89.enduring",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 55,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89.aggressive",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 56,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89.rigid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t3-wound-injunction-doubts-and-fears.pattern-doubts-k-chart-p-89",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 57,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.section.t4-pseudo-solution-mask-distortion-mapping-t",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 61,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t4-pseudo-solution-mask-distortion-mapping-t.source-triad",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t4-pseudo-solution-mask-distortion-mapping-t",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 63,
+      "citations": [
+        "[PL 84 p.1]",
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t4-pseudo-solution-mask-distortion-mapping-t",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 65
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution.leaving",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 67,
+      "citations": [
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution.merging",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 68,
+      "citations": [
+        "[PL 84 pp.1–3]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution.enduring",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 69,
+      "citations": [
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution.aggressive",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 70,
+      "citations": [
+        "[PL 84 pp.3–4]",
+        "[ICE §Phase 1]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution.rigid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pattern-pseudo-solution",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 71,
+      "citations": [
+        "[K chart pp.86,88,90]",
+        "[K chart pp.87,89]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pl-43-type-perfected-as-pl-43-p-6",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t4-pseudo-solution-mask-distortion-mapping-t",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 75
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pl-43-type-perfected-as-pl-43-p-6.reason",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pl-43-type-perfected-as-pl-43-p-6",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 77,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pl-43-type-perfected-as-pl-43-p-6.emotion",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pl-43-type-perfected-as-pl-43-p-6",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 78,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pl-43-type-perfected-as-pl-43-p-6.will",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t4-pseudo-solution-mask-distortion-mapping-t.pl-43-type-perfected-as-pl-43-p-6",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 79,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.section.t5-life-task-per-structure-ice-phase-4-one-p",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 83,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t5-life-task-per-structure-ice-phase-4-one-p",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 85
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task.leaving-fragmented-schizoid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 87,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task.merging-oral-collapsed",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 88,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task.enduring-masochistic",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 89,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task.aggressive-displaced",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 90,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task.rigid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t5-life-task-per-structure-ice-phase-4-one-p.pattern-ice-name-life-task",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 91,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t5-life-task-per-structure-ice-phase-4-one-p.the-wound-treasure-logic",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t5-life-task-per-structure-ice-phase-4-one-p",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 93,
+      "citations": [
+        "[ICE §The Higher Self]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.section.t6-ego-per-structure-p-ch-11-the-ego-and-the",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 97,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr",
+      "kind": "table",
+      "parentStableKey": "reference.crosswalks.section.t6-ego-per-structure-p-ch-11-the-ego-and-the",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 99
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr.merging-oral",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 101,
+      "citations": [
+        "[P p.122]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr.enduring-masochistic",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 102,
+      "citations": [
+        "[P pp.122–123]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr.aggressive",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 103,
+      "citations": [
+        "[P p.123]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr.leaving-schizoid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 104,
+      "citations": [
+        "[P p.123]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr.rigid",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.crosswalks.table.t6-ego-per-structure-p-ch-11-the-ego-and-the.pattern-ego-description-condensed-from-pierr",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 105,
+      "citations": [
+        "[P p.123]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t6-ego-per-structure-p-ch-11-the-ego-and-the.cross-link-ego-topic-pl-30",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t6-ego-per-structure-p-ch-11-the-ego-and-the",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 107,
+      "citations": [
+        "[P p.123]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.section.t7-chart-row-index",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 111,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.t7-chart-row-index.mnemonic-for-the-five-holding-patterns",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.t7-chart-row-index",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 117,
+      "citations": [
+        "[K chart p.88]"
+      ]
+    },
+    {
+      "stableKey": "reference.crosswalks.section.gap-hooks-gap-register-pass-4",
+      "kind": "section",
+      "parentStableKey": "reference.crosswalks",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 121,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.crosswalks.claim.gap-hooks-gap-register-pass-4.pride-self-will-fear-per-structure-only-oral",
+      "kind": "claim",
+      "parentStableKey": "reference.crosswalks.section.gap-hooks-gap-register-pass-4",
+      "sourceKey": "canonical.crosswalk",
+      "legacyLine": 123,
+      "citations": [
+        "[P pp.94, 99]"
+      ]
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.part-a-the-gaps",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 7,
+      "headingLevel": 1
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.a1-ask-your-teachers-7",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 11,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "kind": "table",
+      "parentStableKey": "reference.gaps-question-bank.section.a1-ask-your-teachers-7",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 13
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question.q1",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 15,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question.q2",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 16,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question.q3",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 17,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question.q4",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 18,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question.q5",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 19,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question.q6",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 20,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question.q7",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a1-ask-your-teachers-7.question",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 21,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.a2-verify-against-print-or-a-clean-copy-4",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 23,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item",
+      "kind": "table",
+      "parentStableKey": "reference.gaps-question-bank.section.a2-verify-against-print-or-a-clean-copy-4",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 25
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item.v1",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 27,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item.v2-closed-pass-5",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 28,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item.v3",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 29,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item.v4",
+      "kind": "reference_entry",
+      "parentStableKey": "reference.gaps-question-bank.table.a2-verify-against-print-or-a-clean-copy-4.item",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 30,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.a3-only-clinical-experience-resolves-these-5",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 34,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.claim.a3-only-clinical-experience-resolves-these-5.discriminating-hard-pain-from-soft-pain-in-a",
+      "kind": "claim",
+      "parentStableKey": "reference.gaps-question-bank.section.a3-only-clinical-experience-resolves-these-5",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 38,
+      "citations": [
+        "[PL 192 pp.6–7]"
+      ]
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.claim.a3-only-clinical-experience-resolves-these-5.assessing-readiness-for-lower-self-work",
+      "kind": "claim",
+      "parentStableKey": "reference.gaps-question-bank.section.a3-only-clinical-experience-resolves-these-5",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 39,
+      "citations": [
+        "[ICE §Step 2]"
+      ]
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.claim.a3-only-clinical-experience-resolves-these-5.distinguishing-genuine-remorse-from-guilt-re",
+      "kind": "claim",
+      "parentStableKey": "reference.gaps-question-bank.section.a3-only-clinical-experience-resolves-these-5",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 41,
+      "citations": [
+        "[ICE §Step 2]"
+      ]
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.part-b-the-question-bank",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 46,
+      "headingLevel": 1
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b1-mask-lower-self-higher-self-10",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 50,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b2-images-and-real-false-needs-10",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 62,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b3-the-five-patterns-per-pattern-25",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 74,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b4-the-five-patterns-comparative-10",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 82,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b5-crosswalk-8",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 94,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b6-ego-reason-will-emotion-pride-self-will-f",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 104,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b7-narcissism-and-rapprochement-9",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 118,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.b8-clinical-healer-judgment-6",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 129,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.part-c-what-the-bank-exposed",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 139,
+      "headingLevel": 1
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.claim.part-c-what-the-bank-exposed.g1-question-50-pre-verbal-patterns",
+      "kind": "claim",
+      "parentStableKey": "reference.gaps-question-bank.section.part-c-what-the-bank-exposed",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 150,
+      "citations": [
+        "[K p.142]"
+      ]
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.claim.part-c-what-the-bank-exposed.g2-question-71-mask-type-detection",
+      "kind": "claim",
+      "parentStableKey": "reference.gaps-question-bank.section.part-c-what-the-bank-exposed",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 151,
+      "citations": [
+        "[PL 43 p.4]"
+      ]
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.claim.part-c-what-the-bank-exposed.g3-question-88-seeing-the-higher-self-first",
+      "kind": "claim",
+      "parentStableKey": "reference.gaps-question-bank.section.part-c-what-the-bank-exposed",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 152,
+      "citations": [
+        "[ICE §The Higher Self]"
+      ]
+    },
+    {
+      "stableKey": "reference.gaps-question-bank.section.phase-1-complete",
+      "kind": "section",
+      "parentStableKey": "reference.gaps-question-bank",
+      "sourceKey": "canonical.gap-register",
+      "legacyLine": 158,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-86-printed-56",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 13,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-86-printed-56",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 15
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving.other-names",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 17,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving.gifts",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 18,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving.positive-aspects",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 19,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving.examples",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-86-printed-56.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 20,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-87-printed-57",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 22,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-87-printed-57",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 24
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.difficulty-with",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 26,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.typical-age-at-wounding",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 27,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.developmental-task-at-that-age",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 28,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.development-of-will-and-strength",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 29,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.typical-arena-of-wound",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 30,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.typical-parent",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 31,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.typical-wound",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 32,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving.effect-of-wound",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-87-printed-57.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 33,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-88-printed-58",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 35,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-88-printed-58",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 37
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.seeks-safety-through",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 39,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.defensive-action",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 40,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.results-of-defensive-action",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 41,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.typical-body-shape",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 42,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.body-signs",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 43,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.flow-of-energy",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 44,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.relationship-to-core",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 45,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.eyes",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 46,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving.holding-pattern",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-88-printed-58.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 47,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-89-printed-59",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 49,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-89-printed-59",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 51
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.main-issues",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 53,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.doubts",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 54,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.fears",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 55,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.orients-to",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 56,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.references",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 57,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.psychological-defenses",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 58,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.illusion",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 59,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.patterned-priorities-values",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 60,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.default-emotion",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 61,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.mind-chatter",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 62,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving.fear-reaction",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-89-printed-59.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 63,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-90-printed-60",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 65,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-90-printed-60",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 67
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.shame-reaction",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 69,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.form-of-attack-by-inner-critic",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 70,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.false-beliefs",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 71,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.diagnostic-statement",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 72,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.personality-symptoms",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 73,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.in-pattern-attention-goes",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 74,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.action-under-stress",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 75,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.patterned-sensations-and-feelings",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 76,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving.patterned-thoughts",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-90-printed-60.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 77,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-91-printed-61",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 79,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-91-printed-61",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 81
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving.patterned-behaviors",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 83,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving.patterned-acts",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 84,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving.patterned-expression-of-a-desire",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 85,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving.sex",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 86,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving.time-distortion",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 87,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving.communication-style",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 88,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving.form-of-complaint",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-91-printed-61.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 89,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-92-printed-62",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 91,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-92-printed-62",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 93
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving.pattern-when-requesting-help",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 95,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving.response-to-a-request",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 96,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving.form-of-anger",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 97,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving.weapons-and-tactics-used-in-a-fight",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 98,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving.complimenting-the-pattern",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 99,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving.tasks",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-92-printed-62.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 100,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.section.pdf-p-93-printed-63",
+      "kind": "section",
+      "parentStableKey": "reference.kessler-chart",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 102,
+      "headingLevel": 2
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving",
+      "kind": "table",
+      "parentStableKey": "reference.kessler-chart.section.pdf-p-93-printed-63",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 104
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving.relationship-to-essence",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 106,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving.human-need",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 107,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving.spiritual-need",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 108,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving.energetic-skills-needed",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 109,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving.can-take-pleasure-in",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 110,
+      "citations": []
+    },
+    {
+      "stableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving.how-to-get-yourself-out-of-pattern",
+      "kind": "chart_row",
+      "parentStableKey": "reference.kessler-chart.table.pdf-p-93-printed-63.dimension-leaving",
+      "sourceKey": "canonical.kessler-chart",
+      "legacyLine": 111,
+      "citations": []
     }
   ]
 }

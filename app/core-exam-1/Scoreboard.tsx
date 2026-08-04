@@ -9,7 +9,9 @@ import { hueNameStyle } from "./lib/hue";
 function orderMembers(
   members: ScoreboardMember[],
 ): ScoreboardMember[] {
-  const studiers = members.filter((member) => !member.isAssistant);
+  const studiers = members.filter(
+    (member) => member.participation === "active",
+  );
   return [...studiers].sort((left, right) => {
     if (left.isViewer !== right.isViewer) return left.isViewer ? -1 : 1;
     return 0;

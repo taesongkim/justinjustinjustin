@@ -15,6 +15,7 @@ export type ScoreboardMember = {
   active: number;
   isViewer: boolean;
   isAssistant: boolean;
+  participation: "assistant" | "active" | "observer";
 };
 
 // Per-member progress across the whole study space, for the top-bar
@@ -28,13 +29,16 @@ export async function loadScoreboard(
 
   const { data: memberships, error: membershipError } = await supabase
     .from("core_exam_memberships")
-    .select("user_id, joined_at")
+    .select("user_id, joined_at, participation")
     .eq("space_id", spaceId)
     .eq("status", "active")
     .order("joined_at", { ascending: true });
   if (membershipError) throw membershipError;
   const memberIds = (memberships ?? []).map((row) => row.user_id);
   if (!memberIds.length) return [];
+  const participationByUser = new Map(
+    (memberships ?? []).map((row) => [row.user_id, row.participation]),
+  );
 
   const [
     { data: profiles },
@@ -105,6 +109,7 @@ export async function loadScoreboard(
       active,
       isViewer: userId === viewerId,
       isAssistant: avatarColor.toLowerCase() === ASSISTANT_AVATAR_COLOR,
+      participation: participationByUser.get(userId) ?? "active",
     } satisfies ScoreboardMember;
   });
 }

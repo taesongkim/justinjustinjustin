@@ -116,6 +116,7 @@ const { error: membershipError } = await admin
     role: "member",
     space_id: space.id,
     status: "active",
+    participation: "assistant",
     user_id: aiUser.id,
   });
 if (membershipError) throw membershipError;

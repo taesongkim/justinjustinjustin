@@ -13,6 +13,10 @@ if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
 if (!["owner", "member", "none"].includes(accessRole)) {
   throw new Error("Fixture role must be owner, member, or none");
 }
+const participation = process.argv[4] ?? "active";
+if (!["assistant", "active", "observer"].includes(participation)) {
+  throw new Error("Participation must be assistant, active, or observer");
+}
 
 const { stdout } = await execFileAsync("supabase", ["status", "-o", "env"], {
   maxBuffer: 1024 * 1024,
@@ -112,6 +116,7 @@ const { error: membershipError } =
         user_id: user.id,
         role: accessRole,
         status: "active",
+        participation,
       });
 if (membershipError) throw membershipError;
 

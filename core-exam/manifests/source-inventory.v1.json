@@ -53,6 +53,41 @@
       "viewer": "private-pdf"
     },
     {
+      "sourceKey": "school.pattern-notes.leaving",
+      "kind": "pdf",
+      "bytes": 147137,
+      "sha256": "4e828cb9249b059ed5c76cd2fc8185676c0ff40bf14ff7d95d23bd0e31acdc51",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "school.pattern-notes.merging",
+      "kind": "pdf",
+      "bytes": 238274,
+      "sha256": "f049b53d2bedb799067be2b6bc5c73ebe8706e08836fd463e6f3c5d12497ffef",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "school.pattern-notes.enduring",
+      "kind": "pdf",
+      "bytes": 226078,
+      "sha256": "650b1459a17b55146db819f989e0cd31db6350699f8ff1da8b1d178d8c63dd13",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "school.pattern-notes.aggressive",
+      "kind": "pdf",
+      "bytes": 213425,
+      "sha256": "11157c7d1808469d752bbec02773495e5a0dd9828b878f0ad15dbf2ef0df311e",
+      "viewer": "private-pdf"
+    },
+    {
+      "sourceKey": "school.pattern-notes.rigid",
+      "kind": "pdf",
+      "bytes": 221772,
+      "sha256": "5e35d0cbdb7845155f037c5839d0984bc77d285ec6f7fa303c1590655164ebd8",
+      "viewer": "private-pdf"
+    },
+    {
       "sourceKey": "canonical.extraction-record",
       "kind": "markdown",
       "bytes": 13433,
@@ -83,8 +118,8 @@
     {
       "sourceKey": "canonical.five-patterns",
       "kind": "markdown",
-      "bytes": 31510,
-      "sha256": "7903f01a7f5e4eb8aae1b9bcafae7c73e1c0c1cafe15742bbcf60dc9dd1a29bb",
+      "bytes": 38278,
+      "sha256": "df4ac0a6f2f1ff90bfe60c64e3945c4e717c2729347cadfcf37b1d0ba95f4a11",
       "viewer": "canonical-document"
     },
     {

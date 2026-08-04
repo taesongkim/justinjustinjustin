@@ -15,6 +15,9 @@
 8. [`EXECUTION_RUNBOOK.md`](EXECUTION_RUNBOOK.md)
 9. [`QA_AND_RELEASE.md`](QA_AND_RELEASE.md)
 10. [`NEXT_ACTIONS.md`](NEXT_ACTIONS.md)
+11. [`PHASE_1B_RELEASE_AUDIT.md`](PHASE_1B_RELEASE_AUDIT.md)
+12. [`PHASE_1B_PRODUCTION_RUNBOOK.md`](PHASE_1B_PRODUCTION_RUNBOOK.md)
+13. [`Question Workshop PRD`](../../prd-question-workshop.md)
 
 ## Approved inputs
 

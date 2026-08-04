@@ -1,0 +1,270 @@
+import "server-only";
+
+import { createCoreExamServerClient } from "./supabase/server";
+
+export type QuestionLikelihood = "likely" | "unsure" | "unlikely";
+
+export type CardComment = {
+  authorId: string;
+  authorName: string;
+  authorColor: string | null;
+  body: string;
+  createdAt: string;
+  id: string;
+  parentCommentId: string | null;
+};
+
+export type QuestionAnswerSummary = {
+  authorId: string | null;
+  authorName: string;
+  authorColor: string | null;
+  comments: CardComment[];
+  currentRevisionId: string;
+  editedAt: string;
+  editedByName: string;
+  id: string;
+  plainText: string;
+  visibility: "group" | "private";
+};
+
+export type TopicQuestion = {
+  groupAnswers: QuestionAnswerSummary[];
+  createdAt: string;
+  hiddenBy: Array<{ id: string; name: string }>;
+  id: string;
+  likelihood: Record<QuestionLikelihood, Array<{ id: string; name: string }>>;
+  myAnswer: QuestionAnswerSummary | null;
+  isHiddenForMe: boolean;
+  myLikelihood: QuestionLikelihood | null;
+  origin: "curated" | "submitted";
+  prompt: string;
+  questionComments: CardComment[];
+  rank: number;
+  submittedByName: string | null;
+  submittedByColor: string | null;
+};
+
+export async function loadTopicQuestions(
+  topicStableKey: string,
+  viewerId: string,
+): Promise<TopicQuestion[]> {
+  const supabase = await createCoreExamServerClient();
+  const { data: topic } = await supabase
+    .from("core_exam_content_nodes")
+    .select("id")
+    .eq("stable_key", topicStableKey)
+    .eq("kind", "topic")
+    .maybeSingle();
+  if (!topic) return [];
+
+  const { data: questions, error: questionError } = await supabase
+    .from("core_exam_questions")
+    .select("id, origin, prompt, rank, submitted_by, created_at")
+    .eq("topic_node_id", topic.id)
+    .is("archived_at", null)
+    .order("rank")
+    .order("created_at");
+  if (questionError) throw questionError;
+  if (!questions?.length) return [];
+
+  const questionIds = questions.map((question) => question.id);
+  const { data: answers, error: answerError } = await supabase
+    .from("core_exam_answers")
+    .select(
+      "id, question_id, author_id, visibility, current_revision_id",
+    )
+    .in("question_id", questionIds)
+    .is("archived_at", null);
+  if (answerError) throw answerError;
+
+  const revisionIds = (answers ?? [])
+    .map((answer) => answer.current_revision_id)
+    .filter((id): id is string => Boolean(id));
+  const authorIds = new Set(
+    [
+      ...questions.map((question) => question.submitted_by),
+      ...(answers ?? []).map((answer) => answer.author_id),
+    ].filter((id): id is string => Boolean(id)),
+  );
+  const answerIds = (answers ?? []).map((answer) => answer.id);
+
+  const [
+    { data: revisions },
+    { data: marks, error: markError },
+    { data: questionComments, error: questionCommentError },
+    { data: answerComments, error: answerCommentError },
+    { data: hiddenMarks, error: hiddenMarkError },
+  ] =
+    await Promise.all([
+      revisionIds.length
+        ? supabase
+            .from("core_exam_answer_revisions")
+            .select("id, plain_text, created_at, edited_by")
+            .in("id", revisionIds)
+        : Promise.resolve({ data: [], error: null }),
+      supabase
+        .from("core_exam_question_likelihood_marks")
+        .select("question_id, user_id, likelihood")
+        .in("question_id", questionIds),
+      supabase
+        .from("core_exam_comments")
+        .select(
+          "id, question_id, answer_id, author_id, parent_comment_id, body, created_at",
+        )
+        .in("question_id", questionIds)
+        .order("created_at"),
+      answerIds.length
+        ? supabase
+            .from("core_exam_comments")
+            .select(
+              "id, question_id, answer_id, author_id, parent_comment_id, body, created_at",
+            )
+            .in("answer_id", answerIds)
+            .order("created_at")
+        : Promise.resolve({ data: [], error: null }),
+      supabase
+        .from("core_exam_question_hidden_marks")
+        .select("question_id, user_id")
+        .in("question_id", questionIds),
+    ]);
+  if (markError) throw markError;
+  if (questionCommentError) throw questionCommentError;
+  if (answerCommentError) throw answerCommentError;
+  if (hiddenMarkError) throw hiddenMarkError;
+  for (const mark of marks ?? []) authorIds.add(mark.user_id);
+  for (const revision of revisions ?? []) authorIds.add(revision.edited_by);
+  for (const comment of [
+    ...(questionComments ?? []),
+    ...(answerComments ?? []),
+  ]) {
+    authorIds.add(comment.author_id);
+  }
+  for (const mark of hiddenMarks ?? []) authorIds.add(mark.user_id);
+
+  const { data: profiles } = authorIds.size
+    ? await supabase
+        .from("core_exam_profiles")
+        .select("user_id, display_name, avatar_color")
+        .in("user_id", [...authorIds])
+    : { data: [] };
+
+  const names = new Map(
+    (profiles ?? []).map((profile) => [
+      profile.user_id,
+      profile.display_name,
+    ]),
+  );
+  const colors = new Map(
+    (profiles ?? []).map((profile) => [
+      profile.user_id,
+      profile.avatar_color,
+    ]),
+  );
+  const revisionById = new Map(
+    (revisions ?? []).map((revision) => [revision.id, revision]),
+  );
+  const summarizeComments = (
+    comments: Array<{
+      author_id: string;
+      body: string;
+      created_at: string;
+      id: string;
+      parent_comment_id: string | null;
+    }>,
+  ): CardComment[] =>
+    comments.map((comment) => ({
+      authorId: comment.author_id,
+      authorName: names.get(comment.author_id) ?? "Study member",
+      authorColor: colors.get(comment.author_id) ?? null,
+      body: comment.body,
+      createdAt: comment.created_at,
+      id: comment.id,
+      parentCommentId: comment.parent_comment_id,
+    }));
+
+  return questions.map((question) => {
+    const questionAnswers = (answers ?? []).filter(
+      (answer) => answer.question_id === question.id,
+    );
+    const summaries = questionAnswers.map(
+      (answer): QuestionAnswerSummary => ({
+        authorId: answer.author_id,
+        authorName: answer.author_id
+          ? (names.get(answer.author_id) ?? "Study member")
+          : "Core Exam group",
+        authorColor: answer.author_id
+          ? (colors.get(answer.author_id) ?? null)
+          : null,
+        comments: summarizeComments(
+          (answerComments ?? []).filter(
+            (comment) => comment.answer_id === answer.id,
+          ),
+        ),
+        currentRevisionId: answer.current_revision_id,
+        id: answer.id,
+        editedAt:
+          revisionById.get(answer.current_revision_id)?.created_at ?? "",
+        editedByName:
+          names.get(
+            revisionById.get(answer.current_revision_id)?.edited_by ?? "",
+          ) ?? "Study member",
+        plainText:
+          revisionById.get(answer.current_revision_id)?.plain_text ?? "",
+        visibility: answer.visibility,
+      }),
+    );
+    const personal = summaries;
+    const questionMarks = (marks ?? []).filter(
+      (mark) => mark.question_id === question.id,
+    );
+    const questionHiddenMarks = (hiddenMarks ?? []).filter(
+      (mark) => mark.question_id === question.id,
+    );
+    const likelihood: TopicQuestion["likelihood"] = {
+      likely: [],
+      unsure: [],
+      unlikely: [],
+    };
+    for (const mark of questionMarks) {
+      likelihood[mark.likelihood as QuestionLikelihood].push({
+        id: mark.user_id,
+        name: names.get(mark.user_id) ?? "Study member",
+      });
+    }
+
+    return {
+      createdAt: question.created_at,
+      groupAnswers: personal.filter(
+        (answer) => answer.authorId !== viewerId,
+      ),
+      hiddenBy: questionHiddenMarks.map((mark) => ({
+        id: mark.user_id,
+        name: names.get(mark.user_id) ?? "Study member",
+      })),
+      id: question.id,
+      isHiddenForMe: questionHiddenMarks.some(
+        (mark) => mark.user_id === viewerId,
+      ),
+      likelihood,
+      myAnswer:
+        personal.find((answer) => answer.authorId === viewerId) ?? null,
+      myLikelihood:
+        (questionMarks.find((mark) => mark.user_id === viewerId)
+          ?.likelihood as QuestionLikelihood | undefined) ?? null,
+      origin: question.origin,
+      prompt: question.prompt,
+      questionComments: summarizeComments(
+        (questionComments ?? []).filter(
+          (comment) => comment.question_id === question.id,
+        ),
+      ),
+      rank: question.rank,
+      submittedByName: question.submitted_by
+        ? (names.get(question.submitted_by) ?? "Study member")
+        : null,
+      submittedByColor: question.submitted_by
+        ? (colors.get(question.submitted_by) ?? null)
+        : null,
+    };
+  });
+}

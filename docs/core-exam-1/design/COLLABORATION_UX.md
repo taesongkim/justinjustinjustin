@@ -2,13 +2,79 @@
 
 ## Design posture
 
-Core Exam remains a study document first. Collaboration should be discoverable without turning every paragraph into a control panel.
+Core Exam is a question-and-answer study resource first. Collaboration should
+make it easy to build and compare understanding without turning every
+supporting paragraph into a control panel.
 
 Three content layers need a consistent visual grammar:
 
 - **Shared source:** canonical study material.
 - **Group:** collective definitions, notes, verification, files, and discussion.
 - **Mine:** the current user’s notes, private material, and master-sheet state.
+
+## Topic-page hierarchy
+
+Every topic page prioritizes:
+
+1. curated questions, manually ordered from foundational to nuanced;
+2. the current member’s answer;
+3. other members’ answers and card-level discussion;
+4. community-submitted questions;
+5. the complete canonical study material as supporting content;
+6. an Ask a question section at the bottom of the page.
+
+Definitions use the same answer system. A definitional prompt such as “What is
+the Lower Self?” has independently authored answers and discussion; it does not
+need a parallel definition-only or consensus-answer interface.
+
+### Question cards
+
+Each question card shows:
+
+- question text and topic;
+- curated or community-submitted status;
+- rank within the topic;
+- author for submitted questions;
+- current member’s answer state;
+- number of visible member answers;
+- question-comment and answer-comment counts;
+- Likely, Unsure, or Unlikely summary;
+- an accessible way to see which members selected each likelihood.
+- Hide for me / Show again;
+- an attributable list of members who hid the question.
+
+The personal answer is visually primary within an expanded question. Other
+members’ answers remain individually attributed and are never merged
+automatically. Every question owns a general thread, and every visible answer
+may own a more specific thread.
+
+Group Discussion is a compact, page-scoped preview feed—not a duplicate editing
+surface. It includes comments, new answers, answer edits, submitted questions,
+and canonical verification changes. Selecting an entry opens and highlights
+its exact question, answer, verified block,
+or comment. Replies and edits happen on the target card.
+
+### Cross-topic indexes
+
+**My Answers** lists every question in topic/rank order and makes unanswered
+questions easy to find. It can reveal other visible answers for comparison, but
+defaults to the current member’s work.
+
+**All Questions** compiles curated and submitted questions across topics. Each
+row retains topic context and exposes answer count, submitter when applicable,
+and likelihood summary.
+
+### Hidden questions
+
+Hide for me is a personal layout choice and a visible relevance vote—not
+deletion or muting. Hidden questions leave the main topic sequence and appear
+inside a collapsed Hidden questions section at the bottom of that topic.
+Members can restore them at any time. Expanded cards disclose which members
+have hidden the question.
+
+All Questions and My Answers retain hidden questions with a Hidden for me badge
+and a dedicated filter. Hiding does not suppress comments, replies, mentions,
+or Activity entries.
 
 ## Persistent shell
 
@@ -185,7 +251,11 @@ All approved canonical source material is represented in a dedicated Source Libr
 
 PDFs open inside an authenticated viewer with page navigation, zoom, search when the PDF text layer supports it, and a fallback open/download action. Images open in a zoomable viewer. Citations should open the correct source and page when the existing citation map contains a reliable page target.
 
-On desktop, a citation may open in a modal, drawer, or dedicated viewer route. This choice is a visual prototype decision: the canonical text must retain a clear return path. On mobile, prefer a dedicated full-screen viewer route rather than a cramped overlay.
+**Checkpoint 0 decision (2026-07-29):** citations open in a wide modal on
+desktop so the study position remains intact. At tablet/mobile widths, the
+viewer occupies the full screen. Both forms retain an explicit return-to-study
+action; the mobile treatment must also support browser Back when the production
+viewer route is introduced.
 
 ## Activity and notifications
 
@@ -201,6 +271,12 @@ Each row states:
 - target;
 - relative time;
 - unread state where relevant.
+
+The Activity button shows a standard red dot only for visible events created by
+someone other than the current user. Opening Activity marks the current set
+viewed: rows that were new retain red dots during that open session, and those
+dots are gone the next time the panel opens. Group Discussion is continuously
+visible on desktop and does not use unread dots.
 
 Selecting a row closes the dropdown and deep-links to the target. Private activity never appears to other users.
 

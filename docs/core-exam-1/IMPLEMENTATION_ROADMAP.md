@@ -67,7 +67,30 @@ Justin tests two accounts and approves the identity prominence, account-switch/s
 ### Work
 
 - Seed canonical content nodes/revisions.
+- Seed a reviewed foundational-to-nuanced question sequence for every topic.
+- Seed one reviewable, group-visible proposed answer for every finalized
+  question under the reserved `AI-Assistant` identity. These are starting
+  contributions, not canon; members may comment on them, and the one-time
+  bootstrap must not generate unread activity.
+- Add Ethics, Polyvagal Theory, Touch and Soft Techniques, and Transference and
+  Countertransference as source-less group-built topics. They launch with no
+  canon, curated questions, or seeded answers; members build them through
+  submitted questions, answers, and discussion.
+- Make questions and answers the primary topic-page hierarchy; retain the
+  complete canonical corpus as supporting content.
+- Add one independently authored personal answer per member/question.
+- Add question-level and answer-specific comment threads.
+- Turn Group Discussion into a compact page-scoped feed of comments, answers,
+  edits, and submitted questions; entries navigate to their exact card/section.
+- Add member-submitted topic questions and answer flows.
+- Add per-user Likely/Unsure/Unlikely test ratings with an attributable group
+  summary.
+- Add reversible Hide for me marks with visible attribution, topic-bottom
+  recovery, and index badges/filtering. Hiding does not mute activity.
+- Add My Answers and All Questions indexes.
 - Add shared verification events with actor, time, note, and history.
+- Show verification changes in Global Activity and in the page-scoped Group
+  Discussion feed; both entries navigate to the exact verified content block.
 - Add basic notes and definitions.
 - Default contributions to group-visible with a private option.
 - Add minimal durable activity for these actions.
@@ -78,8 +101,15 @@ Justin tests two accounts and approves the identity prominence, account-switch/s
 
 ### Gate
 
-- Two test members see shared verification and group notes.
-- Each can create private notes invisible to the other.
+- Two test members see the same curated and submitted questions.
+- Each can create and revise their own answer without changing the other’s.
+- All finalized questions have exactly one commentable `AI-Assistant` starting
+  answer, and the seed identity cannot receive a real login link.
+- Each can create a private answer invisible to the other.
+- My Answers shows the current member’s complete answered/unanswered set.
+- All Questions includes topic attribution and community submissions.
+- Test-likelihood aggregates match the attributable member selections.
+- Shared verification and group notes remain available on supporting canon.
 - All writes are attributed.
 - This is the first production-usable release.
 - Every inventoried source file is present, membership-gated, and openable in the chosen viewer.
@@ -90,6 +120,13 @@ Justin tests two accounts and approves the identity prominence, account-switch/s
 Justin performs a guided content/layout review:
 
 - compare migrated pages against the current HTML;
+- complete a dedicated pre-launch question-bank pass: retain, rewrite, remove,
+  add, and reorder the starting questions for every topic;
+- write two personal answers and compare them between accounts;
+- sample `AI-Assistant` answers across all twelve topics for accuracy,
+  formatting, citation targets, and appropriate uncertainty;
+- create and answer a community question;
+- review My Answers, All Questions, and the attributable likelihood summary;
 - open representative citations and source PDFs/images;
 - use desktop content plus commentary side by side;
 - switch Content/Discussion on a phone-sized viewport;

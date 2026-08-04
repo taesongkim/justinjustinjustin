@@ -9,6 +9,7 @@ import type { ScoreboardMember } from "./lib/scoreboard";
 import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
 import { ThemeToggle } from "./ThemeToggle";
+import { useLiveActivity } from "./useLiveActivity";
 import { createCoreExamBrowserClient } from "./lib/supabase/browser";
 import type { CoreExamViewer } from "./lib/viewer";
 
@@ -29,6 +30,7 @@ export function QuestionIndexView({
   scoreboard: ScoreboardMember[];
   viewer: CoreExamViewer;
 }) {
+  useLiveActivity(viewer.spaceId, viewer.userId);
   const [filter, setFilter] = useState<
     "all" | "answered" | "unanswered" | "submitted" | "hidden"
   >("all");

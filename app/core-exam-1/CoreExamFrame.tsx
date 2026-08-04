@@ -35,6 +35,7 @@ import type { ScoreboardMember } from "./lib/scoreboard";
 import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
 import { ThemeToggle } from "./ThemeToggle";
+import { useLiveActivity } from "./useLiveActivity";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
 import { VerificationControl } from "./VerificationControl";
 
@@ -987,6 +988,7 @@ export function CoreExamFrame({
   verifications,
   viewer,
 }: CoreExamFrameProps) {
+  useLiveActivity(viewer?.spaceId, viewer?.userId);
   const [mobileMode, setMobileMode] = useState<"content" | "discussion">(
     "content",
   );

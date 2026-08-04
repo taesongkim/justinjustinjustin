@@ -4,6 +4,7 @@ import { loadSourceLibrary } from "../lib/sources";
 import { getCoreExamAccess } from "../lib/viewer";
 import type { SourceCategory } from "../source-catalog";
 import { UnauthorizedAccount } from "../UnauthorizedAccount";
+import { CoreStudyLogo } from "../CoreStudyLogo";
 
 const SOURCE_GROUPS: {
   category: SourceCategory;
@@ -58,7 +59,7 @@ export default async function SourceLibraryPage() {
     <main className="ce-app ce-source-library-page">
       <header className="ce-header">
         <Link className="ce-brand" href="/core-exam-1">
-          <span className="ce-brand-mark">CE</span>
+          <CoreStudyLogo className="ce-brand-logo" />
           <div>
             <p className="ce-eyebrow">Study space</p>
             <h1>Core Exam 1</h1>

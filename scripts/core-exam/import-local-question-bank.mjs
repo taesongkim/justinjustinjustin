@@ -231,7 +231,8 @@ if (dryRun) {
   process.exit(0);
 }
 
-const { apiUrl, serviceRoleKey } = await resolveAdminTarget();
+const { apiUrl, serviceRoleKey, mode } = await resolveAdminTarget();
+console.log(`→ target: ${mode} Supabase (${apiUrl})`);
 
 const admin = createClient(apiUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -324,6 +325,6 @@ if (omittedIds.length > 0) {
 
 const activeCount = questions.filter((question) => !question.archived).length;
 console.log(
-  `Imported ${activeCount} active and ${questions.length - activeCount} archived curated questions into local Supabase.`,
+  `Imported ${activeCount} active and ${questions.length - activeCount} archived curated questions into ${mode} Supabase.`,
 );
 console.log("No private source content or service-role credential was stored.");

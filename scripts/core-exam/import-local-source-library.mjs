@@ -71,7 +71,8 @@ for (const source of catalog.sources) {
   });
 }
 
-const { apiUrl, serviceRoleKey } = await resolveAdminTarget();
+const { apiUrl, serviceRoleKey, mode } = await resolveAdminTarget();
+console.log(`→ target: ${mode} Supabase (${apiUrl})`);
 
 const admin = createClient(apiUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },

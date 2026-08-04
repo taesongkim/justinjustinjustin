@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createCoreExamBrowserClient } from "../lib/supabase/browser";
+import { CoreStudyLogo } from "../CoreStudyLogo";
 
 type CoreExamLoginProps = {
   callbackFailed: boolean;
@@ -36,9 +37,7 @@ export function CoreExamLogin({ callbackFailed }: CoreExamLoginProps) {
   return (
     <main className="ce-login-shell">
       <section className="ce-login-card" aria-labelledby="ce-login-title">
-        <span className="ce-brand-mark" aria-hidden="true">
-          CE
-        </span>
+        <CoreStudyLogo className="ce-brand-logo" />
         <p className="ce-eyebrow">Core Exam 1</p>
         <h1 id="ce-login-title">Sign in to your study space</h1>
         <p className="ce-login-intro">

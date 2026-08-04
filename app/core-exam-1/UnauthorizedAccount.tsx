@@ -1,6 +1,7 @@
 "use client";
 
 import { createCoreExamBrowserClient } from "./lib/supabase/browser";
+import { CoreStudyLogo } from "./CoreStudyLogo";
 
 type UnauthorizedAccountProps = {
   email: string;
@@ -16,9 +17,7 @@ export function UnauthorizedAccount({ email }: UnauthorizedAccountProps) {
   return (
     <main className="ce-login-shell">
       <section className="ce-login-card" aria-labelledby="ce-access-title">
-        <span className="ce-brand-mark" aria-hidden="true">
-          CE
-        </span>
+        <CoreStudyLogo className="ce-brand-logo" />
         <p className="ce-eyebrow">Core Exam 1</p>
         <h1 id="ce-access-title">This account doesn’t have access</h1>
         <p className="ce-login-intro">

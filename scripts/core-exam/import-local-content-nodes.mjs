@@ -38,7 +38,8 @@ const depthFor = (node) => {
   return depth;
 };
 
-const { apiUrl, serviceRoleKey } = await resolveAdminTarget();
+const { apiUrl, serviceRoleKey, mode } = await resolveAdminTarget();
+console.log(`→ target: ${mode} Supabase (${apiUrl})`);
 
 const admin = createClient(apiUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -101,6 +102,6 @@ for (let depth = 0; depth <= maxDepth; depth += 1) {
 }
 
 console.log(
-  `Imported ${manifest.nodes.length} stable content nodes into local Supabase.`,
+  `Imported ${manifest.nodes.length} stable content nodes into ${mode} Supabase.`,
 );
 console.log("No private source content or service-role credential was stored.");

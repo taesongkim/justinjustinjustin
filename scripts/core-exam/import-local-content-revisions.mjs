@@ -79,7 +79,8 @@ for (const page of sourcedPages) {
   });
 }
 
-const { apiUrl, serviceRoleKey } = await resolveAdminTarget();
+const { apiUrl, serviceRoleKey, mode } = await resolveAdminTarget();
+console.log(`→ target: ${mode} Supabase (${apiUrl})`);
 
 const admin = createClient(apiUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },

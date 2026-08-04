@@ -224,6 +224,23 @@ textarea {
   letter-spacing: 0.08em;
 }
 
+/* Core Study brand mark (brain over disc). Colors are here so they stay
+   theme-able — disc reads as the dark ink anchor, brain in the paper tone. */
+.ce-brand-logo {
+  flex: 0 0 auto;
+  display: block;
+  width: 34px;
+  height: 34px;
+}
+
+.cs-logo-disc {
+  fill: var(--ce-ink);
+}
+
+.cs-logo-brain {
+  fill: var(--ce-paper);
+}
+
 .ce-brand h1,
 .ce-discussion h2,
 .ce-topic-heading h2,

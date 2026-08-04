@@ -33,6 +33,7 @@ import type { PageVerifications } from "./lib/verification";
 import type { CoreExamViewer } from "./lib/viewer";
 import type { ScoreboardMember } from "./lib/scoreboard";
 import { Scoreboard } from "./Scoreboard";
+import { CoreStudyLogo } from "./CoreStudyLogo";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
 import { VerificationControl } from "./VerificationControl";
 
@@ -1165,7 +1166,7 @@ export function CoreExamFrame({
     <main className="ce-app">
       <header className="ce-header">
         <div className="ce-brand">
-          <span className="ce-brand-mark">CE</span>
+          <CoreStudyLogo className="ce-brand-logo" />
           <div>
             <p className="ce-eyebrow">Study space</p>
             <h1>Core Exam 1</h1>

@@ -52,22 +52,23 @@ const missingAnswers = [...activeQuestionKeys].filter(
 const extraAnswers = [...answersByQuestionKey.keys()].filter(
   (stableKey) => !activeQuestionKeys.has(stableKey),
 );
-if (missingAnswers.length || extraAnswers.length) {
-  throw new Error(
-    [
-      missingAnswers.length
-        ? `Missing answers: ${missingAnswers.join(", ")}`
-        : null,
-      extraAnswers.length
-        ? `Unexpected answers: ${extraAnswers.join(", ")}`
-        : null,
-    ]
-      .filter(Boolean)
-      .join("\n"),
+// The finalized answer bank can hold answers for questions that were later
+// archived (the owner trimmed the set after finalizing). Those are skipped, not
+// fatal — the import loop only touches active questions. An active question
+// without a finalized answer is left blank.
+if (missingAnswers.length) {
+  console.warn(
+    `Leaving ${missingAnswers.length} active question(s) blank (no finalized AI answer): ${missingAnswers.join(", ")}`,
+  );
+}
+if (extraAnswers.length) {
+  console.warn(
+    `Skipping ${extraAnswers.length} answer(s) whose question is archived: ${extraAnswers.join(", ")}`,
   );
 }
 
-const { apiUrl, serviceRoleKey } = await resolveAdminTarget();
+const { apiUrl, serviceRoleKey, mode } = await resolveAdminTarget();
+console.log(`→ AI answers target: ${mode} Supabase (${apiUrl})`);
 
 const admin = createClient(apiUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -174,6 +175,7 @@ let unchanged = 0;
 for (const question of activeQuestions) {
   const databaseQuestion = questionByStableKey.get(question.stableKey);
   const markdown = answersByQuestionKey.get(question.stableKey);
+  if (!markdown) continue; // active question with no finalized AI answer
   const existingAnswer = existingAnswerByQuestionId.get(databaseQuestion.id);
   const currentRevision = existingAnswer?.current_revision_id
     ? currentRevisionById.get(existingAnswer.current_revision_id)

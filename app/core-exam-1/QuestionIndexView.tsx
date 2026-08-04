@@ -7,6 +7,7 @@ import { ActivityPanel } from "./ActivityPanel";
 import type { CoreExamActivityFeed } from "./lib/activity";
 import type { ScoreboardMember } from "./lib/scoreboard";
 import { Scoreboard } from "./Scoreboard";
+import { CoreStudyLogo } from "./CoreStudyLogo";
 import { createCoreExamBrowserClient } from "./lib/supabase/browser";
 import type { CoreExamViewer } from "./lib/viewer";
 
@@ -59,7 +60,7 @@ export function QuestionIndexView({
     <main className="ce-app ce-index-app">
       <header className="ce-header">
         <Link className="ce-brand ce-brand-link" href="/core-exam-1">
-          <span className="ce-brand-mark">CE</span>
+          <CoreStudyLogo className="ce-brand-logo" />
           <div>
             <p className="ce-eyebrow">Study space</p>
             <h1>Core Exam 1</h1>

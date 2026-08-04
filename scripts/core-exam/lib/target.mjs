@@ -4,33 +4,9 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
-// Resolve the admin Supabase target for the core-exam import/provisioning
-// scripts. Default is the LOCAL Supabase (read from `supabase status`), and the
-// URL must be localhost. Hosted is opt-in ONLY: it requires an explicit
-// CORE_EXAM_TARGET=hosted plus both hosted env vars, and in that mode the guard
-// inverts — the URL must be an https://<ref>.supabase.co and must NOT be
-// localhost. So a hosted write can never happen by accident, and a local run
-// can never silently escape to prod.
-export async function resolveAdminTarget() {
-  if (process.env.CORE_EXAM_TARGET === "hosted") {
-    const apiUrl = process.env.HOSTED_SUPABASE_URL;
-    const serviceRoleKey = process.env.HOSTED_SERVICE_ROLE_KEY;
-    if (!apiUrl || !serviceRoleKey) {
-      throw new Error(
-        "CORE_EXAM_TARGET=hosted requires HOSTED_SUPABASE_URL and HOSTED_SERVICE_ROLE_KEY",
-      );
-    }
-    if (/localhost|127\.0\.0\.1/.test(apiUrl)) {
-      throw new Error("Hosted target must not be a localhost URL");
-    }
-    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(apiUrl)) {
-      throw new Error(
-        "Hosted target must be an https://<project-ref>.supabase.co URL",
-      );
-    }
-    return { apiUrl, serviceRoleKey, mode: "hosted" };
-  }
-
+// Read the LOCAL Supabase admin credentials from `supabase status`. Guarded to
+// a localhost URL so this can never resolve a remote project.
+async function localTarget() {
   const { stdout } = await execFileAsync("supabase", ["status", "-o", "env"], {
     maxBuffer: 1024 * 1024,
   });
@@ -49,4 +25,45 @@ export async function resolveAdminTarget() {
     throw new Error("Refusing to run outside local Supabase");
   }
   return { apiUrl, serviceRoleKey, mode: "local" };
+}
+
+// Read the HOSTED Supabase admin credentials from the environment. Guarded to
+// an https://<ref>.supabase.co URL (and never localhost) so a hosted write
+// takes deliberate opt-in and can't happen by accident.
+function hostedTarget() {
+  const apiUrl = process.env.HOSTED_SUPABASE_URL;
+  const serviceRoleKey = process.env.HOSTED_SERVICE_ROLE_KEY;
+  if (!apiUrl || !serviceRoleKey) {
+    throw new Error(
+      "Hosted target requires HOSTED_SUPABASE_URL and HOSTED_SERVICE_ROLE_KEY",
+    );
+  }
+  if (/localhost|127\.0\.0\.1/.test(apiUrl)) {
+    throw new Error("Hosted target must not be a localhost URL");
+  }
+  if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(apiUrl)) {
+    throw new Error(
+      "Hosted target must be an https://<project-ref>.supabase.co URL",
+    );
+  }
+  return { apiUrl, serviceRoleKey, mode: "hosted" };
+}
+
+// Default resolver used by the deterministic importers: local unless the caller
+// explicitly opts into hosted with CORE_EXAM_TARGET=hosted.
+export async function resolveAdminTarget() {
+  if (process.env.CORE_EXAM_TARGET === "hosted") {
+    return hostedTarget();
+  }
+  return localTarget();
+}
+
+// Explicit resolvers for scripts that need BOTH ends at once (e.g. the
+// local→hosted reconcile).
+export async function resolveLocalTarget() {
+  return localTarget();
+}
+
+export async function resolveHostedTarget() {
+  return hostedTarget();
 }

@@ -36,6 +36,7 @@ import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { useLiveActivity } from "./useLiveActivity";
+import { GroupRings, ProgressRings, type RingMember } from "./StatusRings";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
 import { VerificationControl } from "./VerificationControl";
 
@@ -512,9 +513,11 @@ function GroupDiscussionFeed({
 function QuestionCard({
   onOpenSource,
   question,
+  roster,
 }: {
   onOpenSource: (source: OpenSource) => void;
   question: TopicQuestion;
+  roster: RingMember[];
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
@@ -605,12 +608,11 @@ function QuestionCard({
           {String(Math.round(question.rank / 1000)).padStart(2, "0")}
         </span>
         <span className="ce-question-prompt">{question.prompt}</span>
-        <span
-          className="ce-question-answer-state"
-          data-answered={question.myAnswer ? "true" : "false"}
-        >
-          {question.myAnswer ? "Answered" : "Not answered"}
-        </span>
+        <GroupRings
+          answeredBy={question.answeredBy}
+          hiddenBy={question.hiddenBy}
+          roster={roster}
+        />
       </summary>
       <div className="ce-question-body">
         {question.origin === "submitted" && (
@@ -629,7 +631,7 @@ function QuestionCard({
               {question.myAnswer && (
                 <span className="ce-answer-visibility">
                   {question.myAnswer.visibility === "group"
-                    ? "Shared with group"
+                    ? "Public"
                     : "Private"}
                 </span>
               )}
@@ -662,7 +664,7 @@ function QuestionCard({
                   }
                   value={visibility}
                 >
-                  <option value="group">Share With Group</option>
+                  <option value="group">Public</option>
                   <option value="private">Keep Private</option>
                 </select>
                 <span>
@@ -989,6 +991,15 @@ export function CoreExamFrame({
   viewer,
 }: CoreExamFrameProps) {
   useLiveActivity(viewer?.spaceId, viewer?.userId);
+  // Active members only (observers + assistant excluded), in join order — the
+  // roster for each card's group answer-status rings.
+  const ringRoster: RingMember[] = scoreboard
+    .filter((member) => member.participation === "active")
+    .map((member) => ({
+      userId: member.userId,
+      displayName: member.displayName,
+      avatarColor: member.avatarColor,
+    }));
   const [mobileMode, setMobileMode] = useState<"content" | "discussion">(
     "content",
   );
@@ -1051,6 +1062,7 @@ export function CoreExamFrame({
         const newQuestion: TopicQuestion = {
           createdAt: now,
           groupAnswers: [],
+          answeredBy: [],
           hiddenBy: [],
           id: data.questionId,
           isHiddenForMe: false,
@@ -1409,25 +1421,33 @@ export function CoreExamFrame({
                           : `Topic ${selectedTopic.number}`
                         : "Reference"}
                     </p>
-                    <span
-                      className="ce-status"
-                      data-progress={
-                        countedTotal === 0
-                          ? "na"
-                          : answeredCount === 0
-                            ? "none"
-                            : answeredCount === countedTotal
-                              ? "complete"
-                              : "partial"
-                      }
-                    >
-                      {countedTotal > 0
-                        ? `${answeredCount} of ${countedTotal} answered`
-                        : selectedTopic.kind === "reference"
-                          ? "Supporting reference"
-                          : collaborativeEmpty
-                            ? "Open for contributions"
-                            : "No questions yet"}
+                    <span className="ce-status-group">
+                      {countedTotal > 0 && (
+                        <ProgressRings
+                          filled={answeredCount}
+                          total={countedTotal}
+                        />
+                      )}
+                      <span
+                        className="ce-status"
+                        data-progress={
+                          countedTotal === 0
+                            ? "na"
+                            : answeredCount === 0
+                              ? "none"
+                              : answeredCount === countedTotal
+                                ? "complete"
+                                : "partial"
+                        }
+                      >
+                        {countedTotal > 0
+                          ? `${answeredCount} of ${countedTotal} answered`
+                          : selectedTopic.kind === "reference"
+                            ? "Supporting reference"
+                            : collaborativeEmpty
+                              ? "Open for contributions"
+                              : "No questions yet"}
+                      </span>
                     </span>
                   </div>
                   <div className="ce-topic-title-row">
@@ -1448,6 +1468,7 @@ export function CoreExamFrame({
                           key={question.id}
                           onOpenSource={openSourceViewer}
                           question={question}
+                          roster={ringRoster}
                         />
                         ))}
                     </div>
@@ -1471,6 +1492,7 @@ export function CoreExamFrame({
                                 key={question.id}
                                 onOpenSource={openSourceViewer}
                                 question={question}
+                                roster={ringRoster}
                               />
                             ))}
                         </div>

@@ -1076,10 +1076,7 @@ textarea {
   color: var(--ce-danger-ink);
 }
 
-.ce-status[data-progress="partial"] {
-  background: var(--ce-highlight-soft);
-  color: var(--ce-highlight-ink);
-}
+/* partial progress uses the neutral base pill (matches the progress rings). */
 
 .ce-status[data-progress="complete"] {
   background: var(--ce-accent-soft);
@@ -1772,6 +1769,60 @@ textarea {
 .ce-question-answer-state[data-answered="true"] {
   background: var(--ce-accent-soft);
   color: var(--ce-accent);
+}
+
+.ce-group-rings,
+.ce-progress-rings {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.ce-progress-rings {
+  flex-wrap: wrap;
+  max-width: 168px;
+}
+
+.ce-ring {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid var(--ce-line);
+  border-radius: 50%;
+}
+
+.ce-status-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --- Card group rings (per member, hue-colored via --ring) — tunable --- */
+.ce-group-rings .ce-ring {
+  width: 4.8px; /* was 8px; ~40% smaller */
+  height: 4.8px;
+  border-width: 0.6px;
+  border-color: var(--ring, var(--ce-line));
+}
+
+.ce-group-rings .ce-ring[data-filled="true"] {
+  background: var(--ring);
+  box-shadow: 0 0 4px var(--ring); /* glow: blur 4px, color = the member hue */
+}
+
+.ce-group-rings .ce-ring[data-hidden="true"] {
+  opacity: 0.3;
+}
+
+/* --- Header progress rings: neutral, theme-aware --- */
+.ce-progress-rings .ce-ring {
+  border-color: var(--ce-line-strong);
+}
+
+.ce-progress-rings .ce-ring[data-filled="true"] {
+  background: var(--ce-muted);
+  border-color: var(--ce-muted);
 }
 
 .ce-question-body {

@@ -29,6 +29,9 @@ export type QuestionAnswerSummary = {
 
 export type TopicQuestion = {
   groupAnswers: QuestionAnswerSummary[];
+  // user_ids of everyone with a (non-archived) answer, any visibility — for the
+  // group answer-status rings (participation only, not content).
+  answeredBy: string[];
   createdAt: string;
   hiddenBy: Array<{ id: string; name: string }>;
   id: string;
@@ -237,6 +240,13 @@ export async function loadTopicQuestions(
       groupAnswers: personal.filter(
         (answer) => answer.authorId !== viewerId,
       ),
+      answeredBy: [
+        ...new Set(
+          questionAnswers
+            .map((answer) => answer.author_id)
+            .filter((id): id is string => Boolean(id)),
+        ),
+      ],
       hiddenBy: questionHiddenMarks.map((mark) => ({
         id: mark.user_id,
         name: names.get(mark.user_id) ?? "Study member",

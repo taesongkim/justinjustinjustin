@@ -20,6 +20,10 @@
   --ce-accent-strong: #286b59;
   --ce-accent-soft: #dcece6;
   --ce-teal: #3f7d84;
+  /* solid dark button surfaces — stay dark with light text in BOTH themes
+     (unlike the ink text token, which inverts) */
+  --ce-solid: #22312b;
+  --ce-solid-soft: #46534d;
   /* highlight (yellow answered/likelihood family) */
   --ce-highlight: #f3e39a;
   --ce-highlight-soft: #f8edcf;
@@ -76,6 +80,8 @@
   --ce-accent-strong: #5bbd9f;
   --ce-accent-soft: #1f2f2a;
   --ce-teal: #5aa2aa;
+  --ce-solid: #33403a;
+  --ce-solid-soft: #414b46;
   /* highlight (yellow answered/likelihood) */
   --ce-highlight: #4a4224;
   --ce-highlight-soft: #302c1b;
@@ -184,7 +190,7 @@ body {
   padding: 10px 12px;
   border: 1px solid var(--ce-line-strong);
   border-radius: 9px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   font: inherit;
 }
@@ -194,7 +200,7 @@ body {
   margin-top: 4px;
   border: 0;
   border-radius: 9px;
-  background: var(--ce-ink);
+  background: var(--ce-solid);
   color: white;
   cursor: pointer;
   font-weight: 500;
@@ -249,7 +255,7 @@ body {
   margin-top: 12px;
   border: 1px solid var(--ce-line);
   border-radius: 9px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   cursor: pointer;
   font-weight: 500;
@@ -422,7 +428,7 @@ textarea {
 .ce-index-nav a:hover,
 .ce-index-nav a:focus-visible {
   border-color: var(--ce-line);
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
 }
 
@@ -438,7 +444,7 @@ textarea {
   padding: 5px 8px 5px 5px;
   border: 1px solid var(--ce-line);
   border-radius: 999px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   cursor: pointer;
   font-size: 11px;
@@ -511,7 +517,7 @@ textarea {
   padding: 7px 10px;
   border: 1px solid var(--ce-line);
   border-radius: 999px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   cursor: pointer;
   font-size: 9px;
@@ -649,7 +655,7 @@ textarea {
   right: 4px;
   width: 8px;
   height: 8px;
-  border: 2px solid white;
+  border: 2px solid var(--ce-paper);
   border-radius: 999px;
   background: var(--ce-danger);
 }
@@ -746,7 +752,7 @@ textarea {
   padding: 7px 9px;
   border: 1px solid var(--ce-line);
   border-radius: 7px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   cursor: pointer;
   font-size: 9px;
@@ -818,7 +824,7 @@ textarea {
 .ce-quiet-button:hover,
 .ce-quiet-button:focus-visible {
   border-color: var(--ce-line);
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
 }
 
@@ -828,7 +834,7 @@ textarea {
   padding: 5px 8px 5px 5px;
   border-color: var(--ce-line);
   border-radius: 999px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   text-align: left;
   font-size: 12px;
@@ -858,7 +864,7 @@ textarea {
   padding: 14px;
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
-  background: white;
+  background: var(--ce-raised);
   box-shadow: 0 18px 55px rgba(var(--ce-shadow-rgb), 0.18);
   font-size: 11px;
 }
@@ -889,7 +895,7 @@ textarea {
   padding: 8px;
   border: 1px solid var(--ce-line);
   border-radius: 7px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   cursor: pointer;
   text-align: left;
@@ -960,7 +966,7 @@ textarea {
 }
 
 .ce-topic-link-active {
-  background: white;
+  background: var(--ce-raised);
   box-shadow: 0 1px 4px rgba(var(--ce-shadow-rgb), 0.08);
   color: var(--ce-ink);
   font-weight: 500;
@@ -1218,7 +1224,7 @@ textarea {
   padding: 6px 8px;
   border: 1px solid var(--ce-line);
   border-radius: 7px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   cursor: pointer;
   font-size: 9px;
@@ -1230,7 +1236,7 @@ textarea {
   margin: 13px 0;
   padding: 11px;
   border-radius: 9px;
-  background: white;
+  background: var(--ce-raised);
   font-size: 10px;
 }
 
@@ -1265,7 +1271,7 @@ textarea {
   padding: 8px 6px;
   border: 1px solid var(--ce-line);
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   cursor: pointer;
   font-size: 9px;
@@ -1290,7 +1296,7 @@ textarea {
   padding: 9px 10px;
   border: 1px solid var(--ce-line);
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   font: inherit;
   font-size: 11px;
@@ -1357,7 +1363,7 @@ textarea {
 .ce-verification-history li {
   padding: 9px 10px;
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
 }
 
 .ce-verification-history li > div {
@@ -1412,7 +1418,7 @@ textarea {
   padding: 5px 7px;
   border: 1px solid var(--ce-line);
   border-radius: 6px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-accent);
   cursor: pointer;
   font-size: 8px;
@@ -1429,7 +1435,7 @@ textarea {
   padding: 11px;
   border: 1px solid var(--ce-line);
   border-radius: 9px;
-  background: white;
+  background: var(--ce-raised);
 }
 
 .ce-contribution-editor > strong {
@@ -1502,7 +1508,7 @@ textarea {
   padding: 6px 8px;
   border: 1px solid var(--ce-line);
   border-radius: 6px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   cursor: pointer;
   font-size: 8px;
@@ -1528,7 +1534,7 @@ textarea {
 .ce-contribution-list article {
   padding: 10px 11px;
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
 }
 
 .ce-contribution-list article > header {
@@ -1720,7 +1726,7 @@ textarea {
 
 .ce-question-card[open] {
   border-color: var(--ce-line-strong);
-  background: white;
+  background: var(--ce-raised);
   box-shadow: 0 10px 30px rgba(var(--ce-shadow-rgb), 0.07);
 }
 
@@ -1950,7 +1956,7 @@ textarea {
   padding: 11px;
   border: 1px solid var(--ce-line-mid);
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   font: 14px/1.55 Georgia, "Times New Roman", serif;
 }
@@ -1963,7 +1969,7 @@ textarea {
   padding: 7px 8px;
   border: 1px solid var(--ce-line);
   border-radius: 7px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   font-size: 10px;
 }
@@ -1975,7 +1981,7 @@ textarea {
 
 .ce-answer-editor .ce-answer-cancel {
   border: 1px solid var(--ce-line);
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
 }
 
@@ -2032,7 +2038,7 @@ textarea {
   padding: 6px 8px;
   border: 1px solid var(--ce-line);
   border-radius: 999px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   cursor: pointer;
   font-size: 9px;
@@ -2056,7 +2062,7 @@ textarea {
 }
 
 .ce-likelihood-options button[aria-pressed="true"] small {
-  background: rgba(95, 78, 15, 0.12);
+  background: rgba(var(--ce-highlight-rgb), 0.12);
 }
 
 .ce-likelihood-attribution {
@@ -2139,7 +2145,7 @@ textarea {
 .ce-card-comments article {
   padding: 10px 11px;
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
 }
 
 .ce-card-comments article strong {
@@ -2186,7 +2192,7 @@ textarea {
   padding: 9px;
   border: 1px solid var(--ce-line);
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   font-size: 10px;
 }
@@ -2204,7 +2210,7 @@ textarea {
   padding: 6px 9px;
   border: 0;
   border-radius: 7px;
-  background: var(--ce-ink-soft);
+  background: var(--ce-solid-soft);
   color: white;
   cursor: pointer;
   font-size: 9px;
@@ -2498,8 +2504,8 @@ textarea {
   z-index: 60;
   padding: 5px 8px;
   border-radius: 6px;
-  background: var(--ce-ink);
-  color: var(--ce-raised);
+  background: var(--ce-solid);
+  color: white;
   font-family: var(--font-inter), sans-serif;
   font-size: 11px;
   font-weight: 500;
@@ -2640,7 +2646,7 @@ textarea {
   padding: 8px 11px;
   border: 1px solid var(--ce-line);
   border-radius: 8px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   cursor: pointer;
   font-size: 11px;
@@ -2719,7 +2725,7 @@ textarea {
   padding: 7px 10px;
   border: 1px solid var(--ce-line);
   border-radius: 999px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   font-size: 10px;
 }
@@ -2835,7 +2841,7 @@ textarea {
   padding: 7px 10px;
   border: 1px solid var(--ce-line);
   border-radius: 7px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   font-size: 10px;
   text-decoration: none;
@@ -2940,7 +2946,7 @@ textarea {
   height: 30px;
   border-color: var(--ce-line);
   border-radius: 50%;
-  background: white;
+  background: var(--ce-raised);
 }
 
 .ce-workspace-collapsed .ce-discussion-header {
@@ -3110,7 +3116,7 @@ textarea {
   border: 1px solid var(--ce-line-strong);
   border-radius: 8px;
   outline: none;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-ink);
   font-size: 12px;
 }
@@ -3445,7 +3451,7 @@ textarea {
     padding: 7px 9px;
     border: 1px solid var(--ce-line);
     border-radius: 8px;
-    background: white;
+    background: var(--ce-raised);
     color: var(--ce-muted);
     cursor: pointer;
     font-size: 11px;
@@ -3467,7 +3473,7 @@ textarea {
     padding: 7px;
     border: 1px solid var(--ce-line);
     border-radius: var(--ce-radius-container, 8px);
-    background: white;
+    background: var(--ce-raised);
     box-shadow: 0 18px 50px rgba(var(--ce-shadow-rgb), 0.2);
   }
 
@@ -3645,7 +3651,7 @@ textarea {
     padding: 6px 10px;
     border: 1px solid var(--ce-line);
     border-radius: 8px;
-    background: white;
+    background: var(--ce-raised);
     cursor: pointer;
     list-style: none;
   }
@@ -3691,7 +3697,7 @@ textarea {
     padding: 14px 16px;
     border: 1px solid var(--ce-line);
     border-radius: var(--ce-radius-container, 8px);
-    background: white;
+    background: var(--ce-raised);
     box-shadow: 0 18px 50px rgba(var(--ce-shadow-rgb), 0.2);
   }
 

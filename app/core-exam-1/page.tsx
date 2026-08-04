@@ -59,7 +59,12 @@ export default async function CoreExamPage({
           stableKey: topic.stableKey,
         })),
       ) satisfies Promise<TopicQuestionGroup[]>,
-      loadScoreboard(access.viewer.spaceId, access.viewer.userId),
+      loadScoreboard(access.viewer.spaceId, access.viewer.userId).catch(
+        (error) => {
+          console.error("scoreboard load failed; showing none", error);
+          return [];
+        },
+      ),
     ]);
 
     return (
@@ -103,7 +108,12 @@ export default async function CoreExamPage({
       selectedTopic.stableKey,
       access.viewer.userId,
     ),
-    loadScoreboard(access.viewer.spaceId, access.viewer.userId),
+    loadScoreboard(access.viewer.spaceId, access.viewer.userId).catch(
+        (error) => {
+          console.error("scoreboard load failed; showing none", error);
+          return [];
+        },
+      ),
   ]);
 
   return (

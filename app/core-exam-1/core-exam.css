@@ -1,16 +1,106 @@
 :root {
+  /* Light theme (default). Dark values live in :root[data-theme="dark"]. */
+  /* text */
   --ce-ink: #22312b;
+  --ce-ink-strong: #26332d;
+  --ce-ink-soft: #46534d;
   --ce-muted: #6d7974;
-  --ce-line: #dce2df;
+  --ce-faint: #9aa39f;
+  /* surfaces */
   --ce-paper: #f7f8f5;
+  --ce-raised: #ffffff;
   --ce-panel: #eef1ed;
+  --ce-panel-soft: #f2f8f5;
+  /* borders */
+  --ce-line: #dce2df;
+  --ce-line-strong: #c8d3ce;
+  --ce-line-mid: #b9c3be;
+  /* accent */
   --ce-accent: #2f7b68;
+  --ce-accent-strong: #286b59;
   --ce-accent-soft: #dcece6;
+  --ce-teal: #3f7d84;
+  /* highlight (yellow answered/likelihood family) */
+  --ce-highlight: #f3e39a;
+  --ce-highlight-soft: #f8edcf;
+  --ce-highlight-border: #d2bb58;
+  --ce-highlight-strong: #c8ae45;
+  --ce-highlight-ink: #895f19;
+  /* status */
+  --ce-danger: #e53935;
+  --ce-danger-ink: #8c4337;
+  --ce-danger-soft: #f6e8e4;
+  --ce-warn: #bd7f43;
+  --ce-tier-high: #b0533f;
+  --ce-tier-mid: #ad8a2c;
+  --ce-tier-low: #97a89f;
+  /* rgb triplets for alpha overlays/shadows (used as rgba(var(--x), a)) */
+  --ce-shadow-rgb: 26, 43, 35;
+  --ce-glass-rgb: 255, 255, 255;
+  --ce-paper-rgb: 247, 248, 245;
+  --ce-panel-rgb: 238, 241, 237;
+  --ce-accent-rgb: 47, 123, 104;
+  --ce-highlight-rgb: 243, 227, 154;
+  --ce-scrim: rgba(24, 35, 30, 0.46);
+  /* member-hue mix: a stored (light) avatar hue shifted to legible name text —
+     darken on light, lighten on dark. Referenced by hueNameStyle inline. */
+  --ce-hue-mix: black;
+  --ce-hue-mix-amt: 26%;
+  /* layout */
   --ce-discussion-width: 336px;
   --ce-workspace-gutter: 28px;
   --ce-reading-measure: 620px;
   --ce-header-height: 68px;
   --ce-radius-container: 8px;
+}
+
+/* Dark theme — first-pass values, tunable via the dev theme panel. */
+:root[data-theme="dark"] {
+  /* text */
+  --ce-ink: #e7ece9;
+  --ce-ink-strong: #f1f4f2;
+  --ce-ink-soft: #b4beb9;
+  --ce-muted: #8f9b96;
+  --ce-faint: #6b756f;
+  /* surfaces */
+  --ce-paper: #141917;
+  --ce-raised: #1f2523;
+  --ce-panel: #1b211f;
+  --ce-panel-soft: #202826;
+  /* borders */
+  --ce-line: #2d3532;
+  --ce-line-strong: #3a433e;
+  --ce-line-mid: #454f4a;
+  /* accent */
+  --ce-accent: #48a98c;
+  --ce-accent-strong: #5bbd9f;
+  --ce-accent-soft: #1f2f2a;
+  --ce-teal: #5aa2aa;
+  /* highlight (yellow answered/likelihood) */
+  --ce-highlight: #4a4224;
+  --ce-highlight-soft: #302c1b;
+  --ce-highlight-border: #6d5f2e;
+  --ce-highlight-strong: #8f7b36;
+  --ce-highlight-ink: #e7d79a;
+  /* status */
+  --ce-danger: #f06b66;
+  --ce-danger-ink: #e79a8f;
+  --ce-danger-soft: #34211d;
+  --ce-warn: #d99a5e;
+  --ce-tier-high: #d47a66;
+  --ce-tier-mid: #cbaa4e;
+  --ce-tier-low: #7e8a84;
+  /* rgb triplets for alpha overlays/shadows */
+  --ce-shadow-rgb: 0, 0, 0;
+  --ce-glass-rgb: 38, 46, 43;
+  --ce-paper-rgb: 20, 25, 23;
+  --ce-panel-rgb: 27, 33, 31;
+  --ce-accent-rgb: 72, 169, 140;
+  --ce-highlight-rgb: 74, 66, 36;
+  --ce-scrim: rgba(0, 0, 0, 0.6);
+  /* member-hue mix flips to lighten names on dark */
+  --ce-hue-mix: white;
+  --ce-hue-mix-amt: 30%;
 }
 
 * {
@@ -35,8 +125,8 @@ body {
 
 .ce-app ::selection,
 .ce-login-shell ::selection {
-  background: #f3e39a;
-  color: #26332d;
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
 }
 
 .ce-login-shell {
@@ -45,7 +135,7 @@ body {
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(circle at 70% 12%, rgba(47, 123, 104, 0.1), transparent 30rem),
+    radial-gradient(circle at 70% 12%, rgba(var(--ce-accent-rgb), 0.1), transparent 30rem),
     var(--ce-paper);
 }
 
@@ -54,8 +144,8 @@ body {
   padding: 34px;
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
-  background: rgba(255, 255, 255, 0.76);
-  box-shadow: 0 22px 70px rgba(31, 48, 40, 0.1);
+  background: rgba(var(--ce-glass-rgb), 0.76);
+  box-shadow: 0 22px 70px rgba(var(--ce-shadow-rgb), 0.1);
 }
 
 .ce-login-card > .ce-brand-mark {
@@ -92,7 +182,7 @@ body {
 .ce-login-card input {
   min-height: 44px;
   padding: 10px 12px;
-  border: 1px solid #cbd3cf;
+  border: 1px solid var(--ce-line-strong);
   border-radius: 9px;
   background: white;
   color: var(--ce-ink);
@@ -130,8 +220,8 @@ body {
 
 .ce-login-error {
   margin: 14px 0 0;
-  background: #f6e8e4;
-  color: #873f32;
+  background: var(--ce-danger-soft);
+  color: var(--ce-danger-ink);
 }
 
 .ce-account-mismatch {
@@ -173,7 +263,7 @@ textarea {
 .ce-app {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 80% 0%, rgba(47, 123, 104, 0.07), transparent 30rem),
+    radial-gradient(circle at 80% 0%, rgba(var(--ce-accent-rgb), 0.07), transparent 30rem),
     var(--ce-paper);
 }
 
@@ -187,7 +277,7 @@ textarea {
   justify-content: space-between;
   padding: 0 22px;
   border-bottom: 1px solid var(--ce-line);
-  background: rgba(247, 248, 245, 0.94);
+  background: rgba(var(--ce-paper-rgb), 0.94);
   backdrop-filter: blur(18px);
 }
 
@@ -282,6 +372,26 @@ textarea {
   text-decoration: none;
 }
 
+.ce-theme-toggle {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ce-muted);
+  cursor: pointer;
+}
+
+.ce-theme-toggle:hover,
+.ce-theme-toggle:focus-visible {
+  border-color: var(--ce-line);
+  background: var(--ce-raised);
+  color: var(--ce-ink);
+}
+
 .ce-brand-link {
   color: inherit;
   text-decoration: none;
@@ -317,8 +427,8 @@ textarea {
 }
 
 .ce-index-nav a[aria-current="page"] {
-  background: #f3e39a;
-  color: #26332d;
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
 }
 
 .ce-index-identity {
@@ -409,9 +519,9 @@ textarea {
 }
 
 .ce-index-filters button[aria-pressed="true"] {
-  border-color: #d2bb58;
-  background: #f3e39a;
-  color: #26332d;
+  border-color: var(--ce-highlight-border);
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
 }
 
 .ce-index-list {
@@ -440,8 +550,8 @@ textarea {
   margin-top: 6px;
   padding: 3px 6px;
   border-radius: 999px;
-  background: #f3e39a;
-  color: #5d5120;
+  background: var(--ce-highlight);
+  color: var(--ce-highlight-ink);
   font-size: 7px;
 }
 
@@ -456,7 +566,7 @@ textarea {
 
 .ce-index-row a:hover {
   text-decoration: underline;
-  text-decoration-color: #d2bb58;
+  text-decoration-color: var(--ce-highlight-border);
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
@@ -465,7 +575,7 @@ textarea {
   display: -webkit-box;
   margin: 8px 0 0;
   overflow: hidden;
-  color: #56625d;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 12px;
   line-height: 1.5;
@@ -474,7 +584,7 @@ textarea {
 }
 
 .ce-index-answer-empty {
-  color: #9aa39f;
+  color: var(--ce-faint);
   font-family: var(--font-inter), sans-serif;
   font-size: 10px;
 }
@@ -506,7 +616,7 @@ textarea {
 }
 
 .ce-activity-row:hover {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--ce-glass-rgb), 0.55);
 }
 
 .ce-activity-row small {
@@ -518,7 +628,7 @@ textarea {
 
 .ce-activity-row p {
   margin: 7px 0 0;
-  color: #4d5a54;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 14px;
 }
@@ -541,7 +651,7 @@ textarea {
   height: 8px;
   border: 2px solid white;
   border-radius: 999px;
-  background: #e53935;
+  background: var(--ce-danger);
 }
 
 .ce-activity-backdrop {
@@ -549,7 +659,7 @@ textarea {
   inset: 0;
   width: 100%;
   border: 0;
-  background: rgba(29, 40, 35, 0.34);
+  background: rgba(var(--ce-shadow-rgb), 0.34);
   cursor: default;
   backdrop-filter: blur(3px);
 }
@@ -564,7 +674,7 @@ textarea {
   flex-direction: column;
   border-left: 1px solid var(--ce-line);
   background: var(--ce-paper);
-  box-shadow: -24px 0 70px rgba(25, 39, 32, 0.2);
+  box-shadow: -24px 0 70px rgba(var(--ce-shadow-rgb), 0.2);
   animation: ce-activity-enter 180ms ease-out;
 }
 
@@ -674,12 +784,12 @@ textarea {
 }
 
 .ce-activity-row-dot-new {
-  background: #e53935;
+  background: var(--ce-danger);
 }
 
 .ce-activity-drawer-row:hover,
 .ce-activity-drawer-row:focus-visible {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(var(--ce-glass-rgb), 0.6);
 }
 
 .ce-activity-drawer-row small {
@@ -691,7 +801,7 @@ textarea {
 
 .ce-activity-drawer-row p {
   margin: 7px 0 0;
-  color: #4d5a54;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 13px;
   line-height: 1.45;
@@ -700,7 +810,7 @@ textarea {
 .ce-activity-drawer-row .ce-activity-note {
   margin-top: 5px;
   padding-left: 8px;
-  border-left: 2px solid #d7ded9;
+  border-left: 2px solid var(--ce-line);
   color: var(--ce-muted);
   font-size: 11px;
 }
@@ -749,7 +859,7 @@ textarea {
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
   background: white;
-  box-shadow: 0 18px 55px rgba(26, 43, 35, 0.18);
+  box-shadow: 0 18px 55px rgba(var(--ce-shadow-rgb), 0.18);
   font-size: 11px;
 }
 
@@ -813,7 +923,7 @@ textarea {
   overflow-y: auto;
   padding: 24px 14px;
   border-right: 1px solid var(--ce-line);
-  background: rgba(238, 241, 237, 0.7);
+  background: rgba(var(--ce-panel-rgb), 0.7);
 }
 
 .ce-sidebar-label {
@@ -832,26 +942,26 @@ textarea {
   margin-bottom: 3px;
   padding: 9px 10px;
   border-radius: 8px;
-  color: #55615c;
+  color: var(--ce-ink-soft);
   font-size: 12px;
   line-height: 1.35;
   text-decoration: none;
 }
 
 .ce-topic-link span {
-  color: #9aa39f;
+  color: var(--ce-faint);
   font-size: 10px;
   font-variant-numeric: tabular-nums;
 }
 
 .ce-topic-link:hover {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(var(--ce-glass-rgb), 0.7);
   color: var(--ce-ink);
 }
 
 .ce-topic-link-active {
   background: white;
-  box-shadow: 0 1px 4px rgba(35, 52, 45, 0.08);
+  box-shadow: 0 1px 4px rgba(var(--ce-shadow-rgb), 0.08);
   color: var(--ce-ink);
   font-weight: 500;
 }
@@ -876,7 +986,7 @@ textarea {
 
 .ce-sidebar-archive > summary::after {
   content: "›";
-  color: #9aa39f;
+  color: var(--ce-faint);
   font-size: 12px;
   letter-spacing: 0;
   transition: transform 0.2s ease;
@@ -956,13 +1066,13 @@ textarea {
 }
 
 .ce-status[data-progress="none"] {
-  background: #f4ded7;
-  color: #a8503b;
+  background: var(--ce-danger-soft);
+  color: var(--ce-danger-ink);
 }
 
 .ce-status[data-progress="partial"] {
-  background: #f4ecc4;
-  color: #8a7320;
+  background: var(--ce-highlight-soft);
+  color: var(--ce-highlight-ink);
 }
 
 .ce-status[data-progress="complete"] {
@@ -978,10 +1088,10 @@ textarea {
   margin: 0 7px 0 0;
   padding: 0;
   vertical-align: 0.08em;
-  border: 1px solid #cbd3cf;
+  border: 1px solid var(--ce-line-strong);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
-  color: #8b9691;
+  background: rgba(var(--ce-glass-rgb), 0.78);
+  color: var(--ce-faint);
   cursor: pointer;
   font-family: Arial, sans-serif;
   font-size: 10px;
@@ -1013,21 +1123,21 @@ textarea {
 }
 
 .ce-verification-trigger[data-state="verified"] {
-  border-color: #84aa9d;
-  background: #e4f0eb;
-  color: #286b59;
+  border-color: var(--ce-teal);
+  background: var(--ce-accent-soft);
+  color: var(--ce-accent-strong);
 }
 
 .ce-verification-trigger[data-state="flagged"] {
-  border-color: #d6af65;
-  background: #f8edcf;
-  color: #895f19;
+  border-color: var(--ce-highlight-border);
+  background: var(--ce-highlight-soft);
+  color: var(--ce-highlight-ink);
 }
 
 .ce-verification-trigger[data-state="unverified"] {
-  border-color: #b8c0bc;
-  background: #eef0ef;
-  color: #68736e;
+  border-color: var(--ce-line-mid);
+  background: var(--ce-panel);
+  color: var(--ce-muted);
 }
 
 .ce-verification-trigger-label {
@@ -1053,7 +1163,7 @@ textarea {
   inset: 0;
   width: 100%;
   border: 0;
-  background: rgba(29, 40, 35, 0.12);
+  background: rgba(var(--ce-shadow-rgb), 0.12);
   cursor: default;
 }
 
@@ -1067,7 +1177,7 @@ textarea {
   border-radius: var(--ce-radius-container, 8px);
   background: var(--ce-paper);
   color: var(--ce-ink);
-  box-shadow: 0 22px 65px rgba(25, 39, 32, 0.22);
+  box-shadow: 0 22px 65px rgba(var(--ce-shadow-rgb), 0.22);
   animation: ce-verification-enter 140ms ease-out;
 }
 
@@ -1132,7 +1242,7 @@ textarea {
 .ce-verification-current p {
   width: 100%;
   margin: 2px 0 0;
-  color: #4d5a54;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 12px;
   line-height: 1.5;
@@ -1162,9 +1272,9 @@ textarea {
 }
 
 .ce-verification-states button[aria-pressed="true"] {
-  border-color: #c8ae45;
-  background: #f3e39a;
-  color: #26332d;
+  border-color: var(--ce-highlight-strong);
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
 }
 
 .ce-verification-popover > label {
@@ -1191,16 +1301,16 @@ textarea {
 }
 
 .ce-verification-actions span {
-  color: #8c4337;
+  color: var(--ce-danger-ink);
   font-size: 8px;
 }
 
 .ce-verification-actions button {
   padding: 7px 10px;
-  border: 1px solid #d2bb58;
+  border: 1px solid var(--ce-highlight-border);
   border-radius: 7px;
-  background: #f3e39a;
-  color: #26332d;
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
   cursor: pointer;
   font-size: 9px;
   font-weight: 500;
@@ -1265,7 +1375,7 @@ textarea {
 
 .ce-verification-history li p {
   margin: 5px 0 0;
-  color: #4d5a54;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 11px;
   line-height: 1.45;
@@ -1359,9 +1469,9 @@ textarea {
 }
 
 .ce-contribution-visibility button[aria-pressed="true"] {
-  border-color: #d2bb58;
-  background: #f3e39a;
-  color: #26332d;
+  border-color: var(--ce-highlight-border);
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
 }
 
 .ce-contribution-editor > p {
@@ -1379,7 +1489,7 @@ textarea {
 }
 
 .ce-contribution-editor-actions > span {
-  color: #8c4337;
+  color: var(--ce-danger-ink);
   font-size: 8px;
 }
 
@@ -1399,9 +1509,9 @@ textarea {
 }
 
 .ce-contribution-editor-actions button:last-child {
-  border-color: #d2bb58;
-  background: #f3e39a;
-  color: #26332d;
+  border-color: var(--ce-highlight-border);
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
 }
 
 .ce-contribution-editor-actions button:disabled {
@@ -1454,7 +1564,7 @@ textarea {
 
 .ce-contribution-list article > p {
   margin: 7px 0;
-  color: #46534d;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 12px;
   line-height: 1.5;
@@ -1527,7 +1637,7 @@ textarea {
   position: fixed;
   inset: 0;
   z-index: 60;
-  background: rgba(247, 248, 245, 0.62);
+  background: rgba(var(--ce-paper-rgb), 0.62);
   backdrop-filter: blur(1.5px);
 }
 
@@ -1575,8 +1685,8 @@ textarea {
   overflow: hidden;
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
-  background: rgba(255, 255, 255, 0.72);
-  box-shadow: 0 2px 10px rgba(30, 47, 39, 0.035);
+  background: rgba(var(--ce-glass-rgb), 0.72);
+  box-shadow: 0 2px 10px rgba(var(--ce-shadow-rgb), 0.035);
 }
 
 /* Entrance for a freshly-submitted question card. */
@@ -1609,9 +1719,9 @@ textarea {
 }
 
 .ce-question-card[open] {
-  border-color: #c5d0cb;
+  border-color: var(--ce-line-strong);
   background: white;
-  box-shadow: 0 10px 30px rgba(30, 47, 39, 0.07);
+  box-shadow: 0 10px 30px rgba(var(--ce-shadow-rgb), 0.07);
 }
 
 .ce-question-card > summary {
@@ -1630,7 +1740,7 @@ textarea {
 
 .ce-question-index {
   padding-top: 2px;
-  color: #a0aaa5;
+  color: var(--ce-faint);
   font-size: 10px;
   font-variant-numeric: tabular-nums;
 }
@@ -1670,24 +1780,33 @@ textarea {
   font-size: 10px;
 }
 
-.ce-question-card-actions {
+.ce-question-hide {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ce-line);
 }
 
-.ce-question-card-actions button {
-  padding: 5px 8px;
+.ce-question-hide button {
+  padding: 5px 9px;
   border: 1px solid var(--ce-line);
   border-radius: 7px;
-  background: white;
+  background: var(--ce-raised);
   color: var(--ce-muted);
   cursor: pointer;
-  font-size: 9px;
+  font-size: 10px;
 }
 
-.ce-question-card-actions span {
+.ce-question-hide button:hover,
+.ce-question-hide button:focus-visible {
+  border-color: var(--ce-line-strong);
+  color: var(--ce-ink);
+}
+
+.ce-question-hide span {
   color: var(--ce-muted);
   font-size: 8px;
   text-align: right;
@@ -1737,8 +1856,8 @@ textarea {
 }
 
 .ce-answer-mine {
-  border-color: #c9ddd5;
-  background: #f2f8f5;
+  border-color: var(--ce-accent-soft);
+  background: var(--ce-panel-soft);
 }
 
 .ce-answer-block h4,
@@ -1751,7 +1870,7 @@ textarea {
   display: inline-block;
   margin-top: 6px;
   padding: 3px 6px;
-  border: 1px solid #c8d7d1;
+  border: 1px solid var(--ce-line-strong);
   border-radius: 999px;
   color: var(--ce-muted);
   font-size: 8px;
@@ -1759,7 +1878,7 @@ textarea {
 
 .ce-answer-block > p:not(.ce-eyebrow) {
   margin: 10px 0 0;
-  color: #3f4d47;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 14px;
   line-height: 1.6;
@@ -1767,7 +1886,7 @@ textarea {
 
 .ce-answer-markdown {
   margin-top: 10px;
-  color: #3f4d47;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 14px;
   line-height: 1.6;
@@ -1798,7 +1917,7 @@ textarea {
 }
 
 .ce-answer-block .ce-answer-empty {
-  color: #89938f;
+  color: var(--ce-faint);
   font-family: var(--font-inter), sans-serif;
   font-size: 11px;
 }
@@ -1829,7 +1948,7 @@ textarea {
   width: 100%;
   resize: vertical;
   padding: 11px;
-  border: 1px solid #b9cbc4;
+  border: 1px solid var(--ce-line-mid);
   border-radius: 8px;
   background: white;
   color: var(--ce-ink);
@@ -1911,7 +2030,7 @@ textarea {
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  border: 1px solid #d3dad6;
+  border: 1px solid var(--ce-line);
   border-radius: 999px;
   background: white;
   color: var(--ce-muted);
@@ -1921,9 +2040,9 @@ textarea {
 }
 
 .ce-likelihood-options button[aria-pressed="true"] {
-  border-color: #d2bb58;
-  background: #f3e39a;
-  color: #26332d;
+  border-color: var(--ce-highlight-border);
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
 }
 
 .ce-likelihood-options small {
@@ -1932,7 +2051,7 @@ textarea {
   min-width: 16px;
   height: 16px;
   border-radius: 999px;
-  background: rgba(47, 123, 104, 0.1);
+  background: rgba(var(--ce-accent-rgb), 0.1);
   font-size: 8px;
 }
 
@@ -1943,7 +2062,7 @@ textarea {
 .ce-likelihood-attribution {
   width: 100%;
   padding-top: 9px;
-  border-top: 1px solid #d7ddd9;
+  border-top: 1px solid var(--ce-line);
 }
 
 .ce-likelihood-attribution summary {
@@ -1977,7 +2096,7 @@ textarea {
 
 .ce-question-error {
   margin: 0;
-  color: #8c4337;
+  color: var(--ce-danger-ink);
   font-size: 10px;
 }
 
@@ -2034,7 +2153,7 @@ textarea {
 
 .ce-card-comments article p {
   margin: 5px 0 0;
-  color: #46534d;
+  color: var(--ce-ink-soft);
   font-size: 11px;
   line-height: 1.5;
 }
@@ -2077,7 +2196,7 @@ textarea {
 }
 
 .ce-card-comment-composer > div span {
-  color: #8c4337;
+  color: var(--ce-danger-ink);
   font-size: 8px;
 }
 
@@ -2085,7 +2204,7 @@ textarea {
   padding: 6px 9px;
   border: 0;
   border-radius: 7px;
-  background: #56635c;
+  background: var(--ce-ink-soft);
   color: white;
   cursor: pointer;
   font-size: 9px;
@@ -2105,11 +2224,11 @@ textarea {
   0%,
   45%,
   100% {
-    background-color: rgba(243, 227, 154, 0);
+    background-color: rgba(var(--ce-highlight-rgb), 0);
   }
   20%,
   70% {
-    background-color: rgba(243, 227, 154, 0.62);
+    background-color: rgba(var(--ce-highlight-rgb), 0.62);
   }
 }
 
@@ -2168,9 +2287,9 @@ textarea {
 .ce-collaborative-empty {
   margin: 18px 0 0;
   padding: 28px;
-  border: 1px dashed #c8d3ce;
+  border: 1px dashed var(--ce-line-strong);
   border-radius: var(--ce-radius-container, 8px);
-  background: #f8faf8;
+  background: var(--ce-panel-soft);
 }
 
 .ce-collaborative-empty h3 {
@@ -2194,9 +2313,9 @@ textarea {
   gap: 8px;
   margin-top: 58px;
   padding: 24px;
-  border: 1px solid #d8c76f;
+  border: 1px solid var(--ce-highlight-border);
   border-radius: var(--ce-radius-container, 8px);
-  background: #faf6dc;
+  background: var(--ce-highlight-soft);
 }
 
 .ce-ask-question h3 {
@@ -2224,10 +2343,10 @@ textarea {
 .ce-ask-question textarea {
   width: 100%;
   padding: 10px 11px;
-  border: 1px solid #d4c986;
+  border: 1px solid var(--ce-highlight-border);
   border-radius: 8px;
   outline: none;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(var(--ce-glass-rgb), 0.8);
   color: var(--ce-ink);
   font: inherit;
   font-size: 12px;
@@ -2235,8 +2354,8 @@ textarea {
 
 .ce-ask-question input:focus,
 .ce-ask-question textarea:focus {
-  border-color: #b69f39;
-  box-shadow: 0 0 0 3px rgba(201, 177, 69, 0.16);
+  border-color: var(--ce-highlight-strong);
+  box-shadow: 0 0 0 3px rgba(var(--ce-highlight-rgb), 0.16);
 }
 
 .ce-ask-question > div {
@@ -2255,10 +2374,10 @@ textarea {
 .ce-ask-question button {
   flex: 0 0 auto;
   padding: 8px 12px;
-  border: 1px solid #c4ad48;
+  border: 1px solid var(--ce-highlight-strong);
   border-radius: 7px;
-  background: #f3e39a;
-  color: #26332d;
+  background: var(--ce-highlight);
+  color: var(--ce-ink-strong);
   cursor: pointer;
   font-size: 10px;
   font-weight: 500;
@@ -2270,7 +2389,7 @@ textarea {
 }
 
 .ce-markdown {
-  color: #2f3d37;
+  color: var(--ce-ink-strong);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 17px;
   line-height: 1.72;
@@ -2342,11 +2461,11 @@ textarea {
   margin: 26px 0;
   padding: 4px 0 4px 20px;
   border-left: 3px solid var(--ce-accent);
-  color: #51605a;
+  color: var(--ce-ink-soft);
 }
 
 .ce-citation {
-  color: rgb(200, 200, 200);
+  color: var(--ce-faint);
   font-family: var(--font-inter), sans-serif;
   font-size: 0.78em;
   font-weight: 500;
@@ -2380,7 +2499,7 @@ textarea {
   padding: 5px 8px;
   border-radius: 6px;
   background: var(--ce-ink);
-  color: #fff;
+  color: var(--ce-raised);
   font-family: var(--font-inter), sans-serif;
   font-size: 11px;
   font-weight: 500;
@@ -2409,21 +2528,21 @@ textarea {
 }
 
 .ce-marker-tier-high {
-  background: #b0533f;
+  background: var(--ce-tier-high);
 }
 
 .ce-marker-tier-mid {
-  background: #ad8a2c;
+  background: var(--ce-tier-mid);
 }
 
 .ce-marker-tier-low {
-  background: #97a89f;
+  background: var(--ce-tier-low);
 }
 
 .ce-marker-tier-none {
   width: 0.62em;
   height: 0.62em;
-  border: 1.5px solid #a7b1ac;
+  border: 1.5px solid var(--ce-faint);
   border-radius: 2px;
 }
 
@@ -2436,11 +2555,11 @@ textarea {
 }
 
 .ce-marker-accent-strong {
-  background: #3f7d84;
+  background: var(--ce-teal);
 }
 
 .ce-marker-accent-mid {
-  background: #bd7f43;
+  background: var(--ce-warn);
 }
 
 .ce-marker-done {
@@ -2448,7 +2567,7 @@ textarea {
 }
 
 .ce-marker-warn {
-  color: #8a7320;
+  color: var(--ce-highlight-ink);
 }
 
 .ce-citation-button {
@@ -2463,7 +2582,7 @@ textarea {
 
 .ce-citation-button:hover,
 .ce-citation-button:focus-visible {
-  color: #87918d;
+  color: var(--ce-faint);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -2476,13 +2595,13 @@ textarea {
   overflow: hidden;
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
-  background: #f7f8f5;
+  background: var(--ce-paper);
   color: var(--ce-ink);
-  box-shadow: 0 28px 90px rgba(20, 33, 27, 0.26);
+  box-shadow: 0 28px 90px rgba(var(--ce-shadow-rgb), 0.26);
 }
 
 .ce-source-dialog::backdrop {
-  background: rgba(24, 35, 30, 0.46);
+  background: var(--ce-scrim);
   backdrop-filter: blur(5px);
 }
 
@@ -2533,14 +2652,14 @@ textarea {
   height: calc(100% - 76px);
   display: block;
   border: 0;
-  background: #e9ece9;
+  background: var(--ce-panel);
 }
 
 .ce-mobile-source-viewer {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #f7f8f5;
+  background: var(--ce-paper);
 }
 
 .ce-mobile-source-viewer .ce-source-dialog-header {
@@ -2632,7 +2751,7 @@ textarea {
 }
 
 .ce-source-group > header > span {
-  color: #9aa39f;
+  color: var(--ce-faint);
   font-size: 10px;
 }
 
@@ -2650,7 +2769,7 @@ textarea {
   padding: 18px;
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(var(--ce-glass-rgb), 0.76);
 }
 
 .ce-source-card h4 {
@@ -2695,7 +2814,7 @@ textarea {
 }
 
 .ce-source-card dt {
-  color: #9aa39f;
+  color: var(--ce-faint);
 }
 
 .ce-source-card dd {
@@ -2724,26 +2843,26 @@ textarea {
 
 .ce-source-card > a:hover,
 .ce-source-card > a:focus-visible {
-  border-color: #b9c6c0;
+  border-color: var(--ce-line-mid);
   background: var(--ce-panel);
 }
 
 .ce-source-group-migration-evidence {
   margin-top: 24px;
   padding: 28px 22px 22px;
-  border: 1px dashed #cbd2ce;
+  border: 1px dashed var(--ce-line-strong);
   border-radius: var(--ce-radius-container, 8px);
-  background: rgba(238, 241, 237, 0.48);
+  background: rgba(var(--ce-panel-rgb), 0.48);
 }
 
 .ce-source-group-migration-evidence .ce-source-card {
-  background: rgba(255, 255, 255, 0.48);
+  background: rgba(var(--ce-glass-rgb), 0.48);
 }
 
 .ce-source-library-empty {
   margin-top: 36px;
   padding: 28px;
-  border: 1px dashed #b8c1bd;
+  border: 1px dashed var(--ce-line-mid);
   border-radius: var(--ce-radius-container, 8px);
 }
 
@@ -2779,9 +2898,9 @@ textarea {
 
 .ce-source-unavailable {
   padding: 32px;
-  border: 1px dashed #aeb8b3;
+  border: 1px dashed var(--ce-faint);
   border-radius: var(--ce-radius-container, 8px);
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--ce-glass-rgb), 0.55);
 }
 
 .ce-source-unavailable h3 {
@@ -2800,7 +2919,7 @@ textarea {
   display: flex;
   flex-direction: column;
   border-left: 1px solid var(--ce-line);
-  background: rgba(238, 241, 237, 0.64);
+  background: rgba(var(--ce-panel-rgb), 0.64);
 }
 
 .ce-discussion-header {
@@ -2871,7 +2990,7 @@ textarea {
 
 .ce-feed-entry:hover,
 .ce-feed-entry:focus-visible {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(var(--ce-glass-rgb), 0.55);
 }
 
 .ce-feed-entry > span:last-child {
@@ -2891,7 +3010,7 @@ textarea {
   display: -webkit-box;
   margin: 6px 0 0;
   overflow: hidden;
-  color: #55615c;
+  color: var(--ce-ink-soft);
   font-family: Georgia, "Times New Roman", serif;
   font-size: 11px;
   line-height: 1.45;
@@ -2925,7 +3044,7 @@ textarea {
   gap: 10px;
   padding: 18px 0;
   border-bottom: 1px solid var(--ce-line);
-  color: #43504b;
+  color: var(--ce-ink-soft);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -2953,7 +3072,7 @@ textarea {
 }
 
 .ce-comment-meta span {
-  color: #8b9591;
+  color: var(--ce-faint);
   font-size: 10px;
 }
 
@@ -2988,7 +3107,7 @@ textarea {
   width: 100%;
   resize: none;
   padding: 10px;
-  border: 1px solid #cbd3cf;
+  border: 1px solid var(--ce-line-strong);
   border-radius: 8px;
   outline: none;
   background: white;
@@ -2998,7 +3117,7 @@ textarea {
 
 .ce-composer textarea:focus {
   border-color: var(--ce-accent);
-  box-shadow: 0 0 0 3px rgba(47, 123, 104, 0.12);
+  box-shadow: 0 0 0 3px rgba(var(--ce-accent-rgb), 0.12);
 }
 
 .ce-composer > div {
@@ -3037,10 +3156,10 @@ textarea {
   bottom: 18px;
   width: 270px;
   padding: 14px;
-  border: 1px solid #b9c3be;
+  border: 1px solid var(--ce-line-mid);
   border-radius: var(--ce-radius-container, 8px);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 16px 50px rgba(26, 43, 35, 0.18);
+  background: rgba(var(--ce-glass-rgb), 0.96);
+  box-shadow: 0 16px 50px rgba(var(--ce-shadow-rgb), 0.18);
   font-size: 11px;
 }
 
@@ -3070,8 +3189,8 @@ textarea {
   padding: 8px;
   overflow-wrap: anywhere;
   border-radius: 6px;
-  background: #edf0ed;
-  color: #415049;
+  background: var(--ce-panel);
+  color: var(--ce-ink-soft);
   font-size: 9px;
 }
 
@@ -3094,7 +3213,7 @@ textarea {
     grid-template-columns: 1fr 1fr;
     padding: 10px 24px;
     border-bottom: 1px solid var(--ce-line);
-    background: rgba(247, 248, 245, 0.96);
+    background: rgba(var(--ce-paper-rgb), 0.96);
   }
 
   .ce-mobile-switcher button {
@@ -3349,7 +3468,7 @@ textarea {
     border: 1px solid var(--ce-line);
     border-radius: var(--ce-radius-container, 8px);
     background: white;
-    box-shadow: 0 18px 50px rgba(26, 43, 35, 0.2);
+    box-shadow: 0 18px 50px rgba(var(--ce-shadow-rgb), 0.2);
   }
 
   .ce-mobile-topics nav a {
@@ -3364,7 +3483,7 @@ textarea {
   }
 
   .ce-mobile-topics nav a span {
-    color: #9aa39f;
+    color: var(--ce-faint);
     font-size: 10px;
   }
 
@@ -3573,7 +3692,7 @@ textarea {
     border: 1px solid var(--ce-line);
     border-radius: var(--ce-radius-container, 8px);
     background: white;
-    box-shadow: 0 18px 50px rgba(26, 43, 35, 0.2);
+    box-shadow: 0 18px 50px rgba(var(--ce-shadow-rgb), 0.2);
   }
 
   .ce-scoreboard-mobile-list .ce-score-chip {

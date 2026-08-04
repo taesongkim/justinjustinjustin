@@ -8,6 +8,7 @@ import type { CoreExamActivityFeed } from "./lib/activity";
 import type { ScoreboardMember } from "./lib/scoreboard";
 import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
+import { ThemeToggle } from "./ThemeToggle";
 import { createCoreExamBrowserClient } from "./lib/supabase/browser";
 import type { CoreExamViewer } from "./lib/viewer";
 
@@ -74,6 +75,7 @@ export function QuestionIndexView({
             initialHasUnviewed={activity.hasUnviewed}
             latestOtherEventId={activity.latestOtherEventId}
           />
+          <ThemeToggle />
         </nav>
         <details className="ce-identity-menu">
           <summary className="ce-identity">

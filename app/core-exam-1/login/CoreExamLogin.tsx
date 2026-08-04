@@ -8,15 +8,48 @@ type CoreExamLoginProps = {
   callbackFailed: boolean;
 };
 
+// Turn a Supabase auth error into a specific, actionable message instead of a
+// generic "couldn't send" — so a rate limit, an uninvited email, or a blocked
+// network read differently.
+function describeAuthError(error: {
+  message?: string;
+  status?: number;
+  code?: string;
+}): string {
+  const message = (error.message ?? "").toLowerCase();
+  const status = error.status;
+  if (status === 429 || message.includes("rate limit")) {
+    return "Too many sign-in emails were requested recently. Give it a few minutes, then try again.";
+  }
+  if (
+    message.includes("signups not allowed") ||
+    message.includes("not allowed for otp") ||
+    message.includes("user not found") ||
+    status === 422
+  ) {
+    return "This email isn’t on the invite list — double-check the address, or ask Justin to add it.";
+  }
+  if (
+    message.includes("failed to fetch") ||
+    message.includes("networkerror") ||
+    message.includes("load failed")
+  ) {
+    return "Couldn’t reach the sign-in service. A network or firewall may be blocking it — try another network.";
+  }
+  return error.message ?? "We couldn’t send the sign-in link. Try again.";
+}
+
 export function CoreExamLogin({ callbackFailed }: CoreExamLoginProps) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<
     "idle" | "sending" | "sent" | "error"
   >(callbackFailed ? "error" : "idle");
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus("sending");
+    setErrorDetail(null);
 
     const supabase = createCoreExamBrowserClient();
     const callbackUrl = new URL(
@@ -31,7 +64,14 @@ export function CoreExamLogin({ callbackFailed }: CoreExamLoginProps) {
       },
     });
 
-    setStatus(error ? "error" : "sent");
+    if (error) {
+      // Full error to the console for debugging; friendly reason on screen.
+      console.error("Core Exam sign-in error:", error);
+      setErrorDetail(describeAuthError(error));
+      setStatus("error");
+      return;
+    }
+    setStatus("sent");
   };
 
   return (
@@ -69,7 +109,8 @@ export function CoreExamLogin({ callbackFailed }: CoreExamLoginProps) {
           <p className="ce-login-error" role="alert">
             {callbackFailed
               ? "That sign-in link couldn’t be completed. Request a new one."
-              : "We couldn’t send the sign-in link. Try again."}
+              : (errorDetail ??
+                "We couldn’t send the sign-in link. Try again.")}
           </p>
         )}
       </section>

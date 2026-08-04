@@ -34,6 +34,7 @@ import type { CoreExamViewer } from "./lib/viewer";
 import type { ScoreboardMember } from "./lib/scoreboard";
 import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
+import { ThemeToggle } from "./ThemeToggle";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
 import { VerificationControl } from "./VerificationControl";
 
@@ -593,21 +594,6 @@ function QuestionCard({
             Asked by {question.submittedByName}
           </p>
         )}
-        <div className="ce-question-card-actions">
-          <button
-            onClick={() => setHidden(!question.isHiddenForMe)}
-            type="button"
-          >
-            {question.isHiddenForMe ? "Show again" : "Hide for me"}
-          </button>
-          {question.hiddenBy.length > 0 && (
-            <span>
-              Hidden by{" "}
-              {question.hiddenBy.map((person) => person.name).join(", ")}
-            </span>
-          )}
-        </div>
-
         <section
           className="ce-answer-block ce-answer-mine"
           id={question.myAnswer ? `ce-answer-${question.myAnswer.id}` : undefined}
@@ -774,6 +760,22 @@ function QuestionCard({
               </dl>
             </details>
           )}
+          <div className="ce-question-hide">
+            <button
+              onClick={() => setHidden(!question.isHiddenForMe)}
+              type="button"
+            >
+              {question.isHiddenForMe
+                ? "Show this question again"
+                : "Hide this question (personally)"}
+            </button>
+            {question.hiddenBy.length > 0 && (
+              <span>
+                Hidden by{" "}
+                {question.hiddenBy.map((person) => person.name).join(", ")}
+              </span>
+            )}
+          </div>
         </section>
         <CommentThread
           comments={question.questionComments}
@@ -1217,6 +1219,7 @@ export function CoreExamFrame({
             latestOtherEventId={activity.latestOtherEventId}
             onRevealTarget={revealTarget}
           />
+          <ThemeToggle />
           <details className="ce-identity-menu">
             <summary className="ce-identity">
               <span

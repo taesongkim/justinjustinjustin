@@ -14,5 +14,9 @@ export function hueNameStyle(
   color: string | null | undefined,
 ): CSSProperties | undefined {
   if (!color) return undefined;
-  return { color: `color-mix(in oklch, ${color}, black 26%)` };
+  // The mix target flips by theme (black on light, white on dark) via the
+  // --ce-hue-mix / --ce-hue-mix-amt tokens, so names stay legible in both.
+  return {
+    color: `color-mix(in oklch, ${color}, var(--ce-hue-mix) var(--ce-hue-mix-amt))`,
+  };
 }

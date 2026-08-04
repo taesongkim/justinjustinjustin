@@ -11,5 +11,17 @@ export default function CoreExamLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return <>{children}</>;
+  return (
+    <>
+      {/* Apply the saved theme before the Core Exam content paints, so a dark
+          preference doesn't flash light on load. Default (no key) stays light. */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "try{if(localStorage.getItem('ce-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}",
+        }}
+      />
+      {children}
+    </>
+  );
 }

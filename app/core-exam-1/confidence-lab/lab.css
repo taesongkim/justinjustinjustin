@@ -1,0 +1,210 @@
+/* Dev-only styling for the confidence-slider sandbox and its tuning panel.
+   Not shipped to real routes — the page is gated to non-production. */
+
+.cs-lab {
+  display: flex;
+  min-height: 100vh;
+  gap: 24px;
+  padding: 40px;
+  background: var(--ce-paper);
+  color: var(--ce-ink);
+  font-family: var(--font-inter), sans-serif;
+}
+
+.cs-lab-main {
+  flex: 1 1 auto;
+  max-width: 680px;
+}
+
+.cs-lab-head h1 {
+  margin: 4px 0 6px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.cs-lab-sub {
+  max-width: 46ch;
+  color: var(--ce-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cs-lab-section {
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid var(--ce-line);
+}
+
+.cs-lab-section h2 {
+  margin-bottom: 18px;
+  color: var(--ce-muted);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.cs-lab-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+}
+
+.cs-lab-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.cs-lab-swatch span {
+  color: var(--ce-muted);
+  font-size: 11px;
+}
+
+.cs-lab-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 17px;
+  border: 1px solid var(--ce-line);
+  border-radius: 8px;
+  background: var(--ce-raised);
+}
+
+.cs-lab-card .ce-question-prompt {
+  flex: 1 1 auto;
+}
+
+.cs-lab-rings-stub {
+  flex: 0 0 auto;
+  color: var(--ce-accent);
+  font-size: 8px;
+  letter-spacing: 2px;
+}
+
+.cs-lab-note,
+.cs-lab-topic-title {
+  margin-top: 12px;
+  color: var(--ce-muted);
+  font-size: 12px;
+}
+
+.cs-lab-topic {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cs-lab-topic-title {
+  margin-top: 10px;
+  color: var(--ce-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+}
+
+/* ---- Tuning panel ---- */
+.cs-panel {
+  position: sticky;
+  top: 40px;
+  align-self: flex-start;
+  width: 300px;
+  max-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ce-line);
+  border-radius: 10px;
+  background: var(--ce-raised);
+  box-shadow: 0 18px 50px rgba(var(--ce-shadow-rgb), 0.14);
+  overflow: hidden;
+}
+
+.cs-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ce-line);
+  font-size: 12px;
+}
+
+.cs-panel-head button,
+.cs-panel-foot button {
+  padding: 5px 9px;
+  border: 1px solid var(--ce-line);
+  border-radius: 7px;
+  background: var(--ce-paper);
+  color: var(--ce-ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.cs-panel-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 10px 14px;
+}
+
+.cs-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 0;
+  font-size: 11px;
+}
+
+.cs-row > span {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ce-muted);
+}
+
+.cs-row em {
+  color: var(--ce-ink);
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+.cs-row input[type="range"] {
+  width: 100%;
+}
+
+.cs-row input[type="color"] {
+  width: 46px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--ce-line);
+  border-radius: 5px;
+  background: none;
+}
+
+.cs-panel-foot {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--ce-line);
+}
+
+.cs-panel-snippet {
+  max-height: 150px;
+  margin: 0;
+  padding: 10px 14px;
+  border-top: 1px solid var(--ce-line);
+  overflow: auto;
+  background: var(--ce-panel);
+  color: var(--ce-ink-soft);
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  white-space: pre;
+}
+
+@media (max-width: 900px) {
+  .cs-lab {
+    flex-direction: column;
+  }
+  .cs-panel {
+    position: static;
+    width: 100%;
+    max-height: none;
+  }
+}

@@ -20,6 +20,10 @@
   --ce-accent-strong: #286b59;
   --ce-accent-soft: #dcece6;
   --ce-teal: #3f7d84;
+  /* Confidence handle/fill — a balanced neutral so the viewer's own level reads
+     quietly next to the colored member pips. Theme-aware; the dev panel can
+     still override --cs-color live for tuning. */
+  --cs-color: #58635d;
   /* solid dark button surfaces — stay dark with light text in BOTH themes
      (unlike the ink text token, which inverts) */
   --ce-solid: #22312b;
@@ -80,6 +84,8 @@
   --ce-accent-strong: #5bbd9f;
   --ce-accent-soft: #1f2f2a;
   --ce-teal: #5aa2aa;
+  /* Confidence handle/fill — soft light neutral on dark (not harsh white). */
+  --cs-color: #d7ded9;
   --ce-solid: #33403a;
   --ce-solid-soft: #414b46;
   /* highlight (yellow answered/likelihood) */
@@ -4137,5 +4143,380 @@ textarea {
   *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   Confidence slider (1–5 self-assessment). Every visual/timing value
+   reads var(--cs-*, fallback) so the dev panel can tune it live; --cs-color
+   is theme-aware (defined in :root light/dark above).
+   ============================================================ */
+
+/* Baked tuning defaults (from the sandbox panel). Set on :root so the dev
+   panel — which writes the same vars inline on :root — can still override them
+   live, while the real app uses these. --cs-color stays theme-aware. */
+:root {
+  --cs-size: 5px;
+  --cs-size-active: 20px;
+  --cs-track-w: 33px;
+  --cs-rail-h: 1px;
+  --cs-notch: 5px;
+  --cs-notch-bw: 1px;
+  --cs-pip: 3px;
+  --cs-op-uncertain: 0.5;
+  --cs-pulse-min: 0.25;
+  --cs-pulse-ms: 850ms;
+  --cs-glow-blur: 6px;
+  --cs-glow-spread: 0px;
+  --cs-glow-ms: 1150ms;
+  --cs-rings-ms: 3750ms;
+  --cs-rings-scale: 3;
+  --cs-resize-ms: 100ms;
+  --cs-move-ms: 200ms;
+  --cs-move-scale: 1.5;
+  --cs-land-ms: 320ms;
+  --cs-land-scale: 4;
+}
+
+.ce-confidence {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.ce-confidence-track {
+  position: relative;
+  width: var(--cs-track-w, 96px);
+  height: var(--cs-size-active, 24px);
+}
+
+.ce-confidence-rail {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: var(--cs-rail-h, 2px);
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--ce-line-strong);
+}
+
+/* Filled segment from level 1 up to the current level (width set inline). */
+.ce-confidence-rail-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: var(--cs-rail-h, 2px);
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--cs-color, #2f7b68);
+  transition: width var(--cs-resize-ms, 180ms)
+    var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.ce-confidence-notch {
+  position: absolute;
+  top: 50%;
+  width: var(--cs-notch, 7px);
+  height: var(--cs-notch, 7px);
+  transform: translate(-50%, -50%);
+  border: var(--cs-notch-bw, 1.5px) solid var(--ce-line-strong);
+  border-radius: 50%;
+  background: var(--ce-paper);
+  box-sizing: border-box;
+}
+
+/* Notches strictly before the set level fill solid (no animation); the
+   set-level notch stays hollow so the handle's own state shows through, and
+   notches past it stay hollow too. */
+.ce-confidence-notch[data-filled] {
+  border-color: var(--cs-color, #2f7b68);
+  background: var(--cs-color, #2f7b68);
+}
+
+.ce-confidence-pip {
+  position: absolute;
+  top: calc(50% + var(--cs-size-active, 24px) / 2 + 3px);
+  width: var(--cs-pip, 6px);
+  height: var(--cs-pip, 6px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--pip, var(--ce-muted));
+}
+
+.ce-confidence-handle {
+  position: absolute;
+  top: 50%;
+  width: var(--cs-size-active, 24px);
+  height: var(--cs-size-active, 24px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.ce-confidence[data-dragging] .ce-confidence-handle {
+  cursor: grabbing;
+}
+
+.ce-confidence-handle:disabled {
+  cursor: default;
+}
+
+.ce-confidence-core,
+.ce-confidence-glow,
+.ce-confidence-rings,
+.ce-confidence-move,
+.ce-confidence-settle {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--cs-size, 14px);
+  height: var(--cs-size, 14px);
+  border-radius: 50%;
+}
+
+.ce-confidence-core {
+  background: var(--cs-color, #2f7b68);
+}
+
+/* Only the grow (hover/drag begin) animates; the shrink back to rest snaps
+   instantly — the transition lives on the active state, so removing it (hover
+   end) reverts with no animation while the settle ripple still plays. */
+.ce-confidence[data-active] .ce-confidence-core,
+.ce-confidence[data-active] .ce-confidence-glow {
+  width: var(--cs-size-active, 24px);
+  height: var(--cs-size-active, 24px);
+  transition:
+    width var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    height var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* Level states on the core */
+.ce-confidence[data-level="1"] .ce-confidence-core {
+  opacity: var(--cs-op-uncertain, 0.5);
+}
+
+.ce-confidence[data-level="2"] .ce-confidence-core {
+  animation: cs-pulse var(--cs-pulse-ms, 1500ms) ease-in-out infinite;
+}
+
+.ce-confidence[data-level="3"] .ce-confidence-core,
+.ce-confidence[data-level="4"] .ce-confidence-core,
+.ce-confidence[data-level="5"] .ce-confidence-core {
+  opacity: 1;
+}
+
+@keyframes cs-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: var(--cs-pulse-min, 0.35);
+  }
+}
+
+/* Level 4 — pulsing glow (grow transition lives on the [data-active] rule) */
+.ce-confidence-glow {
+  opacity: 0;
+  box-shadow: 0 0 var(--cs-glow-blur, 10px) var(--cs-glow-spread, 3px)
+    var(--cs-color, #2f7b68);
+}
+
+.ce-confidence[data-level="4"] .ce-confidence-glow {
+  animation: cs-glow var(--cs-glow-ms, 1600ms) ease-in-out infinite;
+}
+
+@keyframes cs-glow {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Level 5 — rippling outward rings */
+.ce-confidence[data-level="5"] .ce-confidence-rings::before,
+.ce-confidence[data-level="5"] .ce-confidence-rings::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--cs-color, #2f7b68);
+  border-radius: 50%;
+  animation: cs-rings var(--cs-rings-ms, 2000ms) ease-out infinite;
+}
+
+.ce-confidence[data-level="5"] .ce-confidence-rings::after {
+  animation-delay: calc(var(--cs-rings-ms, 2000ms) / -2);
+}
+
+@keyframes cs-rings {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(var(--cs-rings-scale, 3.4));
+    opacity: 0;
+  }
+}
+
+/* Move ripple — replays on every notch change during a drag, emanating from
+   the EXPANDED handle so each movement is visually confirmed. */
+.ce-confidence-move {
+  width: var(--cs-size-active, 24px);
+  height: var(--cs-size-active, 24px);
+  border: 2px solid var(--cs-color, #2f7b68);
+  opacity: 0;
+  animation: cs-move var(--cs-move-ms, 460ms) ease-out;
+}
+
+@keyframes cs-move {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(var(--cs-move-scale, 2.4));
+    opacity: 0;
+  }
+}
+
+/* Settle ripple — one shot after the handle has shrunk back to rest when the
+   hover ends, emanating from the RESTING size. */
+.ce-confidence-settle {
+  border: 2px solid var(--cs-color, #2f7b68);
+  opacity: 0;
+}
+
+.ce-confidence[data-settling] .ce-confidence-settle {
+  animation: cs-settle var(--cs-land-ms, 620ms) ease-out;
+}
+
+@keyframes cs-settle {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(var(--cs-land-scale, 3.2));
+    opacity: 0;
+  }
+}
+
+.ce-confidence-tooltip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  transform: translateX(-50%);
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--ce-ink);
+  color: var(--ce-paper);
+  white-space: nowrap;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 10px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-confidence-core,
+  .ce-confidence-glow,
+  .ce-confidence-rings::before,
+  .ce-confidence-rings::after,
+  .ce-confidence-move,
+  .ce-confidence-settle {
+    animation: none !important;
+  }
+  .ce-confidence[data-level="2"] .ce-confidence-core {
+    opacity: 0.7;
+  }
+  .ce-confidence[data-level="4"] .ce-confidence-glow {
+    opacity: 0.55;
+  }
+}
+
+/* ---- Group confidence rings — each member's slider level as a ring, using
+   the same per-level language as the handle. Sized to match the old answer
+   status rings (~5px). ---- */
+.ce-conf-rings {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cr-gap, 3px);
+}
+
+.ce-conf-ring {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--cr-size, 5px);
+  height: var(--cr-size, 5px);
+}
+
+.ce-conf-ring-core,
+.ce-conf-ring-glow,
+.ce-conf-ring-rings {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+/* Level 1 / unset — empty outline (no faint fill, unlike the personal handle) */
+.ce-conf-ring-core {
+  border: var(--cr-bw, 1px) solid var(--ring, var(--ce-line-strong));
+  background: transparent;
+}
+
+.ce-conf-ring[data-level="2"] .ce-conf-ring-core,
+.ce-conf-ring[data-level="3"] .ce-conf-ring-core,
+.ce-conf-ring[data-level="4"] .ce-conf-ring-core,
+.ce-conf-ring[data-level="5"] .ce-conf-ring-core {
+  background: var(--ring, var(--ce-accent));
+}
+
+.ce-conf-ring[data-level="2"] .ce-conf-ring-core {
+  animation: cs-pulse var(--cs-pulse-ms, 850ms) ease-in-out infinite;
+}
+
+/* Level 4 — pulsing glow in the member's hue */
+.ce-conf-ring-glow {
+  opacity: 0;
+  box-shadow: 0 0 var(--cs-glow-blur, 6px) var(--cs-glow-spread, 0px)
+    var(--ring, var(--ce-accent));
+}
+
+.ce-conf-ring[data-level="4"] .ce-conf-ring-glow {
+  animation: cs-glow var(--cs-glow-ms, 1150ms) ease-in-out infinite;
+}
+
+/* Level 5 — rippling outward rings in the member's hue */
+.ce-conf-ring[data-level="5"] .ce-conf-ring-rings::before,
+.ce-conf-ring[data-level="5"] .ce-conf-ring-rings::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: var(--cr-bw, 1px) solid var(--ring, var(--ce-accent));
+  border-radius: 50%;
+  animation: cs-rings var(--cs-rings-ms, 3750ms) ease-out infinite;
+}
+
+.ce-conf-ring[data-level="5"] .ce-conf-ring-rings::after {
+  animation-delay: calc(var(--cs-rings-ms, 3750ms) / -2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-conf-ring-core,
+  .ce-conf-ring-glow,
+  .ce-conf-ring-rings::before,
+  .ce-conf-ring-rings::after {
+    animation: none !important;
+  }
+  .ce-conf-ring[data-level="4"] .ce-conf-ring-glow {
+    opacity: 0.55;
   }
 }

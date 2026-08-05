@@ -2364,7 +2364,7 @@ textarea {
 }
 
 .ce-card-discussion-heading,
-.ce-card-comments article > div,
+.ce-card-comments article > div:not(.ce-comment-markdown),
 .ce-card-comment-composer > div {
   display: flex;
   align-items: baseline;
@@ -2415,9 +2415,16 @@ textarea {
   line-height: 1.5;
 }
 
-/* Comments render as markdown (line breaks, lists, emphasis). Paragraph font
-   comes from the rule above; add list/emphasis handling and restore the
-   markers Tailwind Preflight strips. */
+/* Comments render as markdown (line breaks, lists, emphasis). Set the body
+   font here so list items and their markers match the comment text (11px)
+   instead of the larger inherited default; add list/emphasis handling and
+   restore the markers Tailwind Preflight strips. */
+.ce-comment-markdown {
+  color: var(--ce-ink-soft);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 .ce-comment-markdown p + p {
   margin-top: 6px;
 }

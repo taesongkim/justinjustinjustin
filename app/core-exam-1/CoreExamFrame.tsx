@@ -1378,9 +1378,9 @@ export function CoreExamFrame({
                 latestOtherEventId={activity.latestOtherEventId}
                 onRevealTarget={revealTarget}
               />
+              <ThemeToggle />
             </div>
           </div>
-          <ThemeToggle />
           <details className="ce-identity-menu">
             <summary className="ce-identity">
               <span

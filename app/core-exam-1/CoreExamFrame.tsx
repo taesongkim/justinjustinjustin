@@ -37,6 +37,7 @@ import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { useLiveActivity } from "./useLiveActivity";
+import { useLiveConfidence } from "./useLiveConfidence";
 import { type RingMember } from "./StatusRings";
 import { ConfidenceSlider } from "./ConfidenceSlider";
 import { ConfidenceRings } from "./ConfidenceRings";
@@ -1109,6 +1110,7 @@ export function CoreExamFrame({
   viewer,
 }: CoreExamFrameProps) {
   useLiveActivity(viewer?.spaceId, viewer?.userId);
+  useLiveConfidence(viewer?.spaceId, viewer?.userId);
   // Viewer's own confidence for the whole topic (optimistic; resyncs on load).
   const [topicLevel, setTopicLevel] = useState<number | null>(
     topicConfidence.myLevel,

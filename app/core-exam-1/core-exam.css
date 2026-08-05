@@ -4172,10 +4172,10 @@ textarea {
   --cs-rings-ms: 3750ms;
   --cs-rings-scale: 3;
   --cs-resize-ms: 100ms;
-  --cs-move-ms: 460ms;
+  --cs-move-ms: 200ms;
   --cs-move-scale: 1.5;
-  --cs-land-ms: 620ms;
-  --cs-land-scale: 3.2;
+  --cs-land-ms: 320ms;
+  --cs-land-scale: 4;
 }
 
 .ce-confidence {
@@ -4227,8 +4227,11 @@ textarea {
   box-sizing: border-box;
 }
 
+/* Notches up to the set level fill solid (the set-level notch itself sits
+   under the animated handle); notches past it stay hollow. No animation. */
 .ce-confidence-notch[data-filled] {
   border-color: var(--cs-color, #2f7b68);
+  background: var(--cs-color, #2f7b68);
 }
 
 .ce-confidence-pip {

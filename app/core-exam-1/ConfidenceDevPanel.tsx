@@ -32,10 +32,10 @@ const CONTROLS: Control[] = [
   { var: "--cs-rings-ms", label: "L5 · ring cadence", min: 800, max: 4000, step: 50, unit: "ms", default: 3750 },
   { var: "--cs-rings-scale", label: "L5 · ring max scale", min: 1.5, max: 6, step: 0.1, unit: "", default: 3 },
   { var: "--cs-resize-ms", label: "Hover/drag resize", min: 60, max: 500, step: 10, unit: "ms", default: 100 },
-  { var: "--cs-move-ms", label: "Move ripple time", min: 200, max: 1000, step: 20, unit: "ms", default: 460 },
+  { var: "--cs-move-ms", label: "Move ripple time", min: 200, max: 1000, step: 20, unit: "ms", default: 200 },
   { var: "--cs-move-scale", label: "Move ripple scale", min: 1.5, max: 4, step: 0.1, unit: "", default: 1.5 },
-  { var: "--cs-land-ms", label: "Settle ripple time", min: 200, max: 1200, step: 20, unit: "ms", default: 620 },
-  { var: "--cs-land-scale", label: "Settle ripple scale", min: 1.5, max: 6, step: 0.1, unit: "", default: 3.2 },
+  { var: "--cs-land-ms", label: "Settle ripple time", min: 200, max: 1200, step: 20, unit: "ms", default: 320 },
+  { var: "--cs-land-scale", label: "Settle ripple scale", min: 1.5, max: 6, step: 0.1, unit: "", default: 4 },
 ];
 
 // Handle color is theme-aware (--cs-color in :root light/dark), not tuned here.

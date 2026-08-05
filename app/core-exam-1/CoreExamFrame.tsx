@@ -538,9 +538,11 @@ function QuestionCard({
   const [answerText, setAnswerText] = useState(
     question.myAnswer?.plainText ?? "",
   );
-  const [visibility, setVisibility] = useState<"group" | "private">(
-    question.myAnswer?.visibility ?? "group",
-  );
+  // The public/private toggle is hidden for now — everyone works publicly. We
+  // still send this to the backend (so the feature can return later): keep an
+  // existing answer's stored visibility on re-save, default new answers to public.
+  const visibility: "group" | "private" =
+    question.myAnswer?.visibility ?? "group";
   const [saving, setSaving] = useState(false);
   const [awaitingAnswer, setAwaitingAnswer] = useState(false);
   const [error, setError] = useState("");
@@ -652,16 +654,7 @@ function QuestionCard({
           <div className="ce-answer-heading">
             <div>
               <p className="ce-eyebrow">Personal</p>
-              <div className="ce-answer-heading-title">
-                <h4>My answer</h4>
-                {question.myAnswer && (
-                  <span className="ce-answer-visibility">
-                    {question.myAnswer.visibility === "group"
-                      ? "Public"
-                      : "Private"}
-                  </span>
-                )}
-              </div>
+              <h4>My answer</h4>
             </div>
             {!editing &&
               (question.myAnswer ? (
@@ -714,16 +707,6 @@ function QuestionCard({
                 value={answerText}
               />
               <div>
-                <select
-                  aria-label="Answer visibility"
-                  onChange={(event) =>
-                    setVisibility(event.target.value as "group" | "private")
-                  }
-                  value={visibility}
-                >
-                  <option value="group">Public</option>
-                  <option value="private">Keep Private</option>
-                </select>
                 <span>
                   <button
                     className="ce-answer-cancel"

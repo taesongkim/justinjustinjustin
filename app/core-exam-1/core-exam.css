@@ -2010,22 +2010,6 @@ textarea {
   font-size: 13px;
 }
 
-/* "My answer" and the Public/Private pill share one row. */
-.ce-answer-heading-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ce-answer-visibility {
-  display: inline-block;
-  padding: 3px 6px;
-  border: 1px solid var(--ce-line-strong);
-  border-radius: 999px;
-  color: var(--ce-muted);
-  font-size: 8px;
-}
-
 /* Update an existing answer: subtle icon button pinned top-right, not the
    prominent accent CTA (that's reserved for writing a first answer). */
 .ce-answer-heading .ce-answer-edit-button {
@@ -2189,15 +2173,9 @@ textarea {
 
 .ce-answer-editor > div {
   margin-top: 8px;
-}
-
-.ce-answer-editor select {
-  padding: 7px 8px;
-  border: 1px solid var(--ce-line);
-  border-radius: 7px;
-  background: var(--ce-raised);
-  color: var(--ce-muted);
-  font-size: 10px;
+  /* Only Cancel/Save remain now that the visibility select is hidden — keep
+     them on the right instead of at the start of the row. */
+  justify-content: flex-end;
 }
 
 .ce-answer-editor span {
@@ -3713,8 +3691,15 @@ textarea {
     display: none;
   }
 
+  /* Avatar only in the top-right button — the name eats horizontal space we
+     don't have on phones. */
   .ce-identity {
-    padding-right: 7px;
+    gap: 0;
+    padding: 3px;
+  }
+
+  .ce-identity > span:not(.ce-avatar) {
+    display: none;
   }
 
   .ce-body {
@@ -3868,6 +3853,18 @@ textarea {
   .ce-answer-editor > div {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  /* Keep the edit-answer pencil in the top-right corner even though the
+     heading stacks into a column on phones. */
+  .ce-answer-heading {
+    position: relative;
+  }
+
+  .ce-answer-heading .ce-answer-edit-button {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   .ce-likelihood-options {

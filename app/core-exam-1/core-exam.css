@@ -428,6 +428,12 @@ textarea {
   color: var(--ce-ink);
 }
 
+/* Icon-only by default; the label only appears inside the mobile menu. */
+.ce-theme-toggle-label {
+  display: none;
+  font-size: 12px;
+}
+
 .ce-brand-link {
   color: inherit;
   text-decoration: none;
@@ -3684,6 +3690,30 @@ textarea {
 
   .ce-actions-menu-content .ce-quiet-button:hover {
     background: var(--ce-panel);
+  }
+
+  /* Theme toggle joins the menu as a full-width labeled row, matching the
+     other items instead of sitting as a lone icon. */
+  .ce-actions-menu-content .ce-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    width: 100%;
+    height: auto;
+    padding: 9px 10px;
+    border-radius: 7px;
+    color: var(--ce-ink);
+  }
+
+  .ce-actions-menu-content .ce-theme-toggle:hover,
+  .ce-actions-menu-content .ce-theme-toggle:focus-visible {
+    border-color: transparent;
+    background: var(--ce-panel);
+  }
+
+  .ce-actions-menu-content .ce-theme-toggle-label {
+    display: inline;
   }
 
   /* Logo only on phones — drop the "Study space / Core Exam 1" text block. */

@@ -63,6 +63,11 @@ export function ThemeToggle() {
           />
         </svg>
       )}
+      {/* Label only shows when this button sits inside the mobile menu; the
+          header keeps it icon-only via CSS. */}
+      <span className="ce-theme-toggle-label">
+        {goingDark ? "Dark mode" : "Light mode"}
+      </span>
     </button>
   );
 }

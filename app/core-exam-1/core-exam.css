@@ -3793,8 +3793,12 @@ textarea {
     position: absolute;
     z-index: 40;
     top: calc(100% + 8px);
-    right: 0;
-    width: min(330px, calc(100vw - 24px));
+    /* Anchor left now that Topics sits on the left of the header — right:0
+       would run the dropdown off the left edge. The button starts ~56px in
+       (12px pad + 34px logo + 10px margin), so cap the width to keep a right
+       gutter on screen. */
+    left: 0;
+    width: min(330px, calc(100vw - 68px));
     max-height: calc(100vh - 84px);
     overflow-y: auto;
     padding: 7px;

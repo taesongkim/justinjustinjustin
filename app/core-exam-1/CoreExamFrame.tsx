@@ -652,20 +652,46 @@ function QuestionCard({
           <div className="ce-answer-heading">
             <div>
               <p className="ce-eyebrow">Personal</p>
-              <h4>My answer</h4>
-              {question.myAnswer && (
-                <span className="ce-answer-visibility">
-                  {question.myAnswer.visibility === "group"
-                    ? "Public"
-                    : "Private"}
-                </span>
-              )}
+              <div className="ce-answer-heading-title">
+                <h4>My answer</h4>
+                {question.myAnswer && (
+                  <span className="ce-answer-visibility">
+                    {question.myAnswer.visibility === "group"
+                      ? "Public"
+                      : "Private"}
+                  </span>
+                )}
+              </div>
             </div>
-            {!editing && (
-              <button onClick={() => setEditing(true)} type="button">
-                {question.myAnswer ? "Update my answer" : "Write my answer"}
-              </button>
-            )}
+            {!editing &&
+              (question.myAnswer ? (
+                <button
+                  aria-label="Update my answer"
+                  className="ce-answer-edit-button"
+                  onClick={() => setEditing(true)}
+                  title="Update my answer"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    height="14"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.7"
+                    viewBox="0 0 24 24"
+                    width="14"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                </button>
+              ) : (
+                <button onClick={() => setEditing(true)} type="button">
+                  Write my answer
+                </button>
+              ))}
           </div>
           {awaitingAnswer ? (
             <SavingIndicator label="Saving answer" />
@@ -1086,6 +1112,27 @@ export function CoreExamFrame({
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
     setNavigating(false);
   }, [selectedTopic.stableKey]);
+  // Mobile: All Questions + Activity collapse behind a hamburger. Plain state
+  // (not <details>) so the same markup shows the two actions inline on desktop.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
   // Local copy of the server questions so a newly-submitted question can be
   // inserted optimistically — no router.refresh(), so the reading scroll never
   // resets and the new card reveals reliably. A later server refresh (from any
@@ -1268,51 +1315,88 @@ export function CoreExamFrame({
           </div>
         </div>
 
+        {/* Mobile-only Topics button — sits left of the scorecard (desktop uses
+            the sidebar instead, where this is display:none). */}
+        <details className="ce-mobile-topics">
+          <summary>Topics</summary>
+          <nav aria-label="Mobile study topics">
+            {[...TOPICS, ...REFERENCES].map((topic) => (
+              <Link
+                className={
+                  topic.stableKey === selectedTopic.stableKey
+                    ? "ce-mobile-topic-active"
+                    : undefined
+                }
+                href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
+                key={topic.stableKey}
+                onNavigate={() => beginTopicNavigation(topic.stableKey)}
+              >
+                <span>
+                  {topic.number
+                    ? String(topic.number).padStart(2, "0")
+                    : "REF"}
+                </span>
+                {topic.label}
+              </Link>
+            ))}
+            <Link href="/core-exam-1/sources">
+              <span>REF</span>
+              Source library
+            </Link>
+          </nav>
+        </details>
+
         <Scoreboard members={scoreboard} />
 
         <div className="ce-header-actions">
-          <details className="ce-mobile-topics">
-            <summary>Topics</summary>
-            <nav aria-label="Mobile study topics">
-              {[...TOPICS, ...REFERENCES].map((topic) => (
-                <Link
-                  className={
-                    topic.stableKey === selectedTopic.stableKey
-                      ? "ce-mobile-topic-active"
-                      : undefined
-                  }
-                  href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
-                  key={topic.stableKey}
-                  onNavigate={() => beginTopicNavigation(topic.stableKey)}
-                >
-                  <span>
-                    {topic.number
-                      ? String(topic.number).padStart(2, "0")
-                      : "REF"}
-                  </span>
-                  {topic.label}
-                </Link>
-              ))}
-              <Link href="/core-exam-1/sources">
-                <span>REF</span>
-                Source library
+          {/* All Questions + Activity: inline on desktop, collapsed behind a
+              hamburger on phones. One ActivityPanel instance either way. */}
+          <div className="ce-actions-menu" ref={menuRef}>
+            <button
+              aria-expanded={menuOpen}
+              aria-label="Menu"
+              className="ce-actions-menu-toggle"
+              onClick={() => setMenuOpen((open) => !open)}
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+              >
+                <rect height="1.6" rx="0.8" width="14" x="1" y="3" />
+                <rect height="1.6" rx="0.8" width="14" x="1" y="7.2" />
+                <rect height="1.6" rx="0.8" width="14" x="1" y="11.4" />
+              </svg>
+              {activity.hasUnviewed && (
+                <span className="ce-activity-unviewed-dot" aria-hidden="true" />
+              )}
+            </button>
+            <div
+              className="ce-actions-menu-content"
+              data-open={menuOpen || undefined}
+            >
+              <Link
+                className="ce-quiet-button"
+                href="/core-exam-1?view=all-questions"
+                onNavigate={() => {
+                  beginNavigation();
+                  setMenuOpen(false);
+                }}
+              >
+                All Questions
               </Link>
-            </nav>
-          </details>
-          <Link
-            className="ce-quiet-button"
-            href="/core-exam-1?view=all-questions"
-            onNavigate={beginNavigation}
-          >
-            All Questions
-          </Link>
-          <ActivityPanel
-            currentTopicStableKey={selectedTopic.stableKey}
-            events={activity.events}
-            initialHasUnviewed={activity.hasUnviewed}
-            latestOtherEventId={activity.latestOtherEventId}
-            onRevealTarget={revealTarget}
-          />
+              <ActivityPanel
+                currentTopicStableKey={selectedTopic.stableKey}
+                events={activity.events}
+                initialHasUnviewed={activity.hasUnviewed}
+                latestOtherEventId={activity.latestOtherEventId}
+                onRevealTarget={revealTarget}
+              />
+            </div>
+          </div>
           <ThemeToggle />
           <details className="ce-identity-menu">
             <summary className="ce-identity">

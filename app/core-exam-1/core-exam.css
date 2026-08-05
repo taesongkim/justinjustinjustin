@@ -362,6 +362,36 @@ textarea {
   gap: 8px;
 }
 
+/* All Questions + Activity live inside this wrapper. On desktop/tablet the
+   content shows inline and the hamburger is hidden; on phones (≤720) the
+   hamburger toggles a dropdown. */
+.ce-actions-menu,
+.ce-actions-menu-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ce-actions-menu-toggle {
+  position: relative;
+  display: none;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ce-line);
+  border-radius: 50%;
+  background: var(--ce-raised);
+  color: var(--ce-muted);
+  cursor: pointer;
+}
+
+.ce-actions-menu-toggle:hover,
+.ce-actions-menu-toggle:focus-visible {
+  border-color: var(--ce-line-strong);
+  color: var(--ce-ink);
+}
+
 .ce-quiet-button,
 .ce-identity,
 .ce-collapse {
@@ -1980,14 +2010,44 @@ textarea {
   font-size: 13px;
 }
 
+/* "My answer" and the Public/Private pill share one row. */
+.ce-answer-heading-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .ce-answer-visibility {
   display: inline-block;
-  margin-top: 6px;
   padding: 3px 6px;
   border: 1px solid var(--ce-line-strong);
   border-radius: 999px;
   color: var(--ce-muted);
   font-size: 8px;
+}
+
+/* Update an existing answer: subtle icon button pinned top-right, not the
+   prominent accent CTA (that's reserved for writing a first answer). */
+.ce-answer-heading .ce-answer-edit-button {
+  display: grid;
+  place-items: center;
+  align-self: flex-start;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--ce-line);
+  border-radius: 7px;
+  background: var(--ce-raised);
+  color: var(--ce-muted);
+  cursor: pointer;
+}
+
+.ce-answer-heading .ce-answer-edit-button:hover,
+.ce-answer-heading .ce-answer-edit-button:focus-visible {
+  border-color: var(--ce-line-strong);
+  background: var(--ce-panel);
+  color: var(--ce-ink);
 }
 
 .ce-answer-block > p:not(.ce-eyebrow) {
@@ -2044,7 +2104,10 @@ textarea {
 
 /* Optimistic "Saving answer…" placeholder shown between submit and the
    refreshed answer landing. */
-.ce-saving {
+/* Scoped to beat `.ce-answer-block > p:not(.ce-eyebrow)` (serif, 14px), which
+   otherwise wins on specificity and renders this as serif. Plain sans-serif,
+   normal weight, no italic. */
+.ce-answer-block > p.ce-saving {
   display: inline-flex;
   align-items: baseline;
   gap: 4px;
@@ -2052,7 +2115,8 @@ textarea {
   color: var(--ce-muted);
   font-family: var(--font-inter), sans-serif;
   font-size: 11px;
-  font-style: italic;
+  font-style: normal;
+  font-weight: 400;
 }
 
 .ce-saving-dots {
@@ -3591,8 +3655,62 @@ textarea {
     display: inline-flex;
   }
 
-  .ce-brand h1 {
-    font-size: 13px;
+  /* Topics button sits just left of the scorecard. */
+  .ce-mobile-topics {
+    margin-left: 10px;
+  }
+
+  /* Collapse All Questions + Activity behind the hamburger. */
+  .ce-actions-menu {
+    position: relative;
+  }
+
+  .ce-actions-menu-toggle {
+    display: grid;
+  }
+
+  .ce-actions-menu-content {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 8px);
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    width: max-content;
+    min-width: 168px;
+    padding: 7px;
+    border: 1px solid var(--ce-line);
+    border-radius: var(--ce-radius-container, 8px);
+    background: var(--ce-raised);
+    box-shadow: 0 18px 50px rgba(var(--ce-shadow-rgb), 0.2);
+  }
+
+  .ce-actions-menu-content[data-open] {
+    display: flex;
+  }
+
+  /* Re-show the menu items (the blanket .ce-quiet-button hide below applies on
+     phones) and lay them out as full-width dropdown rows. */
+  .ce-actions-menu-content .ce-quiet-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 7px;
+    color: var(--ce-ink);
+    font-size: 12px;
+  }
+
+  .ce-actions-menu-content .ce-quiet-button:hover {
+    background: var(--ce-panel);
+  }
+
+  /* Logo only on phones — drop the "Study space / Core Exam 1" text block. */
+  .ce-brand > div {
+    display: none;
   }
 
   .ce-identity {
@@ -3888,7 +4006,7 @@ textarea {
   }
 
   .ce-scoreboard-mobile > summary .ce-score-bar {
-    width: 72px;
+    width: 36px;
   }
 
   /* The dropdown list is one grid; each chip's cells (display: contents)

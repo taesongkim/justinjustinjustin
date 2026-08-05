@@ -107,11 +107,13 @@ export function ConfidenceSlider({
     };
   }, [dragging, levelFromClientX, onChange, value]);
 
-  // Settle ripple: once the core finishes shrinking back to rest (i.e. the
-  // hover/drag ended), emit the outward ripple from the resting size.
-  const onCoreTransitionEnd = (event: React.TransitionEvent) => {
-    if (event.propertyName === "width" && !active) setSettling(true);
-  };
+  // Settle ripple: when the hover/drag ends the handle snaps to rest with no
+  // resize animation, so fire the ripple as soon as active goes false.
+  const wasActive = useRef(false);
+  useEffect(() => {
+    if (wasActive.current && !active) setSettling(true);
+    wasActive.current = active;
+  }, [active]);
 
   return (
     <div
@@ -162,11 +164,7 @@ export function ConfidenceSlider({
           style={{ left: `${percentFor(shownLevel)}%` }}
           type="button"
         >
-          <span
-            className="ce-confidence-core"
-            aria-hidden="true"
-            onTransitionEnd={onCoreTransitionEnd}
-          />
+          <span className="ce-confidence-core" aria-hidden="true" />
           <span className="ce-confidence-glow" aria-hidden="true" />
           <span className="ce-confidence-rings" aria-hidden="true" />
           {dragging && (

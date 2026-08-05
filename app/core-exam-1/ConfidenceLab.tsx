@@ -7,19 +7,31 @@ import {
   type ConfidenceMember,
 } from "./ConfidenceSlider";
 import { ConfidenceDevPanel } from "./ConfidenceDevPanel";
+import { GroupRings, type RingMember } from "./StatusRings";
 
-const MOCK_MEMBERS: ConfidenceMember[] = [
+// Shared roster used for both the confidence pips and the answer-status rings,
+// so the two per-member visuals can be compared at real size.
+const ROSTER: RingMember[] = [
+  { userId: "a", displayName: "Steph", avatarColor: "#c2410c" },
+  { userId: "b", displayName: "Mel", avatarColor: "#7c3aed" },
+  { userId: "c", displayName: "George", avatarColor: "#0369a1" },
+  { userId: "d", displayName: "Elena", avatarColor: "#be185d" },
+  { userId: "e", displayName: "Andres", avatarColor: "#15803d" },
+];
+const ANSWERED_BY = ["a", "c", "e"];
+
+const MEMBER_LEVELS: ConfidenceMember[] = [
   { id: "a", name: "Steph", color: "#c2410c", level: 2 },
   { id: "b", name: "Mel", color: "#7c3aed", level: 4 },
   { id: "c", name: "George", color: "#0369a1", level: 5 },
   { id: "d", name: "Elena", color: "#be185d", level: 3 },
+  { id: "e", name: "Andres", color: "#15803d", level: 1 },
 ];
 
 export function ConfidenceLab() {
   const [cardLevel, setCardLevel] = useState<number | null>(3);
   const [topicLevel, setTopicLevel] = useState<number | null>(2);
-  // One static swatch per level so all five resting states are visible at once.
-  const swatchLevels = [1, 2, 3, 4, 5];
+  const [sharedLevel, setSharedLevel] = useState<number | null>(3);
 
   return (
     <div className="cs-lab">
@@ -36,7 +48,7 @@ export function ConfidenceLab() {
         <section className="cs-lab-section">
           <h2>All five resting states</h2>
           <div className="cs-lab-swatches">
-            {swatchLevels.map((level) => (
+            {[1, 2, 3, 4, 5].map((level) => (
               <div className="cs-lab-swatch" key={level}>
                 <ConfidenceSlider interactive={false} value={level} />
                 <span>
@@ -48,23 +60,23 @@ export function ConfidenceLab() {
         </section>
 
         <section className="cs-lab-section">
-          <h2>In a question card (left of the answer rings)</h2>
+          <h2>Size match — slider beside the real answer rings</h2>
           <div className="cs-lab-card">
             <span className="ce-question-index">03</span>
             <span className="ce-question-prompt">
               How does the mask move between lower and higher registers?
             </span>
-            <ConfidenceSlider
-              members={MOCK_MEMBERS}
-              onChange={setCardLevel}
-              value={cardLevel}
+            <ConfidenceSlider onChange={setCardLevel} value={cardLevel} />
+            <GroupRings
+              answeredBy={ANSWERED_BY}
+              hiddenBy={[]}
+              roster={ROSTER}
             />
-            <span className="cs-lab-rings-stub" aria-hidden="true">
-              ● ● ● ● ●
-            </span>
           </div>
           <p className="cs-lab-note">
-            Your level: {cardLevel ?? "unset"} · members shown as colored pips.
+            Left: your confidence slider (level {cardLevel ?? "unset"}). Right:
+            the actual <code>GroupRings</code> at real size — tune the slider to
+            sit comfortably next to them.
           </p>
         </section>
 
@@ -72,13 +84,30 @@ export function ConfidenceLab() {
           <h2>Above a topic title (right of the TOPIC X eyebrow)</h2>
           <div className="cs-lab-topic">
             <span className="ce-eyebrow">Topic 01</span>
-            <ConfidenceSlider
-              members={MOCK_MEMBERS}
-              onChange={setTopicLevel}
-              value={topicLevel}
-            />
+            <ConfidenceSlider onChange={setTopicLevel} value={topicLevel} />
           </div>
           <h3 className="cs-lab-topic-title">Mask · lower and higher</h3>
+        </section>
+
+        <section className="cs-lab-section">
+          <h2>Shared view — others&rsquo; confidence as pips (needs your call)</h2>
+          <div className="cs-lab-card">
+            <span className="ce-question-index">03</span>
+            <span className="ce-question-prompt">
+              Same slider, with each member&rsquo;s level as a colored pip below
+              the rail.
+            </span>
+            <ConfidenceSlider
+              members={MEMBER_LEVELS}
+              onChange={setSharedLevel}
+              value={sharedLevel}
+            />
+          </div>
+          <p className="cs-lab-note">
+            You picked &ldquo;shared with group,&rdquo; so this is my first take
+            on showing everyone&rsquo;s confidence. Keep it, change it, or drop
+            the pips — your call.
+          </p>
         </section>
       </div>
 

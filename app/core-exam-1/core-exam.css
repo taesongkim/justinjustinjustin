@@ -4148,9 +4148,36 @@ textarea {
 
 /* ============================================================
    Confidence slider (1–5 self-assessment). Every visual/timing value
-   reads var(--cs-*, fallback) so the dev panel can tune it live; bake the
-   Copy-CSS snippet onto .ce-confidence when it settles.
+   reads var(--cs-*, fallback) so the dev panel can tune it live; --cs-color
+   is theme-aware (defined in :root light/dark above).
    ============================================================ */
+
+/* Baked tuning defaults (from the sandbox panel). Set on :root so the dev
+   panel — which writes the same vars inline on :root — can still override them
+   live, while the real app uses these. --cs-color stays theme-aware. */
+:root {
+  --cs-size: 6px;
+  --cs-size-active: 24px;
+  --cs-track-w: 50px;
+  --cs-rail-h: 1px;
+  --cs-notch: 4px;
+  --cs-notch-bw: 1px;
+  --cs-pip: 3px;
+  --cs-op-uncertain: 0.5;
+  --cs-pulse-min: 0.25;
+  --cs-pulse-ms: 850ms;
+  --cs-glow-blur: 11px;
+  --cs-glow-spread: 0px;
+  --cs-glow-ms: 1150ms;
+  --cs-rings-ms: 3750ms;
+  --cs-rings-scale: 2.3;
+  --cs-resize-ms: 100ms;
+  --cs-move-ms: 460ms;
+  --cs-move-scale: 1.5;
+  --cs-land-ms: 620ms;
+  --cs-land-scale: 3.2;
+}
+
 .ce-confidence {
   position: relative;
   display: inline-flex;
@@ -4250,15 +4277,18 @@ textarea {
 
 .ce-confidence-core {
   background: var(--cs-color, #2f7b68);
-  transition:
-    width var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1)),
-    height var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
+/* Only the grow (hover/drag begin) animates; the shrink back to rest snaps
+   instantly — the transition lives on the active state, so removing it (hover
+   end) reverts with no animation while the settle ripple still plays. */
 .ce-confidence[data-active] .ce-confidence-core,
 .ce-confidence[data-active] .ce-confidence-glow {
   width: var(--cs-size-active, 24px);
   height: var(--cs-size-active, 24px);
+  transition:
+    width var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    height var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 /* Level states on the core */
@@ -4286,14 +4316,11 @@ textarea {
   }
 }
 
-/* Level 4 — pulsing glow */
+/* Level 4 — pulsing glow (grow transition lives on the [data-active] rule) */
 .ce-confidence-glow {
   opacity: 0;
   box-shadow: 0 0 var(--cs-glow-blur, 10px) var(--cs-glow-spread, 3px)
     var(--cs-color, #2f7b68);
-  transition:
-    width var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1)),
-    height var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .ce-confidence[data-level="4"] .ce-confidence-glow {

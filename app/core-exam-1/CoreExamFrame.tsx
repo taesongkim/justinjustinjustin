@@ -758,7 +758,7 @@ function QuestionCard({
 
         {question.groupAnswers.length > 0 && (
           <section className="ce-answer-block">
-            <p className="ce-eyebrow">Individual perspectives</p>
+            <p className="ce-eyebrow">Other perspectives</p>
             <h4>Answers from the group</h4>
             {question.groupAnswers.map((answer) => (
               <article

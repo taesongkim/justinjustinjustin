@@ -2016,6 +2016,18 @@ textarea {
   background: var(--ce-panel-soft);
 }
 
+/* Dark mode: put the emphasis on the personal answer by giving it the deeper
+   surface (it keeps its accent border) and lightening the group section — a
+   swap of the two, since dark's panel-soft is lighter than paper. Light mode
+   keeps personal tinted, so it's left as-is. */
+:root[data-theme="dark"] .ce-answer-mine {
+  background: var(--ce-paper);
+}
+
+:root[data-theme="dark"] .ce-answer-block:not(.ce-answer-mine) {
+  background: var(--ce-panel-soft);
+}
+
 .ce-answer-block h4,
 .ce-likelihood h4 {
   margin: 4px 0 0;

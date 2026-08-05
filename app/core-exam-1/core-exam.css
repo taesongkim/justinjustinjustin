@@ -1690,6 +1690,18 @@ textarea {
   border-radius: var(--ce-radius-container, 8px);
   background: rgba(var(--ce-glass-rgb), 0.72);
   box-shadow: 0 2px 10px rgba(var(--ce-shadow-rgb), 0.035);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Subtle hover lift for collapsed cards — signals they're clickable, like the
+   rest of the interactive surfaces. Open cards keep their own emphasized look. */
+.ce-question-card:not([open]):hover {
+  border-color: var(--ce-line-strong);
+  background: rgba(var(--ce-glass-rgb), 0.85);
+  box-shadow: 0 4px 14px rgba(var(--ce-shadow-rgb), 0.06);
 }
 
 /* Entrance for a freshly-submitted question card. */
@@ -1781,8 +1793,12 @@ textarea {
 .ce-ring {
   display: block;
   flex: 0 0 auto;
-  width: 4.8px; /* size — ~40% of the original 8px */
-  height: 4.8px;
+  /* Integer box + integer gap → integer 8px step, so every ring's left edge
+     snaps to device pixels identically and the gaps read perfectly even.
+     A fractional width (4.8px) made each successive edge land at a different
+     sub-pixel offset, which snapped inconsistently → visibly uneven gaps. */
+  width: 5px;
+  height: 5px;
   overflow: visible; /* let the glow bleed past the box */
 }
 
@@ -2024,6 +2040,60 @@ textarea {
   color: var(--ce-muted) !important;
   font-family: var(--font-inter), sans-serif !important;
   font-size: 9px !important;
+}
+
+/* Optimistic "Saving answer…" placeholder shown between submit and the
+   refreshed answer landing. */
+.ce-saving {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 12px;
+  color: var(--ce-muted);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 11px;
+  font-style: italic;
+}
+
+.ce-saving-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.ce-saving-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: ce-saving-bounce 1s ease-in-out infinite;
+}
+
+.ce-saving-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.ce-saving-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes ce-saving-bounce {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-saving-dots i {
+    animation: none;
+    opacity: 0.55;
+  }
 }
 
 .ce-answer-heading button,
@@ -3643,18 +3713,36 @@ textarea {
     align-items: flex-start;
   }
 
+  /* Mobile: number and rings share a top row (number left, rings right), and
+     the prompt drops below at full card width instead of ceding the left
+     column to the number. */
   .ce-question-card > summary {
-    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "index rings"
+      "prompt prompt";
+    column-gap: 11px;
+    row-gap: 8px;
+    align-items: center;
     padding: 14px 13px;
   }
 
-  .ce-question-answer-state {
-    grid-column: 2;
-    width: fit-content;
+  .ce-question-card > summary .ce-question-index {
+    grid-area: index;
+    padding-top: 0;
+  }
+
+  .ce-question-card > summary .ce-group-rings {
+    grid-area: rings;
+    justify-self: end;
+  }
+
+  .ce-question-card > summary .ce-question-prompt {
+    grid-area: prompt;
   }
 
   .ce-question-body {
-    padding: 0 13px 13px 35px;
+    padding: 0 13px 13px;
   }
 
   .ce-answer-heading,

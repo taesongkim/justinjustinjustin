@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { labelForContentStableKey } from "./content-label";
 import {
@@ -38,6 +39,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useLiveActivity } from "./useLiveActivity";
 import { GroupRings, type RingMember } from "./StatusRings";
 import { QuestionTOC } from "./QuestionTOC";
+import { SavingIndicator } from "./SavingIndicator";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
 import { VerificationControl } from "./VerificationControl";
 
@@ -269,6 +271,17 @@ function CommentThread({
         <textarea
           aria-label={replyTo ? "Write a reply" : "Add a comment"}
           onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (
+              (event.metaKey || event.ctrlKey) &&
+              event.key === "Enter" &&
+              !saving &&
+              draft.trim()
+            ) {
+              event.preventDefault();
+              void addComment();
+            }
+          }}
           placeholder={replyTo ? "Write a reply…" : "Add a comment…"}
           rows={2}
           value={draft}
@@ -529,7 +542,13 @@ function QuestionCard({
     question.myAnswer?.visibility ?? "group",
   );
   const [saving, setSaving] = useState(false);
+  const [awaitingAnswer, setAwaitingAnswer] = useState(false);
   const [error, setError] = useState("");
+  // Once the refreshed answer lands (new id or revision), drop the
+  // "Saving answer…" placeholder.
+  useEffect(() => {
+    setAwaitingAnswer(false);
+  }, [question.myAnswer?.id, question.myAnswer?.editedAt]);
 
   const setLikelihood = async (likelihood: QuestionLikelihood) => {
     setError("");
@@ -568,6 +587,7 @@ function QuestionCard({
   const saveAnswer = async () => {
     if (!answerText.trim()) return;
     setSaving(true);
+    setAwaitingAnswer(true);
     setError("");
     const supabase = createCoreExamBrowserClient();
     const { error: answerError } = await supabase.rpc(
@@ -591,6 +611,7 @@ function QuestionCard({
     );
     setSaving(false);
     if (answerError) {
+      setAwaitingAnswer(false);
       setError(
         answerError.code === "40001"
           ? "This answer changed elsewhere. Reload and review it before saving."
@@ -600,6 +621,9 @@ function QuestionCard({
     }
     setEditing(false);
     router.refresh();
+    // Safety net: if the refreshed answer never arrives (realtime hiccup),
+    // drop the placeholder anyway so the card doesn't hang on "Saving…".
+    window.setTimeout(() => setAwaitingAnswer(false), 6000);
   };
 
   return (
@@ -643,12 +667,18 @@ function QuestionCard({
               </button>
             )}
           </div>
-          {editing ? (
+          {awaitingAnswer ? (
+            <SavingIndicator label="Saving answer" />
+          ) : editing ? (
             <div className="ce-answer-editor">
               <textarea
                 aria-label="My answer"
                 onKeyDown={(event) => {
-                  if (event.metaKey && event.key === "Enter" && !saving) {
+                  if (
+                    (event.metaKey || event.ctrlKey) &&
+                    event.key === "Enter" &&
+                    !saving
+                  ) {
                     event.preventDefault();
                     void saveAnswer();
                   }
@@ -859,7 +889,7 @@ function AnswerMarkdown({
             );
           },
         }}
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
       >
         {formatAnswerMarkdown(markdown)}
       </ReactMarkdown>
@@ -954,6 +984,17 @@ function AskQuestionForm({
       <input
         id="ce-question-prompt"
         onChange={(event) => setPrompt(event.target.value)}
+        onKeyDown={(event) => {
+          if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key === "Enter" &&
+            !submitting &&
+            prompt.trim().length >= 5
+          ) {
+            event.preventDefault();
+            void submitQuestion();
+          }
+        }}
         placeholder="What do you want the group to work through?"
         value={prompt}
       />
@@ -961,6 +1002,17 @@ function AskQuestionForm({
       <textarea
         id="ce-question-detail"
         onChange={(event) => setDetail(event.target.value)}
+        onKeyDown={(event) => {
+          if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key === "Enter" &&
+            !submitting &&
+            prompt.trim().length >= 5
+          ) {
+            event.preventDefault();
+            void submitQuestion();
+          }
+        }}
         rows={3}
         value={detail}
       />
@@ -1012,23 +1064,23 @@ export function CoreExamFrame({
   // short beat so fast loads never flash it.
   const [navigating, setNavigating] = useState(false);
   const navTimerRef = useRef<number | null>(null);
+  const beginNavigation = useCallback(() => {
+    if (!TOPIC_NAV_LOADER_ENABLED) return;
+    // flushSync paints the overlay synchronously before Link's navigation
+    // transition, which would otherwise defer this update out of view.
+    flushSync(() => setNavigating(true));
+    // Safety net: never let the loader stick if a navigation stalls.
+    if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
+    navTimerRef.current = window.setTimeout(() => setNavigating(false), 4000);
+  }, []);
   const beginTopicNavigation = useCallback(
     (targetKey: string) => {
-      if (!TOPIC_NAV_LOADER_ENABLED) return;
       // Clicking the current topic doesn't change selectedTopic, so the
       // clear-on-topic-change effect never fires — skip it to avoid a hang.
       if (targetKey === selectedTopic.stableKey) return;
-      // flushSync paints the overlay synchronously before Link's navigation
-      // transition, which would otherwise defer this update out of view.
-      flushSync(() => setNavigating(true));
-      // Safety net: never let the loader stick if a navigation stalls.
-      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-      navTimerRef.current = window.setTimeout(
-        () => setNavigating(false),
-        4000,
-      );
+      beginNavigation();
     },
-    [selectedTopic.stableKey],
+    [selectedTopic.stableKey, beginNavigation],
   );
   useEffect(() => {
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
@@ -1250,6 +1302,7 @@ export function CoreExamFrame({
           <Link
             className="ce-quiet-button"
             href="/core-exam-1?view=all-questions"
+            onNavigate={beginNavigation}
           >
             All Questions
           </Link>

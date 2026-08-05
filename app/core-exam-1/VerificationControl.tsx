@@ -389,7 +389,11 @@ export function VerificationControl({
                 maxLength={2000}
                 onChange={(event) => setNote(event.target.value)}
                 onKeyDown={(event) => {
-                  if (event.metaKey && event.key === "Enter" && !saving) {
+                  if (
+                    (event.metaKey || event.ctrlKey) &&
+                    event.key === "Enter" &&
+                    !saving
+                  ) {
                     event.preventDefault();
                     void save();
                   }
@@ -480,7 +484,7 @@ export function VerificationControl({
                       }
                       onKeyDown={(event) => {
                         if (
-                          event.metaKey &&
+                          (event.metaKey || event.ctrlKey) &&
                           event.key === "Enter" &&
                           !savingContribution
                         ) {

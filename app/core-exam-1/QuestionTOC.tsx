@@ -46,11 +46,22 @@ export function QuestionTOC({ questionIds }: { questionIds: string[] }) {
     window.addEventListener("scroll", schedule, true);
     window.addEventListener("resize", schedule);
     document.addEventListener("toggle", schedule, true);
+    // A card's expand/collapse animates its height over ~0.26s *after* the
+    // toggle event fires, so a one-shot recompute on toggle lands on the
+    // pre-animation layout. Observe each card's size instead: the growing card
+    // fires continuously through the animation, and compute() re-reads every
+    // card's position each time, so the ticks track the whole transition.
+    const observer = new ResizeObserver(schedule);
+    for (const id of questionIds) {
+      const element = document.getElementById(`ce-question-${id}`);
+      if (element) observer.observe(element);
+    }
     return () => {
       if (frame) window.cancelAnimationFrame(frame);
       window.removeEventListener("scroll", schedule, true);
       window.removeEventListener("resize", schedule);
       document.removeEventListener("toggle", schedule, true);
+      observer.disconnect();
     };
   }, [questionIds]);
 

@@ -39,6 +39,9 @@ export type TopicQuestion = {
   myAnswer: QuestionAnswerSummary | null;
   isHiddenForMe: boolean;
   myLikelihood: QuestionLikelihood | null;
+  // Per-member 1–5 confidence for the group rings, and the viewer's own level.
+  confidenceByUser: Record<string, number>;
+  myConfidence: number | null;
   origin: "curated" | "submitted";
   prompt: string;
   questionComments: CardComment[];
@@ -97,6 +100,7 @@ export async function loadTopicQuestions(
     { data: questionComments, error: questionCommentError },
     { data: answerComments, error: answerCommentError },
     { data: hiddenMarks, error: hiddenMarkError },
+    { data: confidenceRows },
   ] =
     await Promise.all([
       revisionIds.length
@@ -129,6 +133,13 @@ export async function loadTopicQuestions(
         .from("core_exam_question_hidden_marks")
         .select("question_id, user_id")
         .in("question_id", questionIds),
+      // Confidence is optional/non-critical — never throw on it (a missing
+      // migration or hiccup must not 500 the page); degrade to no levels.
+      supabase
+        .from("core_exam_confidence")
+        .select("target_id, user_id, level")
+        .eq("target_type", "question")
+        .in("target_id", questionIds),
     ]);
   if (markError) throw markError;
   if (questionCommentError) throw questionCommentError;
@@ -143,6 +154,7 @@ export async function loadTopicQuestions(
     authorIds.add(comment.author_id);
   }
   for (const mark of hiddenMarks ?? []) authorIds.add(mark.user_id);
+  for (const row of confidenceRows ?? []) authorIds.add(row.user_id);
 
   const { data: profiles } = authorIds.size
     ? await supabase
@@ -223,6 +235,12 @@ export async function loadTopicQuestions(
     const questionHiddenMarks = (hiddenMarks ?? []).filter(
       (mark) => mark.question_id === question.id,
     );
+    const confidenceByUser: Record<string, number> = {};
+    for (const row of confidenceRows ?? []) {
+      if (row.target_id === question.id) {
+        confidenceByUser[row.user_id] = row.level;
+      }
+    }
     const likelihood: TopicQuestion["likelihood"] = {
       likely: [],
       unsure: [],
@@ -261,6 +279,8 @@ export async function loadTopicQuestions(
       myLikelihood:
         (questionMarks.find((mark) => mark.user_id === viewerId)
           ?.likelihood as QuestionLikelihood | undefined) ?? null,
+      confidenceByUser,
+      myConfidence: confidenceByUser[viewerId] ?? null,
       origin: question.origin,
       prompt: question.prompt,
       questionComments: summarizeComments(

@@ -37,7 +37,9 @@ import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
 import { ThemeToggle } from "./ThemeToggle";
 import { useLiveActivity } from "./useLiveActivity";
-import { GroupRings, type RingMember } from "./StatusRings";
+import { type RingMember } from "./StatusRings";
+import { ConfidenceSlider } from "./ConfidenceSlider";
+import { ConfidenceRings } from "./ConfidenceRings";
 import { QuestionTOC } from "./QuestionTOC";
 import { SavingIndicator } from "./SavingIndicator";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
@@ -541,12 +543,45 @@ function QuestionCard({
   onOpenSource,
   question,
   roster,
+  viewerId,
 }: {
   onOpenSource: (source: OpenSource) => void;
   question: TopicQuestion;
   roster: RingMember[];
+  viewerId: string | null;
 }) {
   const router = useRouter();
+  // Optimistic own confidence level; resyncs when the server value changes.
+  const [myLevel, setMyLevel] = useState<number | null>(question.myConfidence);
+  useEffect(() => {
+    setMyLevel(question.myConfidence);
+  }, [question.myConfidence]);
+  const saveConfidence = async (level: number) => {
+    const previous = myLevel;
+    setMyLevel(level);
+    const supabase = createCoreExamBrowserClient();
+    const { error } = await supabase.rpc("core_exam_set_confidence", {
+      p_target_type: "question",
+      p_target_id: question.id,
+      p_level: level,
+    });
+    if (error) {
+      // The optimistic level silently reverts; log so failures aren't invisible.
+      console.error("[confidence] save failed", error.code, error.message);
+      setMyLevel(previous);
+    }
+  };
+  // Every active member's ring: the viewer's shows their optimistic level, the
+  // rest come from the server. Members who haven't set one render empty.
+  const ringMembers = roster.map((member) => ({
+    id: member.userId,
+    name: member.displayName,
+    color: member.avatarColor,
+    level:
+      member.userId === viewerId
+        ? myLevel
+        : (question.confidenceByUser[member.userId] ?? null),
+  }));
   const [editing, setEditing] = useState(false);
   const [answerText, setAnswerText] = useState(
     question.myAnswer?.plainText ?? "",
@@ -648,11 +683,17 @@ function QuestionCard({
           {String(Math.round(question.rank / 1000)).padStart(2, "0")}
         </span>
         <span className="ce-question-prompt">{question.prompt}</span>
-        <GroupRings
-          answeredBy={question.answeredBy}
-          hiddenBy={question.hiddenBy}
-          roster={roster}
-        />
+        <span className="ce-question-summary-meta">
+          {/* Stop pointer/click from toggling the <summary> while dragging. */}
+          <span
+            className="ce-question-confidence"
+            onClick={(event) => event.stopPropagation()}
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <ConfidenceSlider onChange={saveConfidence} value={myLevel} />
+          </span>
+          <ConfidenceRings members={ringMembers} />
+        </span>
       </summary>
       <div className="ce-question-body">
         {question.origin === "submitted" && (
@@ -1165,6 +1206,8 @@ export function CoreExamFrame({
           likelihood: { likely: [], unlikely: [], unsure: [] },
           myAnswer: null,
           myLikelihood: null,
+          confidenceByUser: {},
+          myConfidence: null,
           origin: "submitted",
           prompt: data.prompt.trim(),
           questionComments:
@@ -1600,6 +1643,7 @@ export function CoreExamFrame({
                           onOpenSource={openSourceViewer}
                           question={question}
                           roster={ringRoster}
+                          viewerId={viewer?.userId ?? null}
                         />
                         ))}
                     </div>
@@ -1624,6 +1668,7 @@ export function CoreExamFrame({
                                 onOpenSource={openSourceViewer}
                                 question={question}
                                 roster={ringRoster}
+                                viewerId={viewer?.userId ?? null}
                               />
                             ))}
                         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 // 1–5 self-assessment scale. Index 0 = level 1.
 export const CONFIDENCE_LABELS = [
@@ -41,6 +42,10 @@ export function ConfidenceSlider({
   const [dragLevel, setDragLevel] = useState<number | null>(null);
   const [moveTick, setMoveTick] = useState(0);
   const [settling, setSettling] = useState(false);
+  // Tooltip is portaled to <body> (fixed) so the card's overflow can't clip it.
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
 
   const shownLevel = dragLevel ?? value ?? 1;
   const active = dragging || (hovering && !suppressed);
@@ -99,6 +104,21 @@ export function ConfidenceSlider({
     };
   }, [dragging, levelFromClientX, onChange, value]);
 
+  // Track the tooltip to the handle's viewport position while active.
+  useEffect(() => {
+    if (!active || !trackRef.current) {
+      setTooltipPos(null);
+      return;
+    }
+    const rect = trackRef.current.getBoundingClientRect();
+    setTooltipPos({
+      x: rect.left + (percentFor(shownLevel) / 100) * rect.width,
+      y: rect.top,
+    });
+    // percentFor is a pure inline helper; shownLevel/active drive recompute.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, shownLevel]);
+
   return (
     <div
       className={`ce-confidence${className ? ` ${className}` : ""}`}
@@ -114,12 +134,20 @@ export function ConfidenceSlider({
       }}
     >
       <div className="ce-confidence-track" ref={trackRef}>
-        <span className="ce-confidence-rail" aria-hidden="true" />
-        <span
-          aria-hidden="true"
-          className="ce-confidence-rail-fill"
-          style={{ width: `${percentFor(shownLevel)}%` }}
-        />
+        {/* Rail drawn as short segments between adjacent notches (not through
+            them), gapped by the notch radius. Filled up to the set level. */}
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            aria-hidden="true"
+            className="ce-confidence-seg"
+            data-filled={shownLevel >= i + 2 || undefined}
+            key={i}
+            style={{
+              left: `calc(${i * 25}% + var(--cs-notch, 5px) / 2)`,
+              width: `calc(25% - var(--cs-notch, 5px))`,
+            }}
+          />
+        ))}
         {CONFIDENCE_LEVELS.map((level) => (
           <span
             aria-hidden="true"
@@ -154,15 +182,18 @@ export function ConfidenceSlider({
           />
         </button>
       </div>
-      {active && (
-        <span
-          className="ce-confidence-tooltip"
-          role="status"
-          style={{ left: `${percentFor(shownLevel)}%` }}
-        >
-          {CONFIDENCE_LABELS[shownLevel - 1]}
-        </span>
-      )}
+      {active &&
+        tooltipPos &&
+        createPortal(
+          <span
+            className="ce-confidence-tooltip"
+            role="status"
+            style={{ left: tooltipPos.x, top: tooltipPos.y }}
+          >
+            {CONFIDENCE_LABELS[shownLevel - 1]}
+          </span>,
+          document.body,
+        )}
     </div>
   );
 }

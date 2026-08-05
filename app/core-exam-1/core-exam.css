@@ -1831,6 +1831,19 @@ textarea {
   gap: 3px;
 }
 
+/* Card summary right side: the viewer's confidence slider just left of the
+   group confidence rings. */
+.ce-question-summary-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ce-question-confidence {
+  display: inline-flex;
+  align-items: center;
+}
+
 /* --- Card group rings: SVG circles (round at any density) — tunable --- */
 .ce-ring {
   display: block;
@@ -3944,7 +3957,7 @@ textarea {
     padding-top: 0;
   }
 
-  .ce-question-card > summary .ce-group-rings {
+  .ce-question-card > summary .ce-question-summary-meta {
     grid-area: rings;
     justify-self: end;
   }
@@ -4210,28 +4223,19 @@ textarea {
   height: var(--cs-size-active, 24px);
 }
 
-.ce-confidence-rail {
+/* Rail segments between adjacent notches (left/width set inline). Filled ones
+   (before the set level) take the handle color; the rest are the base line. */
+.ce-confidence-seg {
   position: absolute;
   top: 50%;
-  right: 0;
-  left: 0;
   height: var(--cs-rail-h, 2px);
   transform: translateY(-50%);
   border-radius: 999px;
   background: var(--ce-line-strong);
 }
 
-/* Filled segment from level 1 up to the current level (width set inline). */
-.ce-confidence-rail-fill {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  height: var(--cs-rail-h, 2px);
-  transform: translateY(-50%);
-  border-radius: 999px;
+.ce-confidence-seg[data-filled] {
   background: var(--cs-color, #2f7b68);
-  transition: width var(--cs-resize-ms, 180ms)
-    var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .ce-confidence-notch {
@@ -4242,7 +4246,9 @@ textarea {
   transform: translate(-50%, -50%);
   border: var(--cs-notch-bw, 1.5px) solid var(--ce-line-strong);
   border-radius: 50%;
-  background: var(--ce-paper);
+  /* Transparent center so the card shows through — no darkening overlay
+     (a paper fill reads darker than the card in dark mode). */
+  background: transparent;
   box-sizing: border-box;
 }
 
@@ -4429,10 +4435,11 @@ textarea {
   }
 }
 
+/* Portaled to <body>; left/top are the handle's viewport coords, so it sits
+   just above the handle and can't be clipped by the card. */
 .ce-confidence-tooltip {
-  position: absolute;
-  bottom: calc(100% + 7px);
-  transform: translateX(-50%);
+  position: fixed;
+  transform: translate(-50%, calc(-100% - 8px));
   padding: 3px 7px;
   border-radius: 6px;
   background: var(--ce-ink);
@@ -4441,7 +4448,7 @@ textarea {
   font-family: var(--font-inter), sans-serif;
   font-size: 10px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 200;
 }
 
 @media (prefers-reduced-motion: reduce) {

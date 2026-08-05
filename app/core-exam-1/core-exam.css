@@ -4139,3 +4139,231 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+   Confidence slider (1–5 self-assessment). Every visual/timing value
+   reads var(--cs-*, fallback) so the dev panel can tune it live; bake the
+   Copy-CSS snippet onto .ce-confidence when it settles.
+   ============================================================ */
+.ce-confidence {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.ce-confidence-track {
+  position: relative;
+  width: var(--cs-track-w, 96px);
+  height: var(--cs-size-active, 24px);
+}
+
+.ce-confidence-rail {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  left: 0;
+  height: var(--cs-rail-h, 2px);
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--ce-line-strong);
+}
+
+.ce-confidence-notch {
+  position: absolute;
+  top: 50%;
+  width: var(--cs-notch, 7px);
+  height: var(--cs-notch, 7px);
+  transform: translate(-50%, -50%);
+  border: var(--cs-notch-bw, 1.5px) solid var(--ce-line-strong);
+  border-radius: 50%;
+  background: var(--ce-paper);
+  box-sizing: border-box;
+}
+
+.ce-confidence-notch[data-filled] {
+  border-color: var(--cs-color, #2f7b68);
+}
+
+.ce-confidence-pip {
+  position: absolute;
+  top: calc(50% + var(--cs-size-active, 24px) / 2 + 3px);
+  width: var(--cs-pip, 6px);
+  height: var(--cs-pip, 6px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--pip, var(--ce-muted));
+}
+
+.ce-confidence-handle {
+  position: absolute;
+  top: 50%;
+  width: var(--cs-size-active, 24px);
+  height: var(--cs-size-active, 24px);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.ce-confidence[data-dragging] .ce-confidence-handle {
+  cursor: grabbing;
+}
+
+.ce-confidence-handle:disabled {
+  cursor: default;
+}
+
+.ce-confidence-core,
+.ce-confidence-glow,
+.ce-confidence-rings,
+.ce-confidence-land {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--cs-size, 14px);
+  height: var(--cs-size, 14px);
+  border-radius: 50%;
+}
+
+.ce-confidence-core {
+  background: var(--cs-color, #2f7b68);
+  transition:
+    width var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    height var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.ce-confidence[data-active] .ce-confidence-core,
+.ce-confidence[data-active] .ce-confidence-glow {
+  width: var(--cs-size-active, 24px);
+  height: var(--cs-size-active, 24px);
+}
+
+/* Level states on the core */
+.ce-confidence[data-level="1"] .ce-confidence-core {
+  opacity: var(--cs-op-uncertain, 0.5);
+}
+
+.ce-confidence[data-level="2"] .ce-confidence-core {
+  animation: cs-pulse var(--cs-pulse-ms, 1500ms) ease-in-out infinite;
+}
+
+.ce-confidence[data-level="3"] .ce-confidence-core,
+.ce-confidence[data-level="4"] .ce-confidence-core,
+.ce-confidence[data-level="5"] .ce-confidence-core {
+  opacity: 1;
+}
+
+@keyframes cs-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: var(--cs-pulse-min, 0.35);
+  }
+}
+
+/* Level 4 — pulsing glow */
+.ce-confidence-glow {
+  opacity: 0;
+  box-shadow: 0 0 var(--cs-glow-blur, 10px) var(--cs-glow-spread, 3px)
+    var(--cs-color, #2f7b68);
+  transition:
+    width var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    height var(--cs-resize-ms, 180ms) var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.ce-confidence[data-level="4"] .ce-confidence-glow {
+  animation: cs-glow var(--cs-glow-ms, 1600ms) ease-in-out infinite;
+}
+
+@keyframes cs-glow {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+/* Level 5 — rippling outward rings */
+.ce-confidence[data-level="5"] .ce-confidence-rings::before,
+.ce-confidence[data-level="5"] .ce-confidence-rings::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--cs-color, #2f7b68);
+  border-radius: 50%;
+  animation: cs-rings var(--cs-rings-ms, 2000ms) ease-out infinite;
+}
+
+.ce-confidence[data-level="5"] .ce-confidence-rings::after {
+  animation-delay: calc(var(--cs-rings-ms, 2000ms) / -2);
+}
+
+@keyframes cs-rings {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(var(--cs-rings-scale, 3.4));
+    opacity: 0;
+  }
+}
+
+/* Release "landing" ripple — one shot on drag end */
+.ce-confidence-land {
+  border: 2px solid var(--cs-color, #2f7b68);
+  opacity: 0;
+}
+
+.ce-confidence[data-landing] .ce-confidence-land {
+  animation: cs-land var(--cs-land-ms, 620ms) ease-out;
+}
+
+@keyframes cs-land {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(var(--cs-land-scale, 3.2));
+    opacity: 0;
+  }
+}
+
+.ce-confidence-tooltip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  transform: translateX(-50%);
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--ce-ink);
+  color: var(--ce-paper);
+  white-space: nowrap;
+  font-family: var(--font-inter), sans-serif;
+  font-size: 10px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-confidence-core,
+  .ce-confidence-glow,
+  .ce-confidence-rings::before,
+  .ce-confidence-rings::after,
+  .ce-confidence-land {
+    animation: none !important;
+  }
+  .ce-confidence[data-level="2"] .ce-confidence-core {
+    opacity: 0.7;
+  }
+  .ce-confidence[data-level="4"] .ce-confidence-glow {
+    opacity: 0.55;
+  }
+}

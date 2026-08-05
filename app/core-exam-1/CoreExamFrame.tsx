@@ -566,13 +566,8 @@ function QuestionCard({
       p_level: level,
     });
     if (error) {
-      // Temporary: surface the exact PostgREST error to pin down the revert.
-      console.error("[confidence] save failed", {
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-      });
+      // The optimistic level silently reverts; log so failures aren't invisible.
+      console.error("[confidence] save failed", error.code, error.message);
       setMyLevel(previous);
     }
   };

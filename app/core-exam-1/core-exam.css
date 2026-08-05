@@ -4156,21 +4156,21 @@ textarea {
    panel — which writes the same vars inline on :root — can still override them
    live, while the real app uses these. --cs-color stays theme-aware. */
 :root {
-  --cs-size: 6px;
+  --cs-size: 5px;
   --cs-size-active: 24px;
-  --cs-track-w: 50px;
+  --cs-track-w: 33px;
   --cs-rail-h: 1px;
-  --cs-notch: 4px;
+  --cs-notch: 5px;
   --cs-notch-bw: 1px;
   --cs-pip: 3px;
   --cs-op-uncertain: 0.5;
   --cs-pulse-min: 0.25;
   --cs-pulse-ms: 850ms;
-  --cs-glow-blur: 11px;
+  --cs-glow-blur: 6px;
   --cs-glow-spread: 0px;
   --cs-glow-ms: 1150ms;
   --cs-rings-ms: 3750ms;
-  --cs-rings-scale: 2.3;
+  --cs-rings-scale: 3;
   --cs-resize-ms: 100ms;
   --cs-move-ms: 460ms;
   --cs-move-scale: 1.5;
@@ -4434,6 +4434,85 @@ textarea {
     opacity: 0.7;
   }
   .ce-confidence[data-level="4"] .ce-confidence-glow {
+    opacity: 0.55;
+  }
+}
+
+/* ---- Group confidence rings — each member's slider level as a ring, using
+   the same per-level language as the handle. Sized to match the old answer
+   status rings (~5px). ---- */
+.ce-conf-rings {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cr-gap, 3px);
+}
+
+.ce-conf-ring {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--cr-size, 5px);
+  height: var(--cr-size, 5px);
+}
+
+.ce-conf-ring-core,
+.ce-conf-ring-glow,
+.ce-conf-ring-rings {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+/* Level 1 / unset — empty outline (no faint fill, unlike the personal handle) */
+.ce-conf-ring-core {
+  border: var(--cr-bw, 1px) solid var(--ring, var(--ce-line-strong));
+  background: transparent;
+}
+
+.ce-conf-ring[data-level="2"] .ce-conf-ring-core,
+.ce-conf-ring[data-level="3"] .ce-conf-ring-core,
+.ce-conf-ring[data-level="4"] .ce-conf-ring-core,
+.ce-conf-ring[data-level="5"] .ce-conf-ring-core {
+  background: var(--ring, var(--ce-accent));
+}
+
+.ce-conf-ring[data-level="2"] .ce-conf-ring-core {
+  animation: cs-pulse var(--cs-pulse-ms, 850ms) ease-in-out infinite;
+}
+
+/* Level 4 — pulsing glow in the member's hue */
+.ce-conf-ring-glow {
+  opacity: 0;
+  box-shadow: 0 0 var(--cs-glow-blur, 6px) var(--cs-glow-spread, 0px)
+    var(--ring, var(--ce-accent));
+}
+
+.ce-conf-ring[data-level="4"] .ce-conf-ring-glow {
+  animation: cs-glow var(--cs-glow-ms, 1150ms) ease-in-out infinite;
+}
+
+/* Level 5 — rippling outward rings in the member's hue */
+.ce-conf-ring[data-level="5"] .ce-conf-ring-rings::before,
+.ce-conf-ring[data-level="5"] .ce-conf-ring-rings::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: var(--cr-bw, 1px) solid var(--ring, var(--ce-accent));
+  border-radius: 50%;
+  animation: cs-rings var(--cs-rings-ms, 3750ms) ease-out infinite;
+}
+
+.ce-conf-ring[data-level="5"] .ce-conf-ring-rings::after {
+  animation-delay: calc(var(--cs-rings-ms, 3750ms) / -2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-conf-ring-core,
+  .ce-conf-ring-glow,
+  .ce-conf-ring-rings::before,
+  .ce-conf-ring-rings::after {
+    animation: none !important;
+  }
+  .ce-conf-ring[data-level="4"] .ce-conf-ring-glow {
     opacity: 0.55;
   }
 }

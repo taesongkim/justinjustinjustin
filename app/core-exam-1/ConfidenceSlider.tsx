@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CSSProperties } from "react";
 
 // 1–5 self-assessment scale. Index 0 = level 1.
 export const CONFIDENCE_LABELS = [
@@ -14,32 +13,20 @@ export const CONFIDENCE_LABELS = [
 
 export const CONFIDENCE_LEVELS = [1, 2, 3, 4, 5] as const;
 
-export type ConfidenceMember = {
-  id: string;
-  name: string;
-  color: string;
-  level: number;
-};
-
-// A horizontal 1–5 track with ring notches. The viewer's own level is a
-// draggable state-circle (styling per level is driven by [data-level] in CSS);
-// other members show as read-only avatar-colored pips at their notches.
-//
-// Two distinct ripples: a "move" ripple fires from the expanded handle on each
-// notch change during a drag (confirms movement); a "settle" ripple fires once
-// after the handle has shrunk back to rest when the hover ends (confirms
-// landing).
+// A horizontal 1–5 track with ring notches and a draggable, snapping handle.
+// Per-level state (1 faint · 2 pulsing · 3 solid · 4 glow · 5 rings) is driven
+// by [data-level] in CSS. The handle expands on hover/drag for an easy grab and
+// drops back to rest the instant a drag is released; it only expands again on a
+// fresh hover (leave + re-enter) or another grab.
 export function ConfidenceSlider({
   value,
   onChange,
-  members = [],
   className,
   ariaLabel = "Your confidence",
   interactive = true,
 }: {
   value: number | null;
   onChange?: (level: number) => void;
-  members?: ConfidenceMember[];
   className?: string;
   ariaLabel?: string;
   interactive?: boolean;
@@ -48,14 +35,15 @@ export function ConfidenceSlider({
   const dragLevelRef = useRef<number | null>(null);
   const [dragging, setDragging] = useState(false);
   const [hovering, setHovering] = useState(false);
+  // After a release the handle stays at rest even though the cursor is still
+  // over it; a new hover (leave + re-enter) or grab clears this.
+  const [suppressed, setSuppressed] = useState(false);
   const [dragLevel, setDragLevel] = useState<number | null>(null);
   const [moveTick, setMoveTick] = useState(0);
   const [settling, setSettling] = useState(false);
 
-  // While dragging we preview dragLevel; otherwise show the committed value
-  // (defaulting to 1 so an unset slider still has a visible resting handle).
   const shownLevel = dragLevel ?? value ?? 1;
-  const active = dragging || hovering;
+  const active = dragging || (hovering && !suppressed);
   const percentFor = (level: number) => ((level - 1) / 4) * 100;
 
   const levelFromClientX = useCallback((clientX: number) => {
@@ -70,6 +58,7 @@ export function ConfidenceSlider({
   const onPointerDown = (event: React.PointerEvent) => {
     if (!interactive) return;
     event.preventDefault();
+    setSuppressed(false);
     setDragging(true);
     const next = levelFromClientX(event.clientX);
     if (next) {
@@ -95,6 +84,9 @@ export function ConfidenceSlider({
       setDragging(false);
       setDragLevel(null);
       dragLevelRef.current = null;
+      // Drop the expansion immediately and fire the settle ripple on release.
+      setSuppressed(true);
+      setSettling(true);
       if (landed !== value) onChange?.(landed);
     };
     window.addEventListener("pointermove", move);
@@ -107,14 +99,6 @@ export function ConfidenceSlider({
     };
   }, [dragging, levelFromClientX, onChange, value]);
 
-  // Settle ripple: when the hover/drag ends the handle snaps to rest with no
-  // resize animation, so fire the ripple as soon as active goes false.
-  const wasActive = useRef(false);
-  useEffect(() => {
-    if (wasActive.current && !active) setSettling(true);
-    wasActive.current = active;
-  }, [active]);
-
   return (
     <div
       className={`ce-confidence${className ? ` ${className}` : ""}`}
@@ -124,7 +108,10 @@ export function ConfidenceSlider({
       data-settling={settling || undefined}
       data-unset={value == null && dragLevel == null ? "true" : undefined}
       onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
+      onMouseLeave={() => {
+        setHovering(false);
+        setSuppressed(false);
+      }}
     >
       <div className="ce-confidence-track" ref={trackRef}>
         <span className="ce-confidence-rail" aria-hidden="true" />
@@ -140,20 +127,6 @@ export function ConfidenceSlider({
             data-filled={shownLevel >= level || undefined}
             key={level}
             style={{ left: `${percentFor(level)}%` }}
-          />
-        ))}
-        {members.map((member) => (
-          <span
-            aria-hidden="true"
-            className="ce-confidence-pip"
-            key={member.id}
-            style={
-              {
-                left: `${percentFor(member.level)}%`,
-                "--pip": member.color,
-              } as CSSProperties
-            }
-            title={`${member.name}: ${CONFIDENCE_LABELS[member.level - 1]}`}
           />
         ))}
         <button

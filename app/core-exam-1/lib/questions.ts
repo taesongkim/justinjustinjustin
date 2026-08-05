@@ -298,3 +298,28 @@ export async function loadTopicQuestions(
     };
   });
 }
+
+// The viewer's own confidence for a topic (the topic slider is viewer-only) plus
+// the topic node id used as the set-confidence target. Degrades to nulls so a
+// missing table/row can never throw.
+export async function loadTopicConfidence(
+  topicStableKey: string,
+  viewerId: string,
+): Promise<{ topicNodeId: string | null; myLevel: number | null }> {
+  const supabase = await createCoreExamServerClient();
+  const { data: topic } = await supabase
+    .from("core_exam_content_nodes")
+    .select("id")
+    .eq("stable_key", topicStableKey)
+    .eq("kind", "topic")
+    .maybeSingle();
+  if (!topic) return { topicNodeId: null, myLevel: null };
+  const { data: row } = await supabase
+    .from("core_exam_confidence")
+    .select("level")
+    .eq("target_type", "topic")
+    .eq("target_id", topic.id)
+    .eq("user_id", viewerId)
+    .maybeSingle();
+  return { topicNodeId: topic.id, myLevel: row?.level ?? null };
+}

@@ -1090,6 +1090,18 @@ textarea {
   gap: 16px;
 }
 
+/* Topic eyebrow + the viewer's confidence slider, grouped on the left. */
+.ce-topic-eyebrow-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ce-topic-confidence {
+  display: inline-flex;
+  align-items: center;
+}
+
 .ce-topic-title-row {
   margin-top: 10px;
 }

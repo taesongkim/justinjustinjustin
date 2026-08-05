@@ -55,6 +55,7 @@ type CoreExamFrameProps = {
   questions: TopicQuestion[];
   scoreboard: ScoreboardMember[];
   sourceAvailable: boolean;
+  topicConfidence: { topicNodeId: string | null; myLevel: number | null };
   verifications: PageVerifications;
   viewer: CoreExamViewer | null;
 };
@@ -1103,10 +1104,33 @@ export function CoreExamFrame({
   questions: initialQuestions,
   scoreboard,
   sourceAvailable,
+  topicConfidence,
   verifications,
   viewer,
 }: CoreExamFrameProps) {
   useLiveActivity(viewer?.spaceId, viewer?.userId);
+  // Viewer's own confidence for the whole topic (optimistic; resyncs on load).
+  const [topicLevel, setTopicLevel] = useState<number | null>(
+    topicConfidence.myLevel,
+  );
+  useEffect(() => {
+    setTopicLevel(topicConfidence.myLevel);
+  }, [topicConfidence.myLevel]);
+  const saveTopicConfidence = async (level: number) => {
+    if (!topicConfidence.topicNodeId) return;
+    const previous = topicLevel;
+    setTopicLevel(level);
+    const supabase = createCoreExamBrowserClient();
+    const { error } = await supabase.rpc("core_exam_set_confidence", {
+      p_target_type: "topic",
+      p_target_id: topicConfidence.topicNodeId,
+      p_level: level,
+    });
+    if (error) {
+      console.error("[confidence] topic save failed", error.code, error.message);
+      setTopicLevel(previous);
+    }
+  };
   // Active members only (observers + assistant excluded), in join order — the
   // roster for each card's group answer-status rings.
   const ringRoster: RingMember[] = scoreboard
@@ -1596,13 +1620,26 @@ export function CoreExamFrame({
               <div className="ce-reading-inner">
                 <div className="ce-topic-heading">
                   <div className="ce-topic-eyebrow-row">
-                    <p className="ce-eyebrow">
-                      {selectedTopic.kind === "topic"
-                        ? collaborativeEmpty
-                          ? `Topic ${selectedTopic.number} · Group-built topic`
-                          : `Topic ${selectedTopic.number}`
-                        : "Reference"}
-                    </p>
+                    <div className="ce-topic-eyebrow-group">
+                      <p className="ce-eyebrow">
+                        {selectedTopic.kind === "topic"
+                          ? collaborativeEmpty
+                            ? `Topic ${selectedTopic.number} · Group-built topic`
+                            : `Topic ${selectedTopic.number}`
+                          : "Reference"}
+                      </p>
+                      {selectedTopic.kind === "topic" &&
+                        topicConfidence.topicNodeId &&
+                        viewer && (
+                          <span className="ce-topic-confidence">
+                            <ConfidenceSlider
+                              ariaLabel="Your confidence for this topic"
+                              onChange={saveTopicConfidence}
+                              value={topicLevel}
+                            />
+                          </span>
+                        )}
+                    </div>
                     <span
                       className="ce-status"
                       data-progress={

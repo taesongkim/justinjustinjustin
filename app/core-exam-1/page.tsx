@@ -6,7 +6,7 @@ import {
   type TopicQuestionGroup,
 } from "./QuestionIndexView";
 import { getCoreExamAccess } from "./lib/viewer";
-import { loadTopicQuestions } from "./lib/questions";
+import { loadTopicConfidence, loadTopicQuestions } from "./lib/questions";
 import { loadGlobalActivity } from "./lib/activity";
 import { loadPageContributions } from "./lib/contributions";
 import { loadPageVerifications } from "./lib/verification";
@@ -88,6 +88,7 @@ export default async function CoreExamPage({
     verifications,
     contributions,
     scoreboard,
+    topicConfidence,
   ] = await Promise.all([
     loadGlobalActivity(
       access.viewer.spaceId,
@@ -114,6 +115,15 @@ export default async function CoreExamPage({
           return [];
         },
       ),
+    selectedTopic.kind === "topic"
+      ? loadTopicConfidence(
+          selectedTopic.stableKey,
+          access.viewer.userId,
+        ).catch((error) => {
+          console.error("topic confidence load failed", error);
+          return { topicNodeId: null, myLevel: null };
+        })
+      : Promise.resolve({ topicNodeId: null, myLevel: null }),
   ]);
 
   return (
@@ -127,6 +137,7 @@ export default async function CoreExamPage({
       questions={questions}
       scoreboard={scoreboard}
       sourceAvailable={content.available}
+      topicConfidence={topicConfidence}
       verifications={verifications}
       viewer={access.viewer}
     />

@@ -2409,6 +2409,36 @@ textarea {
   line-height: 1.5;
 }
 
+/* Comments render as markdown (line breaks, lists, emphasis). Paragraph font
+   comes from the rule above; add list/emphasis handling and restore the
+   markers Tailwind Preflight strips. */
+.ce-comment-markdown p + p {
+  margin-top: 6px;
+}
+
+.ce-comment-markdown :is(ul, ol) {
+  margin: 5px 0 0;
+  padding-left: 18px;
+}
+
+.ce-comment-markdown ul {
+  list-style: disc;
+}
+
+.ce-comment-markdown ol {
+  list-style: decimal;
+}
+
+.ce-comment-markdown li + li {
+  margin-top: 3px;
+}
+
+/* Author-name <strong> is shrunk to 9px; keep markdown bold at body size. */
+.ce-comment-markdown strong {
+  font-size: inherit;
+  font-weight: 600;
+}
+
 .ce-card-comments article > button,
 .ce-card-comment-composer > button {
   margin-top: 6px;

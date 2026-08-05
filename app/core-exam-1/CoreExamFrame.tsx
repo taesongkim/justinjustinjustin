@@ -166,6 +166,19 @@ const revealCoreExamTarget = (targetId: string) => {
   return true;
 };
 
+// Comment/reply bodies are stored as plain text; render them as markdown so
+// line breaks, lists, and basic formatting survive (same pipeline as answers,
+// minus the citation handling that only applies to answers).
+function CommentMarkdown({ body }: { body: string }) {
+  return (
+    <div className="ce-comment-markdown">
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+        {body}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
 function CommentThread({
   answerId = null,
   comments,
@@ -228,7 +241,7 @@ function CommentThread({
                   {formatAnswerTimestamp(comment.createdAt)}
                 </time>
               </div>
-              <p>{comment.body}</p>
+              <CommentMarkdown body={comment.body} />
               <button
                 onClick={() => setReplyTo(comment.id)}
                 type="button"
@@ -255,7 +268,7 @@ function CommentThread({
                         {formatAnswerTimestamp(reply.createdAt)}
                       </time>
                     </div>
-                    <p>{reply.body}</p>
+                    <CommentMarkdown body={reply.body} />
                   </article>
                 ))}
             </article>

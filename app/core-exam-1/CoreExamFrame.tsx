@@ -565,7 +565,16 @@ function QuestionCard({
       p_target_id: question.id,
       p_level: level,
     });
-    if (error) setMyLevel(previous);
+    if (error) {
+      // Temporary: surface the exact PostgREST error to pin down the revert.
+      console.error("[confidence] save failed", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      });
+      setMyLevel(previous);
+    }
   };
   // Every active member's ring: the viewer's shows their optimistic level, the
   // rest come from the server. Members who haven't set one render empty.

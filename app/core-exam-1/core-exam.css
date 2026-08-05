@@ -4255,7 +4255,9 @@ textarea {
   transform: translate(-50%, -50%);
   border: var(--cs-notch-bw, 1.5px) solid var(--ce-line-strong);
   border-radius: 50%;
-  background: var(--ce-paper);
+  /* Transparent center so the card shows through — no darkening overlay
+     (a paper fill reads darker than the card in dark mode). */
+  background: transparent;
   box-sizing: border-box;
 }
 

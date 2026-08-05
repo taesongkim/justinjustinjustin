@@ -12,8 +12,6 @@ type Control = {
   default: number;
 };
 
-type ColorControl = { var: string; label: string; default: string };
-
 // Every tunable value the slider reads via var(--cs-*, fallback). The panel
 // writes them to :root so all live sliders update at once; "Copy CSS" emits a
 // snippet to bake into `.ce-confidence` once the values settle.
@@ -34,20 +32,17 @@ const CONTROLS: Control[] = [
   { var: "--cs-rings-ms", label: "L5 · ring cadence", min: 800, max: 4000, step: 50, unit: "ms", default: 2000 },
   { var: "--cs-rings-scale", label: "L5 · ring max scale", min: 1.5, max: 6, step: 0.1, unit: "", default: 3.4 },
   { var: "--cs-resize-ms", label: "Hover/drag resize", min: 60, max: 500, step: 10, unit: "ms", default: 180 },
-  { var: "--cs-land-ms", label: "Release ripple time", min: 200, max: 1200, step: 20, unit: "ms", default: 620 },
-  { var: "--cs-land-scale", label: "Release ripple scale", min: 1.5, max: 6, step: 0.1, unit: "", default: 3.2 },
+  { var: "--cs-move-ms", label: "Move ripple time", min: 200, max: 1000, step: 20, unit: "ms", default: 460 },
+  { var: "--cs-move-scale", label: "Move ripple scale", min: 1.5, max: 4, step: 0.1, unit: "", default: 2.4 },
+  { var: "--cs-land-ms", label: "Settle ripple time", min: 200, max: 1200, step: 20, unit: "ms", default: 620 },
+  { var: "--cs-land-scale", label: "Settle ripple scale", min: 1.5, max: 6, step: 0.1, unit: "", default: 3.2 },
 ];
 
-const COLORS: ColorControl[] = [
-  { var: "--cs-color", label: "Handle color", default: "#2f7b68" },
-];
+// Handle color is theme-aware (--cs-color in :root light/dark), not tuned here.
 
 export function ConfidenceDevPanel() {
   const [nums, setNums] = useState<Record<string, number>>(() =>
     Object.fromEntries(CONTROLS.map((c) => [c.var, c.default])),
-  );
-  const [colors, setColors] = useState<Record<string, string>>(() =>
-    Object.fromEntries(COLORS.map((c) => [c.var, c.default])),
   );
   const [collapsed, setCollapsed] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -55,16 +50,12 @@ export function ConfidenceDevPanel() {
   useEffect(() => {
     const root = document.documentElement;
     for (const c of CONTROLS) root.style.setProperty(c.var, `${nums[c.var]}${c.unit}`);
-    for (const c of COLORS) root.style.setProperty(c.var, colors[c.var]);
-  }, [nums, colors]);
+  }, [nums]);
 
   const snippet = useMemo(() => {
-    const lines = [
-      ...CONTROLS.map((c) => `  ${c.var}: ${nums[c.var]}${c.unit};`),
-      ...COLORS.map((c) => `  ${c.var}: ${colors[c.var]};`),
-    ];
+    const lines = CONTROLS.map((c) => `  ${c.var}: ${nums[c.var]}${c.unit};`);
     return `.ce-confidence {\n${lines.join("\n")}\n}`;
-  }, [nums, colors]);
+  }, [nums]);
 
   const copy = async () => {
     try {
@@ -78,7 +69,6 @@ export function ConfidenceDevPanel() {
 
   const reset = () => {
     setNums(Object.fromEntries(CONTROLS.map((c) => [c.var, c.default])));
-    setColors(Object.fromEntries(COLORS.map((c) => [c.var, c.default])));
   };
 
   return (
@@ -92,18 +82,6 @@ export function ConfidenceDevPanel() {
       {!collapsed && (
         <>
           <div className="cs-panel-body">
-            {COLORS.map((c) => (
-              <label className="cs-row" key={c.var}>
-                <span>{c.label}</span>
-                <input
-                  onChange={(e) =>
-                    setColors((prev) => ({ ...prev, [c.var]: e.target.value }))
-                  }
-                  type="color"
-                  value={colors[c.var]}
-                />
-              </label>
-            ))}
             {CONTROLS.map((c) => (
               <label className="cs-row" key={c.var}>
                 <span>

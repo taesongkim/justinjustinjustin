@@ -20,6 +20,10 @@
   --ce-accent-strong: #286b59;
   --ce-accent-soft: #dcece6;
   --ce-teal: #3f7d84;
+  /* Confidence handle/fill — a balanced neutral so the viewer's own level reads
+     quietly next to the colored member pips. Theme-aware; the dev panel can
+     still override --cs-color live for tuning. */
+  --cs-color: #58635d;
   /* solid dark button surfaces — stay dark with light text in BOTH themes
      (unlike the ink text token, which inverts) */
   --ce-solid: #22312b;
@@ -80,6 +84,8 @@
   --ce-accent-strong: #5bbd9f;
   --ce-accent-soft: #1f2f2a;
   --ce-teal: #5aa2aa;
+  /* Confidence handle/fill — soft light neutral on dark (not harsh white). */
+  --cs-color: #d7ded9;
   --ce-solid: #33403a;
   --ce-solid-soft: #414b46;
   /* highlight (yellow answered/likelihood) */
@@ -4169,6 +4175,19 @@ textarea {
   background: var(--ce-line-strong);
 }
 
+/* Filled segment from level 1 up to the current level (width set inline). */
+.ce-confidence-rail-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: var(--cs-rail-h, 2px);
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--cs-color, #2f7b68);
+  transition: width var(--cs-resize-ms, 180ms)
+    var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
 .ce-confidence-notch {
   position: absolute;
   top: 50%;
@@ -4219,7 +4238,8 @@ textarea {
 .ce-confidence-core,
 .ce-confidence-glow,
 .ce-confidence-rings,
-.ce-confidence-land {
+.ce-confidence-move,
+.ce-confidence-settle {
   position: absolute;
   inset: 0;
   margin: auto;
@@ -4316,17 +4336,39 @@ textarea {
   }
 }
 
-/* Release "landing" ripple — one shot on drag end */
-.ce-confidence-land {
+/* Move ripple — replays on every notch change during a drag, emanating from
+   the EXPANDED handle so each movement is visually confirmed. */
+.ce-confidence-move {
+  width: var(--cs-size-active, 24px);
+  height: var(--cs-size-active, 24px);
+  border: 2px solid var(--cs-color, #2f7b68);
+  opacity: 0;
+  animation: cs-move var(--cs-move-ms, 460ms) ease-out;
+}
+
+@keyframes cs-move {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(var(--cs-move-scale, 2.4));
+    opacity: 0;
+  }
+}
+
+/* Settle ripple — one shot after the handle has shrunk back to rest when the
+   hover ends, emanating from the RESTING size. */
+.ce-confidence-settle {
   border: 2px solid var(--cs-color, #2f7b68);
   opacity: 0;
 }
 
-.ce-confidence[data-landing] .ce-confidence-land {
-  animation: cs-land var(--cs-land-ms, 620ms) ease-out;
+.ce-confidence[data-settling] .ce-confidence-settle {
+  animation: cs-settle var(--cs-land-ms, 620ms) ease-out;
 }
 
-@keyframes cs-land {
+@keyframes cs-settle {
   0% {
     transform: scale(0.8);
     opacity: 0.7;
@@ -4357,7 +4399,8 @@ textarea {
   .ce-confidence-glow,
   .ce-confidence-rings::before,
   .ce-confidence-rings::after,
-  .ce-confidence-land {
+  .ce-confidence-move,
+  .ce-confidence-settle {
     animation: none !important;
   }
   .ce-confidence[data-level="2"] .ce-confidence-core {

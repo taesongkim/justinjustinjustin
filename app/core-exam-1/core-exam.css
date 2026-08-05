@@ -362,6 +362,36 @@ textarea {
   gap: 8px;
 }
 
+/* All Questions + Activity live inside this wrapper. On desktop/tablet the
+   content shows inline and the hamburger is hidden; on phones (≤720) the
+   hamburger toggles a dropdown. */
+.ce-actions-menu,
+.ce-actions-menu-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ce-actions-menu-toggle {
+  position: relative;
+  display: none;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--ce-line);
+  border-radius: 50%;
+  background: var(--ce-raised);
+  color: var(--ce-muted);
+  cursor: pointer;
+}
+
+.ce-actions-menu-toggle:hover,
+.ce-actions-menu-toggle:focus-visible {
+  border-color: var(--ce-line-strong);
+  color: var(--ce-ink);
+}
+
 .ce-quiet-button,
 .ce-identity,
 .ce-collapse {
@@ -1690,6 +1720,18 @@ textarea {
   border-radius: var(--ce-radius-container, 8px);
   background: rgba(var(--ce-glass-rgb), 0.72);
   box-shadow: 0 2px 10px rgba(var(--ce-shadow-rgb), 0.035);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Subtle hover lift for collapsed cards — signals they're clickable, like the
+   rest of the interactive surfaces. Open cards keep their own emphasized look. */
+.ce-question-card:not([open]):hover {
+  border-color: var(--ce-line-strong);
+  background: rgba(var(--ce-glass-rgb), 0.85);
+  box-shadow: 0 4px 14px rgba(var(--ce-shadow-rgb), 0.06);
 }
 
 /* Entrance for a freshly-submitted question card. */
@@ -1781,8 +1823,12 @@ textarea {
 .ce-ring {
   display: block;
   flex: 0 0 auto;
-  width: 4.8px; /* size — ~40% of the original 8px */
-  height: 4.8px;
+  /* Integer box + integer gap → integer 8px step, so every ring's left edge
+     snaps to device pixels identically and the gaps read perfectly even.
+     A fractional width (4.8px) made each successive edge land at a different
+     sub-pixel offset, which snapped inconsistently → visibly uneven gaps. */
+  width: 5px;
+  height: 5px;
   overflow: visible; /* let the glow bleed past the box */
 }
 
@@ -1964,14 +2010,28 @@ textarea {
   font-size: 13px;
 }
 
-.ce-answer-visibility {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 3px 6px;
-  border: 1px solid var(--ce-line-strong);
-  border-radius: 999px;
+/* Update an existing answer: subtle icon button pinned top-right, not the
+   prominent accent CTA (that's reserved for writing a first answer). */
+.ce-answer-heading .ce-answer-edit-button {
+  display: grid;
+  place-items: center;
+  align-self: flex-start;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--ce-line);
+  border-radius: 7px;
+  background: var(--ce-raised);
   color: var(--ce-muted);
-  font-size: 8px;
+  cursor: pointer;
+}
+
+.ce-answer-heading .ce-answer-edit-button:hover,
+.ce-answer-heading .ce-answer-edit-button:focus-visible {
+  border-color: var(--ce-line-strong);
+  background: var(--ce-panel);
+  color: var(--ce-ink);
 }
 
 .ce-answer-block > p:not(.ce-eyebrow) {
@@ -2026,6 +2086,64 @@ textarea {
   font-size: 9px !important;
 }
 
+/* Optimistic "Saving answer…" placeholder shown between submit and the
+   refreshed answer landing. */
+/* Scoped to beat `.ce-answer-block > p:not(.ce-eyebrow)` (serif, 14px), which
+   otherwise wins on specificity and renders this as serif. Plain sans-serif,
+   normal weight, no italic. */
+.ce-answer-block > p.ce-saving {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: 12px;
+  color: var(--ce-muted);
+  font-family: var(--font-inter), sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.ce-saving-dots {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.ce-saving-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: ce-saving-bounce 1s ease-in-out infinite;
+}
+
+.ce-saving-dots i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.ce-saving-dots i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes ce-saving-bounce {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-saving-dots i {
+    animation: none;
+    opacity: 0.55;
+  }
+}
+
 .ce-answer-heading button,
 .ce-answer-editor button {
   padding: 7px 10px;
@@ -2055,15 +2173,9 @@ textarea {
 
 .ce-answer-editor > div {
   margin-top: 8px;
-}
-
-.ce-answer-editor select {
-  padding: 7px 8px;
-  border: 1px solid var(--ce-line);
-  border-radius: 7px;
-  background: var(--ce-raised);
-  color: var(--ce-muted);
-  font-size: 10px;
+  /* Only Cancel/Save remain now that the visibility select is hidden — keep
+     them on the right instead of at the start of the row. */
+  justify-content: flex-end;
 }
 
 .ce-answer-editor span {
@@ -3521,12 +3633,73 @@ textarea {
     display: inline-flex;
   }
 
-  .ce-brand h1 {
-    font-size: 13px;
+  /* Topics button sits just left of the scorecard. */
+  .ce-mobile-topics {
+    margin-left: 10px;
   }
 
+  /* Collapse All Questions + Activity behind the hamburger. */
+  .ce-actions-menu {
+    position: relative;
+  }
+
+  .ce-actions-menu-toggle {
+    display: grid;
+  }
+
+  .ce-actions-menu-content {
+    position: absolute;
+    z-index: 40;
+    top: calc(100% + 8px);
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    width: max-content;
+    min-width: 168px;
+    padding: 7px;
+    border: 1px solid var(--ce-line);
+    border-radius: var(--ce-radius-container, 8px);
+    background: var(--ce-raised);
+    box-shadow: 0 18px 50px rgba(var(--ce-shadow-rgb), 0.2);
+  }
+
+  .ce-actions-menu-content[data-open] {
+    display: flex;
+  }
+
+  /* Re-show the menu items (the blanket .ce-quiet-button hide below applies on
+     phones) and lay them out as full-width dropdown rows. */
+  .ce-actions-menu-content .ce-quiet-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 9px 10px;
+    border-radius: 7px;
+    color: var(--ce-ink);
+    font-size: 12px;
+  }
+
+  .ce-actions-menu-content .ce-quiet-button:hover {
+    background: var(--ce-panel);
+  }
+
+  /* Logo only on phones — drop the "Study space / Core Exam 1" text block. */
+  .ce-brand > div {
+    display: none;
+  }
+
+  /* Avatar only in the top-right button — the name eats horizontal space we
+     don't have on phones. */
   .ce-identity {
-    padding-right: 7px;
+    gap: 0;
+    padding: 3px;
+  }
+
+  .ce-identity > span:not(.ce-avatar) {
+    display: none;
   }
 
   .ce-body {
@@ -3643,18 +3816,36 @@ textarea {
     align-items: flex-start;
   }
 
+  /* Mobile: number and rings share a top row (number left, rings right), and
+     the prompt drops below at full card width instead of ceding the left
+     column to the number. */
   .ce-question-card > summary {
-    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      "index rings"
+      "prompt prompt";
+    column-gap: 11px;
+    row-gap: 8px;
+    align-items: center;
     padding: 14px 13px;
   }
 
-  .ce-question-answer-state {
-    grid-column: 2;
-    width: fit-content;
+  .ce-question-card > summary .ce-question-index {
+    grid-area: index;
+    padding-top: 0;
+  }
+
+  .ce-question-card > summary .ce-group-rings {
+    grid-area: rings;
+    justify-self: end;
+  }
+
+  .ce-question-card > summary .ce-question-prompt {
+    grid-area: prompt;
   }
 
   .ce-question-body {
-    padding: 0 13px 13px 35px;
+    padding: 0 13px 13px;
   }
 
   .ce-answer-heading,
@@ -3662,6 +3853,18 @@ textarea {
   .ce-answer-editor > div {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  /* Keep the edit-answer pencil in the top-right corner even though the
+     heading stacks into a column on phones. */
+  .ce-answer-heading {
+    position: relative;
+  }
+
+  .ce-answer-heading .ce-answer-edit-button {
+    position: absolute;
+    top: 0;
+    right: 0;
   }
 
   .ce-likelihood-options {
@@ -3800,7 +4003,7 @@ textarea {
   }
 
   .ce-scoreboard-mobile > summary .ce-score-bar {
-    width: 72px;
+    width: 36px;
   }
 
   /* The dropdown list is one grid; each chip's cells (display: contents)

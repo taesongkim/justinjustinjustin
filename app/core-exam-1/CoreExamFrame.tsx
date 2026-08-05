@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import ReactMarkdown from "react-markdown";
+import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 import { labelForContentStableKey } from "./content-label";
 import {
@@ -38,6 +39,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { useLiveActivity } from "./useLiveActivity";
 import { GroupRings, type RingMember } from "./StatusRings";
 import { QuestionTOC } from "./QuestionTOC";
+import { SavingIndicator } from "./SavingIndicator";
 import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
 import { VerificationControl } from "./VerificationControl";
 
@@ -269,6 +271,17 @@ function CommentThread({
         <textarea
           aria-label={replyTo ? "Write a reply" : "Add a comment"}
           onChange={(event) => setDraft(event.target.value)}
+          onKeyDown={(event) => {
+            if (
+              (event.metaKey || event.ctrlKey) &&
+              event.key === "Enter" &&
+              !saving &&
+              draft.trim()
+            ) {
+              event.preventDefault();
+              void addComment();
+            }
+          }}
           placeholder={replyTo ? "Write a reply…" : "Add a comment…"}
           rows={2}
           value={draft}
@@ -525,11 +538,19 @@ function QuestionCard({
   const [answerText, setAnswerText] = useState(
     question.myAnswer?.plainText ?? "",
   );
-  const [visibility, setVisibility] = useState<"group" | "private">(
-    question.myAnswer?.visibility ?? "group",
-  );
+  // The public/private toggle is hidden for now — everyone works publicly. We
+  // still send this to the backend (so the feature can return later): keep an
+  // existing answer's stored visibility on re-save, default new answers to public.
+  const visibility: "group" | "private" =
+    question.myAnswer?.visibility ?? "group";
   const [saving, setSaving] = useState(false);
+  const [awaitingAnswer, setAwaitingAnswer] = useState(false);
   const [error, setError] = useState("");
+  // Once the refreshed answer lands (new id or revision), drop the
+  // "Saving answer…" placeholder.
+  useEffect(() => {
+    setAwaitingAnswer(false);
+  }, [question.myAnswer?.id, question.myAnswer?.editedAt]);
 
   const setLikelihood = async (likelihood: QuestionLikelihood) => {
     setError("");
@@ -568,6 +589,7 @@ function QuestionCard({
   const saveAnswer = async () => {
     if (!answerText.trim()) return;
     setSaving(true);
+    setAwaitingAnswer(true);
     setError("");
     const supabase = createCoreExamBrowserClient();
     const { error: answerError } = await supabase.rpc(
@@ -591,6 +613,7 @@ function QuestionCard({
     );
     setSaving(false);
     if (answerError) {
+      setAwaitingAnswer(false);
       setError(
         answerError.code === "40001"
           ? "This answer changed elsewhere. Reload and review it before saving."
@@ -600,6 +623,9 @@ function QuestionCard({
     }
     setEditing(false);
     router.refresh();
+    // Safety net: if the refreshed answer never arrives (realtime hiccup),
+    // drop the placeholder anyway so the card doesn't hang on "Saving…".
+    window.setTimeout(() => setAwaitingAnswer(false), 6000);
   };
 
   return (
@@ -629,26 +655,49 @@ function QuestionCard({
             <div>
               <p className="ce-eyebrow">Personal</p>
               <h4>My answer</h4>
-              {question.myAnswer && (
-                <span className="ce-answer-visibility">
-                  {question.myAnswer.visibility === "group"
-                    ? "Public"
-                    : "Private"}
-                </span>
-              )}
             </div>
-            {!editing && (
-              <button onClick={() => setEditing(true)} type="button">
-                {question.myAnswer ? "Update my answer" : "Write my answer"}
-              </button>
-            )}
+            {!editing &&
+              (question.myAnswer ? (
+                <button
+                  aria-label="Update my answer"
+                  className="ce-answer-edit-button"
+                  onClick={() => setEditing(true)}
+                  title="Update my answer"
+                  type="button"
+                >
+                  <svg
+                    aria-hidden="true"
+                    fill="none"
+                    height="14"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.7"
+                    viewBox="0 0 24 24"
+                    width="14"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                </button>
+              ) : (
+                <button onClick={() => setEditing(true)} type="button">
+                  Write my answer
+                </button>
+              ))}
           </div>
-          {editing ? (
+          {awaitingAnswer ? (
+            <SavingIndicator label="Saving answer" />
+          ) : editing ? (
             <div className="ce-answer-editor">
               <textarea
                 aria-label="My answer"
                 onKeyDown={(event) => {
-                  if (event.metaKey && event.key === "Enter" && !saving) {
+                  if (
+                    (event.metaKey || event.ctrlKey) &&
+                    event.key === "Enter" &&
+                    !saving
+                  ) {
                     event.preventDefault();
                     void saveAnswer();
                   }
@@ -658,16 +707,6 @@ function QuestionCard({
                 value={answerText}
               />
               <div>
-                <select
-                  aria-label="Answer visibility"
-                  onChange={(event) =>
-                    setVisibility(event.target.value as "group" | "private")
-                  }
-                  value={visibility}
-                >
-                  <option value="group">Public</option>
-                  <option value="private">Keep Private</option>
-                </select>
                 <span>
                   <button
                     className="ce-answer-cancel"
@@ -859,7 +898,7 @@ function AnswerMarkdown({
             );
           },
         }}
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
       >
         {formatAnswerMarkdown(markdown)}
       </ReactMarkdown>
@@ -954,6 +993,17 @@ function AskQuestionForm({
       <input
         id="ce-question-prompt"
         onChange={(event) => setPrompt(event.target.value)}
+        onKeyDown={(event) => {
+          if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key === "Enter" &&
+            !submitting &&
+            prompt.trim().length >= 5
+          ) {
+            event.preventDefault();
+            void submitQuestion();
+          }
+        }}
         placeholder="What do you want the group to work through?"
         value={prompt}
       />
@@ -961,6 +1011,17 @@ function AskQuestionForm({
       <textarea
         id="ce-question-detail"
         onChange={(event) => setDetail(event.target.value)}
+        onKeyDown={(event) => {
+          if (
+            (event.metaKey || event.ctrlKey) &&
+            event.key === "Enter" &&
+            !submitting &&
+            prompt.trim().length >= 5
+          ) {
+            event.preventDefault();
+            void submitQuestion();
+          }
+        }}
         rows={3}
         value={detail}
       />
@@ -1012,28 +1073,49 @@ export function CoreExamFrame({
   // short beat so fast loads never flash it.
   const [navigating, setNavigating] = useState(false);
   const navTimerRef = useRef<number | null>(null);
+  const beginNavigation = useCallback(() => {
+    if (!TOPIC_NAV_LOADER_ENABLED) return;
+    // flushSync paints the overlay synchronously before Link's navigation
+    // transition, which would otherwise defer this update out of view.
+    flushSync(() => setNavigating(true));
+    // Safety net: never let the loader stick if a navigation stalls.
+    if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
+    navTimerRef.current = window.setTimeout(() => setNavigating(false), 4000);
+  }, []);
   const beginTopicNavigation = useCallback(
     (targetKey: string) => {
-      if (!TOPIC_NAV_LOADER_ENABLED) return;
       // Clicking the current topic doesn't change selectedTopic, so the
       // clear-on-topic-change effect never fires — skip it to avoid a hang.
       if (targetKey === selectedTopic.stableKey) return;
-      // flushSync paints the overlay synchronously before Link's navigation
-      // transition, which would otherwise defer this update out of view.
-      flushSync(() => setNavigating(true));
-      // Safety net: never let the loader stick if a navigation stalls.
-      if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-      navTimerRef.current = window.setTimeout(
-        () => setNavigating(false),
-        4000,
-      );
+      beginNavigation();
     },
-    [selectedTopic.stableKey],
+    [selectedTopic.stableKey, beginNavigation],
   );
   useEffect(() => {
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
     setNavigating(false);
   }, [selectedTopic.stableKey]);
+  // Mobile: All Questions + Activity collapse behind a hamburger. Plain state
+  // (not <details>) so the same markup shows the two actions inline on desktop.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
   // Local copy of the server questions so a newly-submitted question can be
   // inserted optimistically — no router.refresh(), so the reading scroll never
   // resets and the new card reveals reliably. A later server refresh (from any
@@ -1216,50 +1298,88 @@ export function CoreExamFrame({
           </div>
         </div>
 
+        {/* Mobile-only Topics button — sits left of the scorecard (desktop uses
+            the sidebar instead, where this is display:none). */}
+        <details className="ce-mobile-topics">
+          <summary>Topics</summary>
+          <nav aria-label="Mobile study topics">
+            {[...TOPICS, ...REFERENCES].map((topic) => (
+              <Link
+                className={
+                  topic.stableKey === selectedTopic.stableKey
+                    ? "ce-mobile-topic-active"
+                    : undefined
+                }
+                href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
+                key={topic.stableKey}
+                onNavigate={() => beginTopicNavigation(topic.stableKey)}
+              >
+                <span>
+                  {topic.number
+                    ? String(topic.number).padStart(2, "0")
+                    : "REF"}
+                </span>
+                {topic.label}
+              </Link>
+            ))}
+            <Link href="/core-exam-1/sources">
+              <span>REF</span>
+              Source library
+            </Link>
+          </nav>
+        </details>
+
         <Scoreboard members={scoreboard} />
 
         <div className="ce-header-actions">
-          <details className="ce-mobile-topics">
-            <summary>Topics</summary>
-            <nav aria-label="Mobile study topics">
-              {[...TOPICS, ...REFERENCES].map((topic) => (
-                <Link
-                  className={
-                    topic.stableKey === selectedTopic.stableKey
-                      ? "ce-mobile-topic-active"
-                      : undefined
-                  }
-                  href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
-                  key={topic.stableKey}
-                  onNavigate={() => beginTopicNavigation(topic.stableKey)}
-                >
-                  <span>
-                    {topic.number
-                      ? String(topic.number).padStart(2, "0")
-                      : "REF"}
-                  </span>
-                  {topic.label}
-                </Link>
-              ))}
-              <Link href="/core-exam-1/sources">
-                <span>REF</span>
-                Source library
+          {/* All Questions + Activity: inline on desktop, collapsed behind a
+              hamburger on phones. One ActivityPanel instance either way. */}
+          <div className="ce-actions-menu" ref={menuRef}>
+            <button
+              aria-expanded={menuOpen}
+              aria-label="Menu"
+              className="ce-actions-menu-toggle"
+              onClick={() => setMenuOpen((open) => !open)}
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                height="16"
+                viewBox="0 0 16 16"
+                width="16"
+              >
+                <rect height="1.6" rx="0.8" width="14" x="1" y="3" />
+                <rect height="1.6" rx="0.8" width="14" x="1" y="7.2" />
+                <rect height="1.6" rx="0.8" width="14" x="1" y="11.4" />
+              </svg>
+              {activity.hasUnviewed && (
+                <span className="ce-activity-unviewed-dot" aria-hidden="true" />
+              )}
+            </button>
+            <div
+              className="ce-actions-menu-content"
+              data-open={menuOpen || undefined}
+            >
+              <Link
+                className="ce-quiet-button"
+                href="/core-exam-1?view=all-questions"
+                onNavigate={() => {
+                  beginNavigation();
+                  setMenuOpen(false);
+                }}
+              >
+                All Questions
               </Link>
-            </nav>
-          </details>
-          <Link
-            className="ce-quiet-button"
-            href="/core-exam-1?view=all-questions"
-          >
-            All Questions
-          </Link>
-          <ActivityPanel
-            currentTopicStableKey={selectedTopic.stableKey}
-            events={activity.events}
-            initialHasUnviewed={activity.hasUnviewed}
-            latestOtherEventId={activity.latestOtherEventId}
-            onRevealTarget={revealTarget}
-          />
+              <ActivityPanel
+                currentTopicStableKey={selectedTopic.stableKey}
+                events={activity.events}
+                initialHasUnviewed={activity.hasUnviewed}
+                latestOtherEventId={activity.latestOtherEventId}
+                onRevealTarget={revealTarget}
+              />
+            </div>
+          </div>
           <ThemeToggle />
           <details className="ce-identity-menu">
             <summary className="ce-identity">

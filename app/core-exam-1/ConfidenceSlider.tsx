@@ -134,12 +134,20 @@ export function ConfidenceSlider({
       }}
     >
       <div className="ce-confidence-track" ref={trackRef}>
-        <span className="ce-confidence-rail" aria-hidden="true" />
-        <span
-          aria-hidden="true"
-          className="ce-confidence-rail-fill"
-          style={{ width: `${percentFor(shownLevel)}%` }}
-        />
+        {/* Rail drawn as short segments between adjacent notches (not through
+            them), gapped by the notch radius. Filled up to the set level. */}
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            aria-hidden="true"
+            className="ce-confidence-seg"
+            data-filled={shownLevel >= i + 2 || undefined}
+            key={i}
+            style={{
+              left: `calc(${i * 25}% + var(--cs-notch, 5px) / 2)`,
+              width: `calc(25% - var(--cs-notch, 5px))`,
+            }}
+          />
+        ))}
         {CONFIDENCE_LEVELS.map((level) => (
           <span
             aria-hidden="true"

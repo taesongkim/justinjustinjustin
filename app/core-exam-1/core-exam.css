@@ -4223,28 +4223,19 @@ textarea {
   height: var(--cs-size-active, 24px);
 }
 
-.ce-confidence-rail {
+/* Rail segments between adjacent notches (left/width set inline). Filled ones
+   (before the set level) take the handle color; the rest are the base line. */
+.ce-confidence-seg {
   position: absolute;
   top: 50%;
-  right: 0;
-  left: 0;
   height: var(--cs-rail-h, 2px);
   transform: translateY(-50%);
   border-radius: 999px;
   background: var(--ce-line-strong);
 }
 
-/* Filled segment from level 1 up to the current level (width set inline). */
-.ce-confidence-rail-fill {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  height: var(--cs-rail-h, 2px);
-  transform: translateY(-50%);
-  border-radius: 999px;
+.ce-confidence-seg[data-filled] {
   background: var(--cs-color, #2f7b68);
-  transition: width var(--cs-resize-ms, 180ms)
-    var(--cs-ease, cubic-bezier(0.22, 1, 0.36, 1));
 }
 
 .ce-confidence-notch {

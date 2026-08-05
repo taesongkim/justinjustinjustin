@@ -1771,58 +1771,99 @@ textarea {
   color: var(--ce-accent);
 }
 
-.ce-group-rings,
-.ce-progress-rings {
+.ce-group-rings {
   display: inline-flex;
   align-items: center;
   gap: 3px;
 }
 
-.ce-progress-rings {
-  flex-wrap: wrap;
-  max-width: 168px;
-}
-
+/* --- Card group rings: SVG circles (round at any density) — tunable --- */
 .ce-ring {
-  display: inline-block;
+  display: block;
   flex: 0 0 auto;
-  width: 8px;
-  height: 8px;
-  border: 1.5px solid var(--ce-line);
-  border-radius: 50%;
-}
-
-.ce-status-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* --- Card group rings (per member, hue-colored via --ring) — tunable --- */
-.ce-group-rings .ce-ring {
-  width: 4.8px; /* was 8px; ~40% smaller */
+  width: 4.8px; /* size — ~40% of the original 8px */
   height: 4.8px;
-  border-width: 0.6px;
-  border-color: var(--ring, var(--ce-line));
+  overflow: visible; /* let the glow bleed past the box */
 }
 
-.ce-group-rings .ce-ring[data-filled="true"] {
-  background: var(--ring);
-  box-shadow: 0 0 4px var(--ring); /* glow: blur 4px, color = the member hue */
+.ce-ring circle {
+  fill: none;
+  stroke: var(--ring, var(--ce-line));
+  stroke-width: 1.5; /* viewBox units (of 12) → ~0.6px rendered */
 }
 
-.ce-group-rings .ce-ring[data-hidden="true"] {
+.ce-ring[data-filled="true"] circle {
+  fill: var(--ring);
+}
+
+.ce-ring[data-filled="true"] {
+  filter: drop-shadow(0 0 3px var(--ring)); /* glow: blur radius in px */
+}
+
+.ce-ring[data-hidden="true"] {
   opacity: 0.3;
 }
 
-/* --- Header progress rings: neutral, theme-aware --- */
-.ce-progress-rings .ce-ring {
-  border-color: var(--ce-line-strong);
+/* --- Sticky question TOC rail (desktop only), just right of the sidebar --- */
+.ce-question-toc {
+  display: none;
 }
 
-.ce-progress-rings .ce-ring[data-filled="true"] {
-  background: var(--ce-muted);
-  border-color: var(--ce-muted);
+.ce-question-card {
+  scroll-margin-top: calc(var(--ce-header-height) + 12px);
+}
+
+@media (min-width: 1025px) {
+  .ce-question-toc {
+    position: fixed;
+    left: 240px; /* just right of the 232px sidebar — tune to taste */
+    top: calc(var(--ce-header-height) + 28px);
+    z-index: 15;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    max-height: calc(100vh - var(--ce-header-height) - 56px);
+    padding: 2px 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    opacity: 1;
+    transition: opacity 300ms ease;
+  }
+
+  /* Fade out when every question already fits on screen. */
+  .ce-question-toc[data-faded="true"] {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Three states: off-screen (base) → partial (halfway) → fully visible. */
+  .ce-toc-tick {
+    width: 14px;
+    height: 2px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ce-ink);
+    opacity: 0.3;
+    cursor: pointer;
+    transition:
+      width 150ms ease,
+      opacity 150ms ease;
+  }
+
+  .ce-toc-tick[data-visibility="partial"] {
+    width: 19px; /* halfway 14↔24 */
+    opacity: 0.6; /* halfway 0.3↔1 */
+  }
+
+  .ce-toc-tick[data-visibility="full"] {
+    width: 24px;
+    opacity: 1;
+  }
+
+  .ce-toc-tick:hover {
+    opacity: 1;
+  }
 }
 
 .ce-question-body {

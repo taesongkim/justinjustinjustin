@@ -1831,6 +1831,19 @@ textarea {
   gap: 3px;
 }
 
+/* Card summary right side: the viewer's confidence slider just left of the
+   group confidence rings. */
+.ce-question-summary-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ce-question-confidence {
+  display: inline-flex;
+  align-items: center;
+}
+
 /* --- Card group rings: SVG circles (round at any density) — tunable --- */
 .ce-ring {
   display: block;
@@ -3944,7 +3957,7 @@ textarea {
     padding-top: 0;
   }
 
-  .ce-question-card > summary .ce-group-rings {
+  .ce-question-card > summary .ce-question-summary-meta {
     grid-area: rings;
     justify-self: end;
   }

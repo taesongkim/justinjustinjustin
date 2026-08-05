@@ -4442,10 +4442,11 @@ textarea {
   }
 }
 
+/* Portaled to <body>; left/top are the handle's viewport coords, so it sits
+   just above the handle and can't be clipped by the card. */
 .ce-confidence-tooltip {
-  position: absolute;
-  bottom: calc(100% + 7px);
-  transform: translateX(-50%);
+  position: fixed;
+  transform: translate(-50%, calc(-100% - 8px));
   padding: 3px 7px;
   border-radius: 6px;
   background: var(--ce-ink);
@@ -4454,7 +4455,7 @@ textarea {
   font-family: var(--font-inter), sans-serif;
   font-size: 10px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 200;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -561,9 +561,9 @@ function QuestionCard({
     setMyLevel(level);
     const supabase = createCoreExamBrowserClient();
     const { error } = await supabase.rpc("core_exam_set_confidence", {
-      target_type: "question",
-      target_id: question.id,
-      confidence_level: level,
+      p_target_type: "question",
+      p_target_id: question.id,
+      p_level: level,
     });
     if (error) setMyLevel(previous);
   };

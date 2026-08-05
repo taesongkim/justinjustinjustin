@@ -124,7 +124,7 @@ export function ConfidenceSlider({
           <span
             aria-hidden="true"
             className="ce-confidence-notch"
-            data-filled={shownLevel >= level || undefined}
+            data-filled={shownLevel > level || undefined}
             key={level}
             style={{ left: `${percentFor(level)}%` }}
           />

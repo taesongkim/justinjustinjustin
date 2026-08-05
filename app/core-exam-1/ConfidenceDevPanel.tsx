@@ -17,7 +17,7 @@ type Control = {
 // snippet to bake into `.ce-confidence` once the values settle.
 const CONTROLS: Control[] = [
   { var: "--cs-size", label: "Handle · rest size", min: 3, max: 40, step: 1, unit: "px", default: 5 },
-  { var: "--cs-size-active", label: "Handle · active size", min: 10, max: 64, step: 1, unit: "px", default: 24 },
+  { var: "--cs-size-active", label: "Handle · active size", min: 10, max: 64, step: 1, unit: "px", default: 20 },
   { var: "--cs-track-w", label: "Track width", min: 24, max: 260, step: 1, unit: "px", default: 33 },
   { var: "--cs-rail-h", label: "Rail thickness", min: 1, max: 8, step: 1, unit: "px", default: 1 },
   { var: "--cs-notch", label: "Notch size", min: 2, max: 18, step: 1, unit: "px", default: 5 },

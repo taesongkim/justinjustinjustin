@@ -1683,6 +1683,14 @@ textarea {
   gap: 9px;
 }
 
+/* framer-motion layout wrapper around each card. It's the grid item now, so it
+   inherits the cell width; min-width:0 keeps long content from overflowing the
+   column (grid items default to min-width:auto). No overflow clip — the card's
+   relevance notch overhangs the left border by 1px. */
+.ce-card-motion {
+  min-width: 0;
+}
+
 /* Allow height keyword interpolation so <details> cards can animate open. */
 .ce-app {
   interpolate-size: allow-keywords;

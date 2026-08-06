@@ -692,12 +692,14 @@ function QuestionCard({
 
   return (
     <details className="ce-question-card" id={`ce-question-${question.id}`}>
-      <span
-        className="ce-question-notch"
-        data-relevance={relevanceKey}
-        title={relevanceLabel}
-      />
       <summary>
+        {/* Inside <summary> so it stays visible when the card is collapsed;
+            absolutely positioned, so it's out of the summary grid. */}
+        <span
+          className="ce-question-notch"
+          data-relevance={relevanceKey}
+          title={relevanceLabel}
+        />
         <span className="ce-question-index">
           {String(Math.round(question.rank / 1000)).padStart(2, "0")}
         </span>

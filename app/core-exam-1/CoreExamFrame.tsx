@@ -578,6 +578,7 @@ function QuestionCard({
       member.userId === viewerId
         ? myLevel
         : (question.confidenceByUser[member.userId] ?? null),
+    hidden: question.hiddenBy.some((entry) => entry.id === member.userId),
   }));
   const [editing, setEditing] = useState(false);
   const [tab, setTab] = useState<"personal" | "others" | "discussion">(

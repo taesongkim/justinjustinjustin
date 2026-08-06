@@ -4664,8 +4664,8 @@ textarea {
   /* transform-center, not margin:auto — the X is larger than the ring, and
      auto margins resolve asymmetrically for an oversized absolute element. */
   transform: translate(-50%, -50%);
-  width: var(--cr-x-size, 6px);
-  height: var(--cr-x-size, 6px);
+  width: var(--cr-x-size, 5px);
+  height: var(--cr-x-size, 5px);
   overflow: visible;
 }
 

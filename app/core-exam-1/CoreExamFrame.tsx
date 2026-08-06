@@ -139,12 +139,11 @@ function MarkerGlyph({ type }: { type: string }) {
 const TOPIC_NAV_LOADER_ENABLED = true;
 
 // "Sort by exam relevance" groups non-hidden cards by the viewer's own
-// likelihood mark, in this order. Unrated (no mark yet) trails the rest.
+// likelihood mark (unmarked counts as "unsure"), in this order.
 const RELEVANCE_SECTIONS = [
-  { key: "likely", label: "Likely" },
+  { key: "likely", label: "Likely to be tested" },
   { key: "unsure", label: "Unsure" },
-  { key: "unlikely", label: "Unlikely" },
-  { key: "unrated", label: "Unrated" },
+  { key: "unlikely", label: "Unlikely to be tested" },
 ] as const;
 
 const revealCoreExamTarget = (targetId: string) => {
@@ -548,11 +547,15 @@ function GroupDiscussionFeed({
 function QuestionCard({
   onOpenSource,
   question,
+  relevance,
+  relevanceLabel,
   roster,
   viewerId,
 }: {
   onOpenSource: (source: OpenSource) => void;
   question: TopicQuestion;
+  relevance?: string;
+  relevanceLabel?: string;
   roster: RingMember[];
   viewerId: string | null;
 }) {
@@ -688,6 +691,13 @@ function QuestionCard({
 
   return (
     <details className="ce-question-card" id={`ce-question-${question.id}`}>
+      {relevance && (
+        <span
+          className="ce-question-notch"
+          data-relevance={relevance}
+          title={relevanceLabel}
+        />
+      )}
       <summary>
         <span className="ce-question-index">
           {String(Math.round(question.rank / 1000)).padStart(2, "0")}
@@ -1730,28 +1740,23 @@ export function CoreExamFrame({
                         const sectionQuestions = questions.filter(
                           (question) =>
                             !question.isHiddenForMe &&
-                            (question.myLikelihood ?? "unrated") ===
+                            (question.myLikelihood ?? "unsure") ===
                               section.key,
                         );
                         if (sectionQuestions.length === 0) return null;
                         return (
                           <div
                             className="ce-relevance-group"
-                            data-relevance={section.key}
                             key={section.key}
                           >
-                            <span
-                              aria-hidden="true"
-                              className="ce-relevance-label"
-                            >
-                              {section.label}
-                            </span>
                             <div className="ce-question-list">
                               {sectionQuestions.map((question) => (
                                 <QuestionCard
                                   key={question.id}
                                   onOpenSource={openSourceViewer}
                                   question={question}
+                                  relevance={section.key}
+                                  relevanceLabel={section.label}
                                   roster={ringRoster}
                                   viewerId={viewer?.userId ?? null}
                                 />

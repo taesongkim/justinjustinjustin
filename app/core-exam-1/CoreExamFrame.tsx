@@ -3,7 +3,7 @@
 import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
@@ -1345,8 +1345,23 @@ export function CoreExamFrame({
     (question) => !question.isHiddenForMe,
   );
   const countedTotal = countedQuestions.length;
-  // Non-hidden questions in order — the sticky TOC's jump targets.
-  const tocQuestionIds = countedQuestions.map((question) => question.id);
+  // The sticky TOC's jump targets, in the same top-to-bottom order the cards
+  // actually render — so the lit window stays contiguous. When "Sort by exam
+  // relevance" is on, that's the grouped order (likely → unsure → unlikely),
+  // not the original question order. Memoized so the TOC doesn't re-subscribe
+  // its scroll/resize listeners on every render.
+  const tocQuestionIds = useMemo(() => {
+    const visible = questions.filter((question) => !question.isHiddenForMe);
+    const ordered = sortByRelevance
+      ? RELEVANCE_SECTIONS.flatMap((section) =>
+          visible.filter(
+            (question) =>
+              (question.myLikelihood ?? "unsure") === section.key,
+          ),
+        )
+      : visible;
+    return ordered.map((question) => question.id);
+  }, [questions, sortByRelevance]);
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;

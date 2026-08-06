@@ -1752,7 +1752,8 @@ textarea {
 
 .ce-question-card {
   position: relative;
-  overflow: hidden;
+  /* No overflow:hidden — the relevance notch overlaps the left border. The
+     collapse animation clips via ::details-content instead. */
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
   background: rgba(var(--ce-glass-rgb), 0.72);
@@ -4738,11 +4739,10 @@ textarea {
 .ce-question-notch {
   position: absolute;
   top: 20px;
-  left: 6px;
+  left: -1px;
   z-index: 1;
   width: 2px;
   height: 14px;
-  border-radius: 999px;
   background: var(--ce-line-strong);
 }
 

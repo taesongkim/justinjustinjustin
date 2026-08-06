@@ -547,19 +547,20 @@ function GroupDiscussionFeed({
 function QuestionCard({
   onOpenSource,
   question,
-  relevance,
-  relevanceLabel,
   roster,
   viewerId,
 }: {
   onOpenSource: (source: OpenSource) => void;
   question: TopicQuestion;
-  relevance?: string;
-  relevanceLabel?: string;
   roster: RingMember[];
   viewerId: string | null;
 }) {
   const router = useRouter();
+  // Exam-relevance notch (always shown): unmarked reads as "unsure".
+  const relevanceKey = question.myLikelihood ?? "unsure";
+  const relevanceLabel =
+    RELEVANCE_SECTIONS.find((section) => section.key === relevanceKey)?.label ??
+    "";
   // Optimistic own confidence level; resyncs when the server value changes.
   const [myLevel, setMyLevel] = useState<number | null>(question.myConfidence);
   useEffect(() => {
@@ -691,13 +692,11 @@ function QuestionCard({
 
   return (
     <details className="ce-question-card" id={`ce-question-${question.id}`}>
-      {relevance && (
-        <span
-          className="ce-question-notch"
-          data-relevance={relevance}
-          title={relevanceLabel}
-        />
-      )}
+      <span
+        className="ce-question-notch"
+        data-relevance={relevanceKey}
+        title={relevanceLabel}
+      />
       <summary>
         <span className="ce-question-index">
           {String(Math.round(question.rank / 1000)).padStart(2, "0")}
@@ -1755,8 +1754,6 @@ export function CoreExamFrame({
                                   key={question.id}
                                   onOpenSource={openSourceViewer}
                                   question={question}
-                                  relevance={section.key}
-                                  relevanceLabel={section.label}
                                   roster={ringRoster}
                                   viewerId={viewer?.userId ?? null}
                                 />

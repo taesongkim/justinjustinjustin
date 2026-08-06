@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { TopicQuestion } from "./lib/questions";
+import { CONFIDENCE_LABELS } from "./ConfidenceSlider";
 import { ActivityPanel } from "./ActivityPanel";
 import type { CoreExamActivityFeed } from "./lib/activity";
 import type { ScoreboardMember } from "./lib/scoreboard";
@@ -34,6 +35,10 @@ export function QuestionIndexView({
   const [filter, setFilter] = useState<
     "all" | "answered" | "unanswered" | "submitted" | "hidden"
   >("all");
+  // Filter by the viewer's own confidence level (1–5), unset, or any.
+  const [mastery, setMastery] = useState<
+    "any" | "unset" | 1 | 2 | 3 | 4 | 5
+  >("any");
   const allQuestions = useMemo(
     () =>
       groups.flatMap((group) =>
@@ -46,10 +51,19 @@ export function QuestionIndexView({
     (question) => !question.isHiddenForMe,
   );
   const filteredQuestions = allQuestions.filter((question) => {
-    if (filter === "answered") return Boolean(question.myAnswer);
-    if (filter === "unanswered") return !question.myAnswer;
-    if (filter === "submitted") return question.origin === "submitted";
-    if (filter === "hidden") return question.isHiddenForMe;
+    const statusOk =
+      filter === "answered"
+        ? Boolean(question.myAnswer)
+        : filter === "unanswered"
+          ? !question.myAnswer
+          : filter === "submitted"
+            ? question.origin === "submitted"
+            : filter === "hidden"
+              ? question.isHiddenForMe
+              : true;
+    if (!statusOk) return false;
+    if (mastery === "unset") return question.myConfidence == null;
+    if (typeof mastery === "number") return question.myConfidence === mastery;
     return true;
   });
 
@@ -141,6 +155,27 @@ export function QuestionIndexView({
               </button>
             ),
           )}
+        </div>
+
+        <div
+          className="ce-index-filters ce-index-filters-mastery"
+          aria-label="Filter by your mastery level"
+        >
+          <span className="ce-index-filter-label">Mastery</span>
+          {(["any", 1, 2, 3, 4, 5, "unset"] as const).map((option) => (
+            <button
+              aria-pressed={mastery === option}
+              key={String(option)}
+              onClick={() => setMastery(option)}
+              type="button"
+            >
+              {option === "any"
+                ? "Any"
+                : option === "unset"
+                  ? "Unset"
+                  : CONFIDENCE_LABELS[option - 1]}
+            </button>
+          ))}
         </div>
 
         <div className="ce-index-list">

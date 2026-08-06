@@ -551,6 +551,8 @@ textarea {
 
 .ce-index-filters {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
   padding: 18px 0;
 }
@@ -572,20 +574,9 @@ textarea {
   color: var(--ce-ink-strong);
 }
 
-/* Second filter row: by the viewer's mastery level. Wraps; labels aren't
-   capitalized (they're already cased). */
-.ce-index-filters-mastery {
-  flex-wrap: wrap;
-  align-items: center;
-  padding: 0 0 18px;
-}
-
-.ce-index-filters-mastery button {
-  text-transform: none;
-}
-
+/* Inline "Mastery" label separating the status chips from the level chips. */
 .ce-index-filter-label {
-  margin-right: 2px;
+  margin: 0 2px 0 10px;
   color: var(--ce-muted);
   font-size: 9px;
   font-weight: 600;

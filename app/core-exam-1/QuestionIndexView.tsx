@@ -33,7 +33,7 @@ export function QuestionIndexView({
 }) {
   useLiveActivity(viewer.spaceId, viewer.userId);
   const [filter, setFilter] = useState<
-    "all" | "answered" | "unanswered" | "submitted" | "hidden"
+    "all" | "answered" | "unanswered" | "hidden"
   >("all");
   // Filter by the viewer's own confidence level (1–5), unset, or any.
   const [mastery, setMastery] = useState<
@@ -56,11 +56,9 @@ export function QuestionIndexView({
         ? Boolean(question.myAnswer)
         : filter === "unanswered"
           ? !question.myAnswer
-          : filter === "submitted"
-            ? question.origin === "submitted"
-            : filter === "hidden"
-              ? question.isHiddenForMe
-              : true;
+          : filter === "hidden"
+            ? question.isHiddenForMe
+            : true;
     if (!statusOk) return false;
     if (mastery === "unset") return question.myConfidence == null;
     if (typeof mastery === "number") return question.myConfidence === mastery;
@@ -141,9 +139,7 @@ export function QuestionIndexView({
         </header>
 
         <div className="ce-index-filters" aria-label="Question filters">
-          {(
-            ["all", "answered", "unanswered", "submitted", "hidden"] as const
-          ).map(
+          {(["all", "answered", "unanswered", "hidden"] as const).map(
             (option) => (
               <button
                 aria-pressed={filter === option}
@@ -155,25 +151,20 @@ export function QuestionIndexView({
               </button>
             ),
           )}
-        </div>
-
-        <div
-          className="ce-index-filters ce-index-filters-mastery"
-          aria-label="Filter by your mastery level"
-        >
           <span className="ce-index-filter-label">Mastery</span>
           {(["any", 1, 2, 3, 4, 5, "unset"] as const).map((option) => (
             <button
               aria-pressed={mastery === option}
               key={String(option)}
               onClick={() => setMastery(option)}
+              title={
+                typeof option === "number"
+                  ? CONFIDENCE_LABELS[option - 1]
+                  : undefined
+              }
               type="button"
             >
-              {option === "any"
-                ? "Any"
-                : option === "unset"
-                  ? "Unset"
-                  : CONFIDENCE_LABELS[option - 1]}
+              {option === "any" ? "Any" : option === "unset" ? "Unset" : option}
             </button>
           ))}
         </div>

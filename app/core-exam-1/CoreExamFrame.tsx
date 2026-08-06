@@ -1195,7 +1195,27 @@ export function CoreExamFrame({
     "content",
   );
   const [discussionCollapsed, setDiscussionCollapsed] = useState(false);
-  const [sortByRelevance, setSortByRelevance] = useState(false);
+  // Sort-by-relevance defaults ON for everyone; an explicit choice either way
+  // is remembered (localStorage). Start from the default so server and first
+  // client render match, then apply any stored override on mount.
+  const [sortByRelevance, setSortByRelevance] = useState(true);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("ce-sort-relevance");
+      if (stored === "off") setSortByRelevance(false);
+      else if (stored === "on") setSortByRelevance(true);
+    } catch {
+      // ignore storage failures (private mode etc.)
+    }
+  }, []);
+  const setSortPreference = (next: boolean) => {
+    setSortByRelevance(next);
+    try {
+      localStorage.setItem("ce-sort-relevance", next ? "on" : "off");
+    } catch {
+      // ignore storage failures
+    }
+  };
   // Cards animate to their new spot when the sort toggle flips or a card's
   // exam-relevance changes (which moves it between sections). Uses shared-layout
   // (layoutId) so a card tracked across the flat↔grouped structure change — and
@@ -1733,7 +1753,7 @@ export function CoreExamFrame({
                         <input
                           checked={sortByRelevance}
                           onChange={(event) =>
-                            setSortByRelevance(event.target.checked)
+                            setSortPreference(event.target.checked)
                           }
                           type="checkbox"
                         />

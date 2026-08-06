@@ -1,5 +1,6 @@
 "use client";
 
+import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -1195,6 +1196,15 @@ export function CoreExamFrame({
   );
   const [discussionCollapsed, setDiscussionCollapsed] = useState(false);
   const [sortByRelevance, setSortByRelevance] = useState(false);
+  // Cards animate to their new spot when the sort toggle flips or a card's
+  // exam-relevance changes (which moves it between sections). Uses shared-layout
+  // (layoutId) so a card tracked across the flat↔grouped structure change — and
+  // across parent sections — tweens instead of jumping. Honors reduced motion.
+  const reduceMotion = useReducedMotion();
+  const cardLayout = reduceMotion ? false : "position";
+  const cardLayoutTransition = {
+    layout: { type: "spring", stiffness: 500, damping: 40 },
+  } as const;
   const [openSource, setOpenSource] = useState<OpenSource | null>(null);
   const [enterQuestionId, setEnterQuestionId] = useState<string | null>(null);
   // Topic switches are same-segment (searchParam) navigations, which don't
@@ -1736,6 +1746,7 @@ export function CoreExamFrame({
                     aria-label="Study questions"
                     className="ce-question-workspace"
                   >
+                   <LayoutGroup>
                     {sortByRelevance ? (
                       RELEVANCE_SECTIONS.map((section) => {
                         const sectionQuestions = questions.filter(
@@ -1752,13 +1763,20 @@ export function CoreExamFrame({
                           >
                             <div className="ce-question-list">
                               {sectionQuestions.map((question) => (
-                                <QuestionCard
+                                <motion.div
+                                  className="ce-card-motion"
                                   key={question.id}
-                                  onOpenSource={openSourceViewer}
-                                  question={question}
-                                  roster={ringRoster}
-                                  viewerId={viewer?.userId ?? null}
-                                />
+                                  layout={cardLayout}
+                                  layoutId={question.id}
+                                  transition={cardLayoutTransition}
+                                >
+                                  <QuestionCard
+                                    onOpenSource={openSourceViewer}
+                                    question={question}
+                                    roster={ringRoster}
+                                    viewerId={viewer?.userId ?? null}
+                                  />
+                                </motion.div>
                               ))}
                             </div>
                           </div>
@@ -1769,13 +1787,20 @@ export function CoreExamFrame({
                         {questions
                           .filter((question) => !question.isHiddenForMe)
                           .map((question) => (
-                            <QuestionCard
+                            <motion.div
+                              className="ce-card-motion"
                               key={question.id}
-                              onOpenSource={openSourceViewer}
-                              question={question}
-                              roster={ringRoster}
-                              viewerId={viewer?.userId ?? null}
-                            />
+                              layout={cardLayout}
+                              layoutId={question.id}
+                              transition={cardLayoutTransition}
+                            >
+                              <QuestionCard
+                                onOpenSource={openSourceViewer}
+                                question={question}
+                                roster={ringRoster}
+                                viewerId={viewer?.userId ?? null}
+                              />
+                            </motion.div>
                           ))}
                       </div>
                     )}
@@ -1806,6 +1831,7 @@ export function CoreExamFrame({
                         </div>
                       </details>
                     )}
+                   </LayoutGroup>
                   </section>
                 )}
 

@@ -712,10 +712,10 @@ function QuestionCard({
               type="button"
             >
               {key === "personal"
-                ? "Personal"
+                ? "My Answer"
                 : key === "others"
-                  ? "Other perspectives"
-                  : "Discussion"}
+                  ? "Others' Answers"
+                  : "General Discussion"}
             </button>
           ))}
         </div>

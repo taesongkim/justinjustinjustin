@@ -24,7 +24,7 @@ import type {
   CoreExamActivityItem,
 } from "./lib/activity";
 import type { PageContributions } from "./lib/contributions";
-import { hueNameStyle, hueTintStyle } from "./lib/hue";
+import { hueNameStyle } from "./lib/hue";
 import { createCoreExamBrowserClient } from "./lib/supabase/browser";
 import type {
   QuestionLikelihood,
@@ -232,11 +232,7 @@ function CommentThread({
       {topLevel.length > 0 && (
         <div className="ce-card-comments">
           {topLevel.map((comment) => (
-            <article
-              id={`ce-comment-${comment.id}`}
-              key={comment.id}
-              style={hueTintStyle(comment.authorColor)}
-            >
+            <article id={`ce-comment-${comment.id}`} key={comment.id}>
               <div>
                 <strong style={hueNameStyle(comment.authorColor)}>
                   {comment.authorName}
@@ -259,7 +255,6 @@ function CommentThread({
                     className="ce-card-reply"
                     id={`ce-comment-${reply.id}`}
                     key={reply.id}
-                    style={hueTintStyle(reply.authorColor, "var(--ce-paper)")}
                   >
                     <div>
                       <strong style={hueNameStyle(reply.authorColor)}>
@@ -585,6 +580,9 @@ function QuestionCard({
         : (question.confidenceByUser[member.userId] ?? null),
   }));
   const [editing, setEditing] = useState(false);
+  const [tab, setTab] = useState<"personal" | "others" | "discussion">(
+    "personal",
+  );
   const [answerText, setAnswerText] = useState(
     question.myAnswer?.plainText ?? "",
   );
@@ -703,6 +701,26 @@ function QuestionCard({
             Asked by {question.submittedByName}
           </p>
         )}
+        <div className="ce-card-tabs" role="tablist">
+          {(["personal", "others", "discussion"] as const).map((key) => (
+            <button
+              aria-selected={tab === key}
+              className="ce-card-tab"
+              key={key}
+              onClick={() => setTab(key)}
+              role="tab"
+              type="button"
+            >
+              {key === "personal"
+                ? "My Answer"
+                : key === "others"
+                  ? "Others' Answers"
+                  : "General Discussion"}
+            </button>
+          ))}
+        </div>
+
+        {tab === "personal" && (
         <section
           className="ce-answer-block ce-answer-mine"
           id={question.myAnswer ? `ce-answer-${question.myAnswer.id}` : undefined}
@@ -798,11 +816,17 @@ function QuestionCard({
             />
           )}
         </section>
+        )}
 
-        {question.groupAnswers.length > 0 && (
+        {tab === "others" && (
           <section className="ce-answer-block">
             <p className="ce-eyebrow">Other perspectives</p>
             <h4>Answers from the group</h4>
+            {question.groupAnswers.length === 0 && (
+              <p className="ce-answer-empty">
+                No answers from the group yet.
+              </p>
+            )}
             {question.groupAnswers.map((answer) => (
               <article
                 className="ce-group-answer"
@@ -828,6 +852,13 @@ function QuestionCard({
               </article>
             ))}
           </section>
+        )}
+
+        {tab === "discussion" && (
+          <CommentThread
+            comments={question.questionComments}
+            questionId={question.id}
+          />
         )}
 
         <section className="ce-likelihood">
@@ -900,10 +931,6 @@ function QuestionCard({
             )}
           </div>
         </section>
-        <CommentThread
-          comments={question.questionComments}
-          questionId={question.id}
-        />
         {error && <p className="ce-question-error">{error}</p>}
       </div>
     </details>

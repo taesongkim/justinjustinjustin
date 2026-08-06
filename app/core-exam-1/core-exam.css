@@ -1897,6 +1897,23 @@ textarea {
 }
 
 @media (min-width: 1025px) {
+  /* Screen-center the scoreboard reliably: equal 1fr side columns hold the
+     brand (left) and actions (right), so the auto middle column is centered
+     regardless of their widths. */
+  .ce-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+  }
+
+  .ce-header .ce-brand {
+    justify-self: start;
+  }
+
+  .ce-header-actions {
+    justify-self: end;
+  }
+
   .ce-question-toc {
     position: fixed;
     left: 240px; /* just right of the 232px sidebar — tune to taste */

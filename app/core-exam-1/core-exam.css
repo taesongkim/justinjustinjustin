@@ -2004,14 +2004,6 @@ textarea {
   .ce-workspace-collapsed .ce-discussion {
     width: 52px;
   }
-
-  /* Keep the TOC rail just left of the now-centered column. */
-  .ce-question-toc {
-    left: max(
-      240px,
-      calc(50% - (var(--ce-reading-measure) + 40px) / 2 - 52px)
-    );
-  }
 }
 
 .ce-question-body {
@@ -4592,6 +4584,13 @@ textarea {
   height: var(--cr-size, 5px);
 }
 
+/* Wrapper for the ring's level visuals — dims as a group when hidden while the
+   X (its sibling) stays full opacity. */
+.ce-conf-ring-visual {
+  position: absolute;
+  inset: 0;
+}
+
 .ce-conf-ring-core,
 .ce-conf-ring-fill,
 .ce-conf-ring-glow,
@@ -4651,18 +4650,22 @@ textarea {
   animation-delay: calc(var(--cs-rings-ms, 3750ms) / -2);
 }
 
-/* Hidden by that member — dim the ring and lay a small centered X over it, a
-   touch larger than the ring, same weight and color. Tunable via the sandbox. */
-.ce-conf-ring[data-hidden] {
+/* Hidden by that member — dim the ring visuals (everything under the X) and
+   lay a small centered X over it at full opacity, a touch larger than the
+   ring, same weight and color. */
+.ce-conf-ring[data-hidden] .ce-conf-ring-visual {
   opacity: var(--cr-hidden-op, 0.2);
 }
 
 .ce-conf-ring-x {
   position: absolute;
-  inset: 0;
-  margin: auto;
-  width: var(--cr-x-size, 8px);
-  height: var(--cr-x-size, 8px);
+  top: 50%;
+  left: 50%;
+  /* transform-center, not margin:auto — the X is larger than the ring, and
+     auto margins resolve asymmetrically for an oversized absolute element. */
+  transform: translate(-50%, -50%);
+  width: var(--cr-x-size, 5px);
+  height: var(--cr-x-size, 5px);
   overflow: visible;
 }
 

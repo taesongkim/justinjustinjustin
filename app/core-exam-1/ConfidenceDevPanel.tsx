@@ -37,7 +37,7 @@ const CONTROLS: Control[] = [
   { var: "--cs-land-ms", label: "Settle ripple time", min: 200, max: 1200, step: 20, unit: "ms", default: 320 },
   { var: "--cs-land-scale", label: "Settle ripple scale", min: 1.5, max: 6, step: 0.1, unit: "", default: 4 },
   { var: "--cr-hidden-op", label: "Hidden · ring opacity", min: 0.05, max: 1, step: 0.05, unit: "", default: 0.2 },
-  { var: "--cr-x-size", label: "Hidden · X size", min: 4, max: 16, step: 0.5, unit: "px", default: 8 },
+  { var: "--cr-x-size", label: "Hidden · X size", min: 4, max: 16, step: 0.5, unit: "px", default: 5 },
   { var: "--cr-x-weight", label: "Hidden · X weight", min: 0.5, max: 3, step: 0.25, unit: "px", default: 1 },
 ];
 

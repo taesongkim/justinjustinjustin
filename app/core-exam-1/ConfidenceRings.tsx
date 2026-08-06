@@ -38,10 +38,12 @@ export function ConfidenceRings({
                 : "not set"
           }`}
         >
-          <span className="ce-conf-ring-core" aria-hidden="true" />
-          <span className="ce-conf-ring-fill" aria-hidden="true" />
-          <span className="ce-conf-ring-glow" aria-hidden="true" />
-          <span className="ce-conf-ring-rings" aria-hidden="true" />
+          <span className="ce-conf-ring-visual" aria-hidden="true">
+            <span className="ce-conf-ring-core" />
+            <span className="ce-conf-ring-fill" />
+            <span className="ce-conf-ring-glow" />
+            <span className="ce-conf-ring-rings" />
+          </span>
           {member.hidden && (
             <svg
               aria-hidden="true"

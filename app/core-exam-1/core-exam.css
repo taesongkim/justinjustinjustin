@@ -1952,13 +1952,44 @@ textarea {
 .ce-question-body {
   display: grid;
   gap: 11px;
-  padding: 0 17px 17px 56px;
+  /* Full-width-left: content no longer indents under the question number. */
+  padding: 0 17px 17px;
 }
 
 .ce-question-origin {
   margin: -3px 0 2px;
   color: var(--ce-muted);
   font-size: 10px;
+}
+
+/* Tabs within a card: Personal / Other perspectives / Discussion — one panel
+   at a time to save vertical space. Exam relevance stays below, untabbed. */
+.ce-card-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--ce-line);
+}
+
+.ce-card-tab {
+  margin-bottom: -1px;
+  padding: 7px 11px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--ce-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ce-card-tab:hover {
+  color: var(--ce-ink);
+}
+
+.ce-card-tab[aria-selected="true"] {
+  border-bottom-color: var(--ce-accent);
+  color: var(--ce-ink);
 }
 
 .ce-question-hide {

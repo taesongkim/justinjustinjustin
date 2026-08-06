@@ -4876,67 +4876,22 @@ textarea {
   font-weight: 600;
 }
 
-/* Demo frame — sits under a step, offset to align with the sub-step text. */
+/* Demo — the real question card, offset to align with the sub-step text. */
 .ce-guide-demo {
   margin: 18px 0 0 42px;
 }
 
-.ce-guide-demo-card {
-  position: relative;
-  border: 1px solid var(--ce-line);
-  border-radius: 12px;
-  background: var(--ce-raised);
-  padding: 16px 18px;
+/* Hidden reads as "dropped out of the active set." */
+.ce-guide .ce-question-card[data-hidden="true"] {
+  opacity: 0.45;
 }
 
-.ce-guide-demo-card-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.ce-guide-demo-prompt {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.ce-guide-demo-card .ce-likelihood {
-  margin-top: 14px;
-}
-
-.ce-guide-demo-card .ce-card-tabs {
-  margin-top: 14px;
-}
-
+/* Answer content shown inside the card's tab panels. */
 .ce-guide-demo-panel {
   margin-top: 12px;
   color: var(--ce-muted);
   font-size: 13px;
   line-height: 1.5;
-}
-
-.ce-guide-demo-slider {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-}
-
-.ce-guide-demo-caption {
-  margin: 10px 0 0;
-  color: var(--ce-muted);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Guide demo — hidden state, answers, per-level scale, and level-bump visual. */
-.ce-guide-demo-card[data-hidden="true"] {
-  opacity: 0.45;
-}
-
-.ce-guide-demo-card .ce-question-hide {
-  margin-top: 12px;
 }
 
 .ce-guide-demo-answer {
@@ -4969,17 +4924,6 @@ textarea {
   font-style: italic;
 }
 
-.ce-guide-demo-sliderrow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.ce-guide-demo-sliderrow .ce-guide-demo-caption {
-  margin: 0;
-}
-
 /* Step 3 — one static slider per level. */
 .ce-guide-levels {
   margin: 18px 0 0 42px;
@@ -5007,6 +4951,7 @@ textarea {
 .ce-guide-bump {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 18px;
   padding: 18px;
   border: 1px solid var(--ce-line);

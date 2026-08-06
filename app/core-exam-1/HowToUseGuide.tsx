@@ -1,146 +1,221 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import {
+  ConfidenceRings,
+  type ConfidenceRingMember,
+} from "./ConfidenceRings";
 import { CONFIDENCE_LABELS, ConfidenceSlider } from "./ConfidenceSlider";
 
 // The first Reference: a bespoke, interactive walkthrough of the study flow.
-// The demo cards are illustrative only — local state, no persistence, no RPCs —
-// so they mirror the real controls' look and feel without touching group data.
+// The demo cards are the real question-card chrome driven by local state — no
+// persistence, no RPCs, no group data — so they look and behave like the real
+// thing without touching anything.
 
 type Likelihood = "likely" | "unsure" | "unlikely";
 
-// Step 1 demo — the exam-relevance control (notch reflects it) plus the Hide
-// control; hiding dims the card the way it drops out of the active set.
-function RelevanceDemo() {
-  const [likelihood, setLikelihood] = useState<Likelihood>("likely");
-  const [hidden, setHidden] = useState(false);
+// A believable stand-in group for the confidence rings in the card summary.
+const DEMO_RINGS: ConfidenceRingMember[] = [
+  { id: "mara", name: "Mara", color: "#c8694a", level: 4 },
+  { id: "devin", name: "Devin", color: "#4a6fc8", level: 2 },
+  { id: "sam", name: "Sam", color: "#5aa06b", level: null },
+];
+
+const DEMO_LIKELIHOOD_COUNTS: Record<Likelihood, number> = {
+  likely: 3,
+  unsure: 1,
+  unlikely: 1,
+};
+
+// The real question-card shell (summary with index, prompt, mastery slider, and
+// group rings; expandable body) with its own local slider state.
+function DemoCard({
+  index,
+  prompt,
+  notch,
+  defaultLevel = 3,
+  hidden,
+  children,
+}: {
+  index: string;
+  prompt: string;
+  notch: Likelihood;
+  defaultLevel?: number | null;
+  hidden?: boolean;
+  children: ReactNode;
+}) {
+  const [level, setLevel] = useState<number | null>(defaultLevel);
   return (
     <div className="ce-guide-demo">
-      <div className="ce-guide-demo-card" data-hidden={hidden || undefined}>
-        <span className="ce-question-notch" data-relevance={likelihood} />
-        <p className="ce-guide-demo-prompt">
-          What distinguishes the Leaving pattern from the Merging pattern?
-        </p>
-        <div className="ce-likelihood">
-          <div>
-            <p className="ce-eyebrow">Exam relevance</p>
-            <h4>How likely is this to be tested?</h4>
-          </div>
-          <div className="ce-likelihood-options">
-            {(["likely", "unsure", "unlikely"] as const).map((option) => (
-              <button
-                aria-pressed={likelihood === option}
-                data-likelihood={option}
-                key={option}
-                onClick={() => setLikelihood(option)}
-                type="button"
-              >
-                <span>{option}</span>
-              </button>
-            ))}
-          </div>
-          <div className="ce-question-hide">
-            <button onClick={() => setHidden((value) => !value)} type="button">
-              {hidden
-                ? "Show this question again"
-                : "Hide this question (personally)"}
-            </button>
-          </div>
-        </div>
-      </div>
+      <details
+        className="ce-question-card"
+        data-hidden={hidden || undefined}
+        open
+      >
+        <summary>
+          <span className="ce-question-notch" data-relevance={notch} />
+          <span className="ce-question-index">{index}</span>
+          <span className="ce-question-prompt">{prompt}</span>
+          <span className="ce-question-summary-meta">
+            <span
+              className="ce-question-confidence"
+              onClick={(event) => event.stopPropagation()}
+              onPointerDown={(event) => event.stopPropagation()}
+            >
+              <ConfidenceSlider
+                onChange={(next) => setLevel(next)}
+                value={level}
+              />
+            </span>
+            <ConfidenceRings members={DEMO_RINGS} />
+          </span>
+        </summary>
+        <div className="ce-question-body">{children}</div>
+      </details>
     </div>
   );
 }
 
-// Step 2 demo — the three per-question tabs, with sample answer content
-// (deliberately no comment threads).
-function TabsDemo() {
+// The three answer tabs, with sample content (deliberately no comment threads).
+function DemoTabs({
+  myAnswer,
+  others,
+}: {
+  myAnswer: string;
+  others: { name: string; text: string }[];
+}) {
   const [tab, setTab] = useState<"personal" | "others" | "discussion">(
     "personal",
   );
   return (
-    <div className="ce-guide-demo">
-      <div className="ce-guide-demo-card">
-        <p className="ce-guide-demo-prompt">
-          Define the Real Self in your own words.
-        </p>
-        <div className="ce-card-tabs" role="tablist">
-          {(["personal", "others", "discussion"] as const).map((key) => (
-            <button
-              aria-selected={tab === key}
-              className="ce-card-tab"
-              key={key}
-              onClick={() => setTab(key)}
-              role="tab"
-              type="button"
-            >
-              {key === "personal"
-                ? "My Answer"
-                : key === "others"
-                  ? "Others' Answers"
-                  : "General Discussion"}
-            </button>
-          ))}
-        </div>
-        <div className="ce-guide-demo-panel">
-          {tab === "personal" && (
-            <p className="ce-guide-demo-answer">
-              The felt core of who you are beneath the mask &mdash; spontaneous,
-              needing, and able to make real contact. It&rsquo;s what the
-              defenses cover over.
-            </p>
-          )}
-          {tab === "others" && (
-            <div className="ce-guide-demo-answers">
-              <div className="ce-guide-demo-answer">
-                <span className="ce-guide-demo-author">Mara</span>
-                The authentic self that persists under the idealized image
-                &mdash; the part that can want, and can be hurt.
-              </div>
-              <div className="ce-guide-demo-answer">
-                <span className="ce-guide-demo-author">Devin</span>
-                Who you are when you stop performing: direct feeling and real
-                need, not the polished front.
-              </div>
-            </div>
-          )}
-          {tab === "discussion" && (
-            <p className="ce-guide-demo-muted">
-              Thread for arguing edge cases and settling on wording together.
-            </p>
-          )}
-        </div>
+    <>
+      <div className="ce-card-tabs" role="tablist">
+        {(["personal", "others", "discussion"] as const).map((key) => (
+          <button
+            aria-selected={tab === key}
+            className="ce-card-tab"
+            key={key}
+            onClick={() => setTab(key)}
+            role="tab"
+            type="button"
+          >
+            {key === "personal"
+              ? "My Answer"
+              : key === "others"
+                ? "Others' Answers"
+                : "General Discussion"}
+          </button>
+        ))}
       </div>
-    </div>
+      <div className="ce-guide-demo-panel">
+        {tab === "personal" && (
+          <p className="ce-guide-demo-answer">{myAnswer}</p>
+        )}
+        {tab === "others" &&
+          (others.length > 0 ? (
+            <div className="ce-guide-demo-answers">
+              {others.map((entry) => (
+                <div className="ce-guide-demo-answer" key={entry.name}>
+                  <span className="ce-guide-demo-author">{entry.name}</span>
+                  {entry.text}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="ce-guide-demo-muted">No one else has answered yet.</p>
+          ))}
+        {tab === "discussion" && (
+          <p className="ce-guide-demo-muted">
+            Thread for arguing edge cases and settling on wording together.
+          </p>
+        )}
+      </div>
+    </>
   );
 }
 
-// Step 3 demo — a well-answered question with its 1–5 mastery slider.
-function SliderDemo() {
-  const [level, setLevel] = useState<number | null>(3);
+// Step 1 — exam-relevance buttons (drive the notch) plus the Hide control.
+function Step1Card() {
+  const [likelihood, setLikelihood] = useState<Likelihood>("likely");
+  const [hidden, setHidden] = useState(false);
   return (
-    <div className="ce-guide-demo">
-      <div className="ce-guide-demo-card">
-        <p className="ce-guide-demo-prompt">List the ego functions.</p>
-        <p className="ce-guide-demo-answer">
-          Perception, memory, judgment, impulse control, affect regulation,
-          object relations, defense, and synthesis.
-        </p>
-        <div className="ce-guide-demo-sliderrow">
-          <span className="ce-guide-demo-slider">
-            <ConfidenceSlider
-              ariaLabel="Demo mastery level"
-              onChange={(next) => setLevel(next)}
-              value={level}
-            />
-          </span>
-          <span className="ce-guide-demo-caption">
-            {level ? `${level} · ${CONFIDENCE_LABELS[level - 1]}` : "Not set"}
-          </span>
+    <DemoCard
+      hidden={hidden}
+      index="01"
+      notch={likelihood}
+      prompt="What distinguishes the Leaving pattern from the Merging pattern?"
+    >
+      <section className="ce-likelihood">
+        <div>
+          <p className="ce-eyebrow">Exam relevance</p>
+          <h4>How likely is this to be tested?</h4>
         </div>
-      </div>
-    </div>
+        <div className="ce-likelihood-options">
+          {(["likely", "unsure", "unlikely"] as const).map((option) => (
+            <button
+              aria-pressed={likelihood === option}
+              data-likelihood={option}
+              key={option}
+              onClick={() => setLikelihood(option)}
+              type="button"
+            >
+              <span>{option}</span>
+              <small>{DEMO_LIKELIHOOD_COUNTS[option]}</small>
+            </button>
+          ))}
+        </div>
+        <div className="ce-question-hide">
+          <button onClick={() => setHidden((value) => !value)} type="button">
+            {hidden
+              ? "Show this question again"
+              : "Hide this question (personally)"}
+          </button>
+        </div>
+      </section>
+    </DemoCard>
+  );
+}
+
+// Step 2 — the answer tabs, populated.
+function Step2Card() {
+  return (
+    <DemoCard
+      index="02"
+      notch="likely"
+      prompt="Define the Real Self in your own words."
+    >
+      <DemoTabs
+        myAnswer="The felt core of who you are beneath the mask — spontaneous, needing, and able to make real contact. It's what the defenses cover over."
+        others={[
+          {
+            name: "Mara",
+            text: "The authentic self that persists under the idealized image — the part that can want, and can be hurt.",
+          },
+          {
+            name: "Devin",
+            text: "Who you are when you stop performing: direct feeling and real need, not the polished front.",
+          },
+        ]}
+      />
+    </DemoCard>
+  );
+}
+
+// Step 3 — a well-answered card; the mastery slider sits in the summary.
+function Step3Card() {
+  return (
+    <DemoCard
+      defaultLevel={3}
+      index="03"
+      notch="likely"
+      prompt="List the ego functions."
+    >
+      <DemoTabs
+        myAnswer="Perception, memory, judgment, impulse control, affect regulation, object relations, defense, and synthesis."
+        others={[]}
+      />
+    </DemoCard>
   );
 }
 
@@ -263,7 +338,7 @@ export function HowToUseGuide() {
               the group&rsquo;s set.
             </li>
           </ul>
-          <RelevanceDemo />
+          <Step1Card />
         </li>
 
         <li className="ce-guide-step">
@@ -286,7 +361,7 @@ export function HowToUseGuide() {
               Answers</strong> when someone&rsquo;s put it better.
             </li>
           </ul>
-          <TabsDemo />
+          <Step2Card />
         </li>
 
         <li className="ce-guide-step">
@@ -303,7 +378,7 @@ export function HowToUseGuide() {
             </div>
           </div>
           <LevelScale />
-          <SliderDemo />
+          <Step3Card />
         </li>
 
         <li className="ce-guide-step">

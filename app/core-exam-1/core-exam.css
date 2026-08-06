@@ -4497,6 +4497,7 @@ textarea {
 }
 
 .ce-conf-ring-core,
+.ce-conf-ring-fill,
 .ce-conf-ring-glow,
 .ce-conf-ring-rings {
   position: absolute;
@@ -4504,20 +4505,27 @@ textarea {
   border-radius: 50%;
 }
 
-/* Level 1 / unset — empty outline (no faint fill, unlike the personal handle) */
+/* The outline ring — always visible (all levels), never animated. */
 .ce-conf-ring-core {
   border: var(--cr-bw, 1px) solid var(--ring, var(--ce-line-strong));
   background: transparent;
 }
 
-.ce-conf-ring[data-level="2"] .ce-conf-ring-core,
-.ce-conf-ring[data-level="3"] .ce-conf-ring-core,
-.ce-conf-ring[data-level="4"] .ce-conf-ring-core,
-.ce-conf-ring[data-level="5"] .ce-conf-ring-core {
+/* The solid fill sits over the outline: absent at L1, pulsing over the ring at
+   L2 (so the ring stays visible, like the slider), solid at L3+. */
+.ce-conf-ring-fill {
   background: var(--ring, var(--ce-accent));
+  opacity: 0;
 }
 
-.ce-conf-ring[data-level="2"] .ce-conf-ring-core {
+.ce-conf-ring[data-level="3"] .ce-conf-ring-fill,
+.ce-conf-ring[data-level="4"] .ce-conf-ring-fill,
+.ce-conf-ring[data-level="5"] .ce-conf-ring-fill {
+  opacity: 1;
+}
+
+.ce-conf-ring[data-level="2"] .ce-conf-ring-fill {
+  opacity: 1;
   animation: cs-pulse var(--cs-pulse-ms, 850ms) ease-in-out infinite;
 }
 
@@ -4545,6 +4553,28 @@ textarea {
 
 .ce-conf-ring[data-level="5"] .ce-conf-ring-rings::after {
   animation-delay: calc(var(--cs-rings-ms, 3750ms) / -2);
+}
+
+/* Hidden by that member — dim the ring and lay a small centered X over it, a
+   touch larger than the ring, same weight and color. Tunable via the sandbox. */
+.ce-conf-ring[data-hidden] {
+  opacity: var(--cr-hidden-op, 0.2);
+}
+
+.ce-conf-ring-x {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--cr-x-size, 8px);
+  height: var(--cr-x-size, 8px);
+  overflow: visible;
+}
+
+.ce-conf-ring-x line {
+  stroke: var(--ring, var(--ce-accent));
+  stroke-width: var(--cr-x-weight, 1);
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
 }
 
 @media (prefers-reduced-motion: reduce) {

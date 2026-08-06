@@ -1200,7 +1200,30 @@ export function CoreExamFrame({
   const [mobileMode, setMobileMode] = useState<"content" | "discussion">(
     "content",
   );
-  const [discussionCollapsed, setDiscussionCollapsed] = useState(false);
+  // Discussion panel defaults collapsed for everyone; an explicit choice either
+  // way persists (localStorage), same one-time-default pattern as dark mode and
+  // sort-by-relevance.
+  const [discussionCollapsed, setDiscussionCollapsed] = useState(true);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("ce-discussion-collapsed");
+      if (stored === "open") setDiscussionCollapsed(false);
+      else if (stored === "collapsed") setDiscussionCollapsed(true);
+    } catch {
+      // ignore storage failures (private mode etc.)
+    }
+  }, []);
+  const setDiscussionPreference = (collapsed: boolean) => {
+    setDiscussionCollapsed(collapsed);
+    try {
+      localStorage.setItem(
+        "ce-discussion-collapsed",
+        collapsed ? "collapsed" : "open",
+      );
+    } catch {
+      // ignore storage failures
+    }
+  };
   // Sort-by-relevance defaults ON for everyone; an explicit choice either way
   // is remembered (localStorage). Start from the default so server and first
   // client render match, then apply any stored override on mount.
@@ -1371,6 +1394,9 @@ export function CoreExamFrame({
   // The How-to-Use reference renders a bespoke interactive page in place of the
   // usual heading + question workspace + markdown reader.
   const isGuide = selectedTopic.stableKey === HOW_TO_USE_KEY;
+  // Only topics carry a group discussion; references (incl. the guide) don't, so
+  // the panel — and the mobile Content/Discussion switcher — are dropped there.
+  const showDiscussion = selectedTopic.kind === "topic";
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;
@@ -1700,37 +1726,41 @@ export function CoreExamFrame({
         </aside>
 
         <section className="ce-main">
-          <div
-            className="ce-mobile-switcher"
-            role="tablist"
-            aria-label="Page view"
-          >
-            <button
-              aria-selected={mobileMode === "content"}
-              onClick={() => setMobileMode("content")}
-              role="tab"
-              type="button"
+          {showDiscussion && (
+            <div
+              className="ce-mobile-switcher"
+              role="tablist"
+              aria-label="Page view"
             >
-              Content
-            </button>
-            <button
-              aria-selected={mobileMode === "discussion"}
-              onClick={() => setMobileMode("discussion")}
-              role="tab"
-              type="button"
-            >
-              Discussion
-              {discussionEntries.length > 0 && (
-                <span>{discussionEntries.length}</span>
-              )}
-            </button>
-          </div>
+              <button
+                aria-selected={mobileMode === "content"}
+                onClick={() => setMobileMode("content")}
+                role="tab"
+                type="button"
+              >
+                Content
+              </button>
+              <button
+                aria-selected={mobileMode === "discussion"}
+                onClick={() => setMobileMode("discussion")}
+                role="tab"
+                type="button"
+              >
+                Discussion
+                {discussionEntries.length > 0 && (
+                  <span>{discussionEntries.length}</span>
+                )}
+              </button>
+            </div>
+          )}
 
           <div
             className={
-              discussionCollapsed
-                ? "ce-workspace ce-workspace-collapsed"
-                : "ce-workspace"
+              !showDiscussion
+                ? "ce-workspace ce-workspace-solo"
+                : discussionCollapsed
+                  ? "ce-workspace ce-workspace-collapsed"
+                  : "ce-workspace"
             }
           >
             <article
@@ -2032,44 +2062,46 @@ export function CoreExamFrame({
               </div>
             </article>
 
-            <aside
-              className={
-                mobileMode === "discussion"
-                  ? "ce-discussion ce-mobile-active"
-                  : "ce-discussion"
-              }
-              aria-label="Group discussion"
-            >
-              <div className="ce-discussion-header">
-                <div>
-                  <p className="ce-eyebrow">Page conversation</p>
-                  <h2>Group discussion</h2>
+            {showDiscussion && (
+              <aside
+                className={
+                  mobileMode === "discussion"
+                    ? "ce-discussion ce-mobile-active"
+                    : "ce-discussion"
+                }
+                aria-label="Group discussion"
+              >
+                <div className="ce-discussion-header">
+                  <div>
+                    <p className="ce-eyebrow">Page conversation</p>
+                    <h2>Group discussion</h2>
+                  </div>
+                  <button
+                    aria-label={
+                      discussionCollapsed
+                        ? "Expand discussion"
+                        : "Collapse discussion"
+                    }
+                    className="ce-collapse"
+                    onClick={() =>
+                      setDiscussionPreference(!discussionCollapsed)
+                    }
+                    type="button"
+                  >
+                    {discussionCollapsed ? "←" : "→"}
+                  </button>
                 </div>
-                <button
-                  aria-label={
-                    discussionCollapsed
-                      ? "Expand discussion"
-                      : "Collapse discussion"
-                  }
-                  className="ce-collapse"
-                  onClick={() =>
-                    setDiscussionCollapsed((collapsed) => !collapsed)
-                  }
-                  type="button"
-                >
-                  {discussionCollapsed ? "←" : "→"}
-                </button>
-              </div>
 
-              <div className="ce-discussion-content">
+                <div className="ce-discussion-content">
                   <div className="ce-thread">
                     <GroupDiscussionFeed
                       entries={discussionEntries}
                       onRevealTarget={revealTarget}
                     />
                   </div>
-              </div>
-            </aside>
+                </div>
+              </aside>
+            )}
           </div>
         </section>
       </div>

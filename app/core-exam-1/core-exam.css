@@ -1079,6 +1079,13 @@ textarea {
   grid-template-columns: minmax(0, 1fr) 52px;
 }
 
+/* Reference pages have no discussion panel — the reading column takes the full
+   width. (Only affects 1025–1399px: ≥1400 the reading centers in the body grid,
+   ≤1024 the workspace is display:block.) */
+.ce-workspace-solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .ce-reading {
   overflow: hidden;
 }
@@ -4844,7 +4851,6 @@ textarea {
 
 .ce-guide-lead {
   margin: 14px 0 0;
-  max-width: 60ch;
   color: var(--ce-muted);
   font-size: 15px;
   line-height: 1.6;

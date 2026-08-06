@@ -4929,3 +4929,106 @@ textarea {
   font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
+
+/* Guide demo — hidden state, answers, per-level scale, and level-bump visual. */
+.ce-guide-demo-card[data-hidden="true"] {
+  opacity: 0.45;
+}
+
+.ce-guide-demo-card .ce-question-hide {
+  margin-top: 12px;
+}
+
+.ce-guide-demo-answer {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ce-guide-demo-answers {
+  display: grid;
+  gap: 12px;
+}
+
+.ce-guide-demo-answers .ce-guide-demo-answer {
+  margin: 0;
+}
+
+.ce-guide-demo-author {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--ce-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ce-guide-demo-muted {
+  margin: 0;
+  color: var(--ce-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+
+.ce-guide-demo-sliderrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.ce-guide-demo-sliderrow .ce-guide-demo-caption {
+  margin: 0;
+}
+
+/* Step 3 — one static slider per level. */
+.ce-guide-levels {
+  margin: 18px 0 0 42px;
+  display: grid;
+  gap: 10px;
+}
+
+.ce-guide-level-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ce-guide-level-slider {
+  flex: none;
+  display: inline-flex;
+}
+
+.ce-guide-level-label {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Steps 4 & 5 — before → after slider bump. */
+.ce-guide-bump {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--ce-line);
+  border-radius: 12px;
+  background: var(--ce-raised);
+}
+
+.ce-guide-bump-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ce-guide-bump-label {
+  color: var(--ce-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ce-guide-bump-arrow {
+  display: inline-flex;
+  color: var(--ce-accent);
+}

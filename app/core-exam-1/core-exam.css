@@ -551,6 +551,8 @@ textarea {
 
 .ce-index-filters {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
   padding: 18px 0;
 }
@@ -570,6 +572,16 @@ textarea {
   border-color: var(--ce-highlight-border);
   background: var(--ce-highlight);
   color: var(--ce-ink-strong);
+}
+
+/* Inline "Mastery" label separating the status chips from the level chips. */
+.ce-index-filter-label {
+  margin: 0 2px 0 10px;
+  color: var(--ce-muted);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .ce-index-list {

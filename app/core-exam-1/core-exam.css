@@ -1899,18 +1899,22 @@ textarea {
 @media (min-width: 1025px) {
   /* Screen-center the scoreboard reliably: equal 1fr side columns hold the
      brand (left) and actions (right), so the auto middle column is centered
-     regardless of their widths. */
-  .ce-header {
+     regardless of their widths. Scoped to the MAIN app header — the index and
+     source-library headers have a different child count and would wrap a 4th
+     item to a second row, so they keep the base flex layout. */
+  .ce-app:not(.ce-index-app):not(.ce-source-library-page) .ce-header {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     gap: 16px;
   }
 
-  .ce-header .ce-brand {
+  .ce-app:not(.ce-index-app):not(.ce-source-library-page)
+    .ce-header
+    .ce-brand {
     justify-self: start;
   }
 
-  .ce-header-actions {
+  .ce-app:not(.ce-index-app):not(.ce-source-library-page) .ce-header-actions {
     justify-self: end;
   }
 

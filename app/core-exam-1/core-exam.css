@@ -4886,12 +4886,20 @@ textarea {
   opacity: 0.45;
 }
 
-/* Answer content shown inside the card's tab panels. */
+/* Answer content shown inside the card's tab panels — tight to the tabs, and
+   using the real answer containers/fonts. */
 .ce-guide-demo-panel {
-  margin-top: 12px;
-  color: var(--ce-muted);
-  font-size: 13px;
-  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.ce-guide-demo-panel .ce-answer-block {
+  margin-top: 0;
+}
+
+.ce-guide-demo-panel .ce-group-answer:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
 }
 
 .ce-guide-demo-answer {

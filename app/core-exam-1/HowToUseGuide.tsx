@@ -7,6 +7,7 @@ import {
   type ConfidenceRingMember,
 } from "./ConfidenceRings";
 import { CONFIDENCE_LABELS, ConfidenceSlider } from "./ConfidenceSlider";
+import { hueNameStyle } from "./lib/hue";
 
 // The first Reference: a bespoke, interactive walkthrough of the study flow.
 // The demo cards are the real question-card chrome driven by local state — no
@@ -14,12 +15,17 @@ import { CONFIDENCE_LABELS, ConfidenceSlider } from "./ConfidenceSlider";
 // thing without touching anything.
 
 type Likelihood = "likely" | "unsure" | "unlikely";
+type DemoAnswer = { name: string; color: string; text: string };
 
-// A believable stand-in group for the confidence rings in the card summary.
-const DEMO_RINGS: ConfidenceRingMember[] = [
-  { id: "mara", name: "Mara", color: "#c8694a", level: 4 },
-  { id: "devin", name: "Devin", color: "#4a6fc8", level: 2 },
-  { id: "sam", name: "Sam", color: "#5aa06b", level: null },
+// The active group, mirrored for the demo. NOTE: colors here are placeholders —
+// prod avatar_colors live in the DB, not the local archive. Swap in the real
+// hexes once available.
+const DEMO_MEMBERS: ConfidenceRingMember[] = [
+  { id: "steph", name: "Steph", color: "#e6a9b8", level: 4 },
+  { id: "mel", name: "Mel", color: "#a9c8e6", level: 2, hidden: true },
+  { id: "george", name: "George", color: "#a9e6c2", level: 5 },
+  { id: "elena", name: "Elena", color: "#e6d3a9", level: null },
+  { id: "justin", name: "Justin", color: "#c9b0e6", level: 3 },
 ];
 
 const DEMO_LIKELIHOOD_COUNTS: Record<Likelihood, number> = {
@@ -68,7 +74,7 @@ function DemoCard({
                 value={level}
               />
             </span>
-            <ConfidenceRings members={DEMO_RINGS} />
+            <ConfidenceRings members={DEMO_MEMBERS} />
           </span>
         </summary>
         <div className="ce-question-body">{children}</div>
@@ -77,13 +83,14 @@ function DemoCard({
   );
 }
 
-// The three answer tabs, with sample content (deliberately no comment threads).
+// The three answer tabs, rendered with the real answer containers and fonts
+// (deliberately no comment threads).
 function DemoTabs({
   myAnswer,
   others,
 }: {
   myAnswer: string;
-  others: { name: string; text: string }[];
+  others: DemoAnswer[];
 }) {
   const [tab, setTab] = useState<"personal" | "others" | "discussion">(
     "personal",
@@ -110,18 +117,28 @@ function DemoTabs({
       </div>
       <div className="ce-guide-demo-panel">
         {tab === "personal" && (
-          <p className="ce-guide-demo-answer">{myAnswer}</p>
+          <section className="ce-answer-block ce-answer-mine">
+            <div className="ce-answer-markdown">
+              <p>{myAnswer}</p>
+            </div>
+          </section>
         )}
         {tab === "others" &&
           (others.length > 0 ? (
-            <div className="ce-guide-demo-answers">
+            <section className="ce-answer-block">
               {others.map((entry) => (
-                <div className="ce-guide-demo-answer" key={entry.name}>
-                  <span className="ce-guide-demo-author">{entry.name}</span>
-                  {entry.text}
-                </div>
+                <article className="ce-group-answer" key={entry.name}>
+                  <div className="ce-group-answer-meta">
+                    <strong style={hueNameStyle(entry.color)}>
+                      {entry.name}
+                    </strong>
+                  </div>
+                  <div className="ce-answer-markdown">
+                    <p>{entry.text}</p>
+                  </div>
+                </article>
               ))}
-            </div>
+            </section>
           ) : (
             <p className="ce-guide-demo-muted">No one else has answered yet.</p>
           ))}
@@ -189,11 +206,13 @@ function Step2Card() {
         myAnswer="The felt core of who you are beneath the mask — spontaneous, needing, and able to make real contact. It's what the defenses cover over."
         others={[
           {
-            name: "Mara",
+            name: "Steph",
+            color: "#e6a9b8",
             text: "The authentic self that persists under the idealized image — the part that can want, and can be hurt.",
           },
           {
-            name: "Devin",
+            name: "George",
+            color: "#a9e6c2",
             text: "Who you are when you stop performing: direct feeling and real need, not the polished front.",
           },
         ]}
@@ -213,7 +232,13 @@ function Step3Card() {
     >
       <DemoTabs
         myAnswer="Perception, memory, judgment, impulse control, affect regulation, object relations, defense, and synthesis."
-        others={[]}
+        others={[
+          {
+            name: "Elena",
+            color: "#e6d3a9",
+            text: "Reality testing, regulation of drives, object relations, thought processes, defense, and synthetic integration.",
+          },
+        ]}
       />
     </DemoCard>
   );
@@ -306,10 +331,11 @@ export function HowToUseGuide() {
         <p className="ce-eyebrow">Reference</p>
         <h2>How to Use This Guide</h2>
         <p className="ce-guide-lead">
-          This is a shared, active-recall study space. The point isn&rsquo;t to
-          read it &mdash; it&rsquo;s to build a set of questions you can answer
-          cold, then rehearse them until they&rsquo;re smooth. Here&rsquo;s the
-          flow we recommend.
+          This tool is meant primarily for us as a group to identify good
+          questions and answers. The memorization part is more up to your own
+          methods. I wrote this guide to help you navigate the first part and to
+          be able to take advantage of all the little details I added to make
+          this process easier.
         </p>
       </header>
 
@@ -320,8 +346,11 @@ export function HowToUseGuide() {
             <div>
               <h3>Collect your questions</h3>
               <p>
-                First, shape the question set to your exam. Every question
-                carries an exam-relevance mark &mdash; use it to focus.
+                There are pre-loaded questions here, as well as the option to
+                contribute your own. My first recommended step is to scan
+                through the topics and pick, remove, and add your own questions,
+                until you&rsquo;re satisfied you&rsquo;ve covered what you think
+                is important.
               </p>
             </div>
           </div>
@@ -348,7 +377,11 @@ export function HowToUseGuide() {
               <h3>Collect the best answers</h3>
               <p>
                 Each question has three tabs &mdash; your answer, everyone
-                else&rsquo;s, and open discussion.
+                else&rsquo;s, and general discussion about the question. If you
+                love another person&rsquo;s answer, don&rsquo;t be too prideful
+                to copy it. Getting it in your own words comes after getting it.
+                You can always revise and comment on your answer, as well as
+                others&rsquo;.
               </p>
             </div>
           </div>
@@ -368,12 +401,14 @@ export function HowToUseGuide() {
           <div className="ce-guide-step-head">
             <span className="ce-guide-step-num">3</span>
             <div>
-              <h3>Mark your mastery</h3>
+              <h3>Log your mastery of each question</h3>
               <p>
-                Every card has a 1&ndash;5 mastery slider. Set it honestly as
-                you study &mdash; it drives the steps below and feeds the group
-                scoreboard. Try to get every question to level 3 as soon as you
-                can.
+                Every question has a 1&ndash;5 mastery slider that you can slide
+                manually. The levels are explained below. The pre-requisite to
+                start memorizing is first to try to get every question to level
+                3 as soon as you can. On the right side of the sliders,
+                you&rsquo;ll see your classmates&rsquo; progress. If their ring
+                is x-ed out, it means they decided to hide/ignore that question.
               </p>
             </div>
           </div>
@@ -386,7 +421,11 @@ export function HowToUseGuide() {
             <span className="ce-guide-step-num">4</span>
             <div>
               <h3>Begin memorizing</h3>
-              <p>Now drill your Likely set.</p>
+              <p>
+                Now that you have all your questions and answers, you can begin
+                drilling yourself. Use the All Questions page and its filters to
+                quickly run yourself through a list of all the questions.
+              </p>
             </div>
           </div>
           <ul className="ce-guide-substeps">
@@ -406,10 +445,12 @@ export function HowToUseGuide() {
           <div className="ce-guide-step-head">
             <span className="ce-guide-step-num">5</span>
             <div>
-              <h3>Begin discussing with others</h3>
+              <h3>Get to discussion mastery</h3>
               <p>
-                Memorized is solid on your own. Able to teach is smooth out
-                loud.
+                As you get comfortable with your memorization, you&rsquo;ll want
+                to practice actually talking it out loud. Once you feel like
+                you&rsquo;ve mastered your communication of a question-answer,
+                slide your mastery level to 5.
               </p>
             </div>
           </div>

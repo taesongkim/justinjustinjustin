@@ -3,7 +3,7 @@
 import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
@@ -1201,7 +1201,27 @@ export function CoreExamFrame({
     "content",
   );
   const [discussionCollapsed, setDiscussionCollapsed] = useState(false);
-  const [sortByRelevance, setSortByRelevance] = useState(false);
+  // Sort-by-relevance defaults ON for everyone; an explicit choice either way
+  // is remembered (localStorage). Start from the default so server and first
+  // client render match, then apply any stored override on mount.
+  const [sortByRelevance, setSortByRelevance] = useState(true);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("ce-sort-relevance");
+      if (stored === "off") setSortByRelevance(false);
+      else if (stored === "on") setSortByRelevance(true);
+    } catch {
+      // ignore storage failures (private mode etc.)
+    }
+  }, []);
+  const setSortPreference = (next: boolean) => {
+    setSortByRelevance(next);
+    try {
+      localStorage.setItem("ce-sort-relevance", next ? "on" : "off");
+    } catch {
+      // ignore storage failures
+    }
+  };
   // Cards animate to their new spot when the sort toggle flips or a card's
   // exam-relevance changes (which moves it between sections). Uses shared-layout
   // (layoutId) so a card tracked across the flat↔grouped structure change — and
@@ -1331,8 +1351,23 @@ export function CoreExamFrame({
     (question) => !question.isHiddenForMe,
   );
   const countedTotal = countedQuestions.length;
-  // Non-hidden questions in order — the sticky TOC's jump targets.
-  const tocQuestionIds = countedQuestions.map((question) => question.id);
+  // The sticky TOC's jump targets, in the same top-to-bottom order the cards
+  // actually render — so the lit window stays contiguous. When "Sort by exam
+  // relevance" is on, that's the grouped order (likely → unsure → unlikely),
+  // not the original question order. Memoized so the TOC doesn't re-subscribe
+  // its scroll/resize listeners on every render.
+  const tocQuestionIds = useMemo(() => {
+    const visible = questions.filter((question) => !question.isHiddenForMe);
+    const ordered = sortByRelevance
+      ? RELEVANCE_SECTIONS.flatMap((section) =>
+          visible.filter(
+            (question) =>
+              (question.myLikelihood ?? "unsure") === section.key,
+          ),
+        )
+      : visible;
+    return ordered.map((question) => question.id);
+  }, [questions, sortByRelevance]);
   // The How-to-Use reference renders a bespoke interactive page in place of the
   // usual heading + question workspace + markdown reader.
   const isGuide = selectedTopic.stableKey === HOW_TO_USE_KEY;
@@ -1761,14 +1796,15 @@ export function CoreExamFrame({
                     questions.length > 0 &&
                     viewer && (
                       <label className="ce-relevance-toggle">
+                        <span>Sort by Exam Relevance</span>
                         <input
                           checked={sortByRelevance}
                           onChange={(event) =>
-                            setSortByRelevance(event.target.checked)
+                            setSortPreference(event.target.checked)
                           }
                           type="checkbox"
                         />
-                        <span>Sort by exam relevance</span>
+                        <span className="ce-switch" aria-hidden="true" />
                       </label>
                     )}
                 </div>

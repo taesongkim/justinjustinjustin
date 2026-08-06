@@ -4718,18 +4718,73 @@ textarea {
    Sort by exam relevance — group cards into likelihood sections.
    ============================================================ */
 .ce-relevance-toggle {
-  display: inline-flex;
+  display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 8px;
+  position: relative;
   margin-top: 14px;
+  /* Tuck the toggle down toward the divider under it (heading padding-bottom
+     is 24px; this pulls it ~half that). */
+  margin-bottom: -12px;
   color: var(--ce-muted);
   cursor: pointer;
   font-size: 11px;
 }
 
+/* Real checkbox stays for accessibility + state; visually hidden behind the
+   pill, which mirrors :checked. */
 .ce-relevance-toggle input {
-  accent-color: var(--ce-accent);
-  cursor: pointer;
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Pill switch: a track with a sliding knob. */
+.ce-switch {
+  position: relative;
+  flex: none;
+  inline-size: 26px;
+  block-size: 15px;
+  border-radius: 999px;
+  background: var(--ce-line-strong);
+  transition: background 0.15s ease;
+}
+
+.ce-switch::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ce-relevance-toggle input:checked + .ce-switch {
+  background: var(--ce-accent);
+}
+
+.ce-relevance-toggle input:checked + .ce-switch::before {
+  transform: translateX(11px);
+}
+
+.ce-relevance-toggle input:focus-visible + .ce-switch {
+  outline: 2px solid var(--ce-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-switch,
+  .ce-switch::before {
+    transition: none;
+  }
 }
 
 /* Between groups: a centered dash with equal spacing above and below. */

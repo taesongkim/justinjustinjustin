@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-// Tiny light/dark switcher for the header. Default is light; the choice is
+// Tiny light/dark switcher for the header. Default is dark; the choice is
 // persisted to localStorage and applied to <html data-theme> (a no-flash inline
 // script in layout.tsx sets it before paint on subsequent loads).
 export function ThemeToggle() {

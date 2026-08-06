@@ -13,12 +13,13 @@ export default function CoreExamLayout({
 }>) {
   return (
     <>
-      {/* Apply the saved theme before the Core Exam content paints, so a dark
-          preference doesn't flash light on load. Default (no key) stays light. */}
+      {/* Apply the theme before the Core Exam content paints, so it never
+          flashes the wrong mode on load. Dark is the default — it applies
+          unless the user has explicitly chosen light (stored 'ce-theme'). */}
       <script
         dangerouslySetInnerHTML={{
           __html:
-            "try{if(localStorage.getItem('ce-theme')==='dark')document.documentElement.setAttribute('data-theme','dark');}catch(e){}",
+            "try{if(localStorage.getItem('ce-theme')!=='light')document.documentElement.setAttribute('data-theme','dark');}catch(e){}",
         }}
       />
       {children}

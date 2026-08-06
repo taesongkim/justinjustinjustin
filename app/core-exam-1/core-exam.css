@@ -1751,7 +1751,9 @@ textarea {
 }
 
 .ce-question-card {
-  overflow: hidden;
+  position: relative;
+  /* No overflow:hidden — the relevance notch overlaps the left border. The
+     collapse animation clips via ::details-content instead. */
   border: 1px solid var(--ce-line);
   border-radius: var(--ce-radius-container, 8px);
   background: rgba(var(--ce-glass-rgb), 0.72);
@@ -4701,5 +4703,63 @@ textarea {
   }
   .ce-conf-ring[data-level="4"] .ce-conf-ring-glow {
     opacity: 0.55;
+  }
+}
+
+/* ============================================================
+   Sort by exam relevance — group cards into likelihood sections.
+   ============================================================ */
+.ce-relevance-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--ce-muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.ce-relevance-toggle input {
+  accent-color: var(--ce-accent);
+  cursor: pointer;
+}
+
+/* Between groups: a centered dash with equal spacing above and below. */
+.ce-relevance-group + .ce-relevance-group::before {
+  content: "—";
+  display: block;
+  margin: 22px 0;
+  color: var(--ce-faint);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Per-card exam-relevance notch: a short colored bar on the card's left edge,
+   aligned with the number; the tooltip names the category. */
+.ce-question-notch {
+  position: absolute;
+  top: 20px;
+  left: -1px;
+  z-index: 1;
+  width: 1px;
+  height: 14px;
+  background: var(--ce-line-strong);
+}
+
+.ce-question-notch[data-relevance="likely"] {
+  background: var(--ce-accent);
+}
+.ce-question-notch[data-relevance="unsure"] {
+  background: var(--ce-muted);
+}
+.ce-question-notch[data-relevance="unlikely"] {
+  background: var(--ce-danger-ink);
+}
+
+/* No dash on mobile — spacing only. */
+@media (max-width: 720px) {
+  .ce-relevance-group + .ce-relevance-group::before {
+    content: "";
+    margin: 14px 0;
   }
 }

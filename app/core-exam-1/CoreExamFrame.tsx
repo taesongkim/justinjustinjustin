@@ -138,6 +138,15 @@ function MarkerGlyph({ type }: { type: string }) {
 // Flip to false to turn the centered nav loader back off.
 const TOPIC_NAV_LOADER_ENABLED = true;
 
+// "Sort by exam relevance" groups non-hidden cards by the viewer's own
+// likelihood mark, in this order. Unrated (no mark yet) trails the rest.
+const RELEVANCE_SECTIONS = [
+  { key: "likely", label: "Likely" },
+  { key: "unsure", label: "Unsure" },
+  { key: "unlikely", label: "Unlikely" },
+  { key: "unrated", label: "Unrated" },
+] as const;
+
 const revealCoreExamTarget = (targetId: string) => {
   const anchor = document.getElementById(targetId);
   if (!anchor) return false;
@@ -1174,6 +1183,7 @@ export function CoreExamFrame({
     "content",
   );
   const [discussionCollapsed, setDiscussionCollapsed] = useState(false);
+  const [sortByRelevance, setSortByRelevance] = useState(false);
   const [openSource, setOpenSource] = useState<OpenSource | null>(null);
   const [enterQuestionId, setEnterQuestionId] = useState<string | null>(null);
   // Topic switches are same-segment (searchParam) navigations, which don't
@@ -1694,6 +1704,20 @@ export function CoreExamFrame({
                   <div className="ce-topic-title-row">
                     <h2>{selectedTopic.label}</h2>
                   </div>
+                  {selectedTopic.kind === "topic" &&
+                    questions.length > 0 &&
+                    viewer && (
+                      <label className="ce-relevance-toggle">
+                        <input
+                          checked={sortByRelevance}
+                          onChange={(event) =>
+                            setSortByRelevance(event.target.checked)
+                          }
+                          type="checkbox"
+                        />
+                        <span>Sort by exam relevance</span>
+                      </label>
+                    )}
                 </div>
 
                 {questions.length > 0 && viewer && (
@@ -1701,19 +1725,56 @@ export function CoreExamFrame({
                     aria-label="Study questions"
                     className="ce-question-workspace"
                   >
-                    <div className="ce-question-list">
-                      {questions
-                        .filter((question) => !question.isHiddenForMe)
-                        .map((question) => (
-                        <QuestionCard
-                          key={question.id}
-                          onOpenSource={openSourceViewer}
-                          question={question}
-                          roster={ringRoster}
-                          viewerId={viewer?.userId ?? null}
-                        />
-                        ))}
-                    </div>
+                    {sortByRelevance ? (
+                      RELEVANCE_SECTIONS.map((section) => {
+                        const sectionQuestions = questions.filter(
+                          (question) =>
+                            !question.isHiddenForMe &&
+                            (question.myLikelihood ?? "unrated") ===
+                              section.key,
+                        );
+                        if (sectionQuestions.length === 0) return null;
+                        return (
+                          <div
+                            className="ce-relevance-group"
+                            data-relevance={section.key}
+                            key={section.key}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="ce-relevance-label"
+                            >
+                              {section.label}
+                            </span>
+                            <div className="ce-question-list">
+                              {sectionQuestions.map((question) => (
+                                <QuestionCard
+                                  key={question.id}
+                                  onOpenSource={openSourceViewer}
+                                  question={question}
+                                  roster={ringRoster}
+                                  viewerId={viewer?.userId ?? null}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="ce-question-list">
+                        {questions
+                          .filter((question) => !question.isHiddenForMe)
+                          .map((question) => (
+                            <QuestionCard
+                              key={question.id}
+                              onOpenSource={openSourceViewer}
+                              question={question}
+                              roster={ringRoster}
+                              viewerId={viewer?.userId ?? null}
+                            />
+                          ))}
+                      </div>
+                    )}
                     {questions.some((question) => question.isHiddenForMe) && (
                       <details className="ce-hidden-questions">
                         <summary>

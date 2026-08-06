@@ -4703,3 +4703,121 @@ textarea {
     opacity: 0.55;
   }
 }
+
+/* ============================================================
+   Sort by exam relevance — group cards into likelihood sections.
+   ============================================================ */
+.ce-relevance-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--ce-muted);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.ce-relevance-toggle input {
+  accent-color: var(--ce-accent);
+  cursor: pointer;
+}
+
+.ce-relevance-group {
+  --sec-color: var(--ce-line-strong);
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
+}
+
+.ce-relevance-group[data-relevance="likely"] {
+  --sec-color: var(--ce-accent);
+}
+.ce-relevance-group[data-relevance="unsure"] {
+  --sec-color: var(--ce-muted);
+}
+.ce-relevance-group[data-relevance="unlikely"] {
+  --sec-color: var(--ce-danger-ink);
+}
+
+/* Colored vertical line down the rail (left, outside the cards). */
+.ce-relevance-group::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 10px;
+  width: 2px;
+  border-radius: 999px;
+  background: var(--sec-color);
+}
+
+/* Vertical section label sitting over the line (paper background breaks it). */
+.ce-relevance-label {
+  position: sticky;
+  top: calc(var(--ce-header-height) + 20px);
+  z-index: 1;
+  align-self: start;
+  justify-self: center;
+  padding: 6px 1px;
+  background: var(--ce-paper);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: var(--sec-color);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Larger spacing + a centered dash between groups. */
+.ce-relevance-group + .ce-relevance-group {
+  margin-top: 26px;
+}
+
+.ce-relevance-group + .ce-relevance-group::after {
+  content: "—";
+  position: absolute;
+  top: -18px;
+  left: 34px;
+  right: 0;
+  color: var(--ce-faint);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Mobile: label + colored line run horizontally above each section, no dash. */
+@media (max-width: 720px) {
+  .ce-relevance-group {
+    display: block;
+  }
+
+  .ce-relevance-group::before,
+  .ce-relevance-group + .ce-relevance-group::after {
+    display: none;
+  }
+
+  .ce-relevance-group + .ce-relevance-group {
+    margin-top: 22px;
+  }
+
+  .ce-relevance-label {
+    position: static;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 0;
+    background: none;
+    writing-mode: horizontal-tb;
+    transform: none;
+  }
+
+  .ce-relevance-label::after {
+    content: "";
+    flex: 1;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--sec-color);
+  }
+}

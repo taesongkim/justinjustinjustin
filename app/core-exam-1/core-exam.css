@@ -4826,3 +4826,217 @@ textarea {
     margin: 14px 0;
   }
 }
+
+/* ============================================================
+   How to Use This Guide — the first Reference (bespoke page).
+   ============================================================ */
+.ce-guide {
+  max-width: var(--ce-reading-measure, 680px);
+}
+
+.ce-guide-head h2 {
+  margin: 6px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.ce-guide-lead {
+  margin: 14px 0 0;
+  max-width: 60ch;
+  color: var(--ce-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.ce-guide-steps {
+  list-style: none;
+  margin: 34px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 34px;
+}
+
+.ce-guide-step {
+  padding-top: 30px;
+  border-top: 1px solid var(--ce-line);
+}
+
+.ce-guide-step:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.ce-guide-step-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.ce-guide-step-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ce-accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.ce-guide-step-head h3 {
+  margin: 2px 0 0;
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.ce-guide-step-head p {
+  margin: 6px 0 0;
+  color: var(--ce-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.ce-guide-substeps {
+  margin: 16px 0 0;
+  padding: 0 0 0 42px;
+  display: grid;
+  gap: 7px;
+  list-style: none;
+}
+
+.ce-guide-substeps li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.ce-guide-substeps li::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ce-line-strong);
+}
+
+.ce-guide-substeps strong {
+  font-weight: 600;
+}
+
+/* Demo — the real question card, offset to align with the sub-step text. */
+.ce-guide-demo {
+  margin: 18px 0 0 42px;
+}
+
+/* Hidden reads as "dropped out of the active set." */
+.ce-guide .ce-question-card[data-hidden="true"] {
+  opacity: 0.45;
+}
+
+/* Answer content shown inside the card's tab panels — tight to the tabs, and
+   using the real answer containers/fonts. */
+.ce-guide-demo-panel {
+  margin-top: 6px;
+}
+
+.ce-guide-demo-panel .ce-answer-block {
+  margin-top: 0;
+}
+
+.ce-guide-demo-panel .ce-group-answer:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+.ce-guide-demo-answer {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.ce-guide-demo-answers {
+  display: grid;
+  gap: 12px;
+}
+
+.ce-guide-demo-answers .ce-guide-demo-answer {
+  margin: 0;
+}
+
+.ce-guide-demo-author {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--ce-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ce-guide-demo-muted {
+  margin: 0;
+  color: var(--ce-muted);
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Step 3 — one static slider per level. */
+.ce-guide-levels {
+  margin: 18px 0 0 42px;
+  display: grid;
+  gap: 10px;
+}
+
+.ce-guide-level-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ce-guide-level-slider {
+  flex: none;
+  display: inline-flex;
+}
+
+.ce-guide-level-label {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Steps 4 & 5 — before → after slider bump. */
+.ce-guide-bump {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid var(--ce-line);
+  border-radius: 12px;
+  background: var(--ce-raised);
+}
+
+.ce-guide-bump-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.ce-guide-bump-label {
+  color: var(--ce-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ce-guide-bump-arrow {
+  display: inline-flex;
+  color: var(--ce-accent);
+}

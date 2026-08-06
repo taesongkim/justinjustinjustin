@@ -104,7 +104,15 @@ export const TOPICS: ReaderPageSummary[] = [
   },
 ];
 
+// Rendered as a bespoke interactive page (HowToUseGuide), not markdown content.
+export const HOW_TO_USE_KEY = "reference.how-to-use";
+
 export const REFERENCES: ReaderPageSummary[] = [
+  {
+    stableKey: HOW_TO_USE_KEY,
+    label: "How to Use This Guide",
+    kind: "reference",
+  },
   {
     stableKey: "reference.study-guide",
     label: "Study Guide",

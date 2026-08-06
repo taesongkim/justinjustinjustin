@@ -44,7 +44,13 @@ import { ConfidenceSlider } from "./ConfidenceSlider";
 import { ConfidenceRings } from "./ConfidenceRings";
 import { QuestionTOC } from "./QuestionTOC";
 import { SavingIndicator } from "./SavingIndicator";
-import { REFERENCES, TOPICS, type ReaderPageSummary } from "./topics";
+import {
+  HOW_TO_USE_KEY,
+  REFERENCES,
+  TOPICS,
+  type ReaderPageSummary,
+} from "./topics";
+import { HowToUseGuide } from "./HowToUseGuide";
 import { VerificationControl } from "./VerificationControl";
 
 type CoreExamFrameProps = {
@@ -1362,6 +1368,9 @@ export function CoreExamFrame({
       : visible;
     return ordered.map((question) => question.id);
   }, [questions, sortByRelevance]);
+  // The How-to-Use reference renders a bespoke interactive page in place of the
+  // usual heading + question workspace + markdown reader.
+  const isGuide = selectedTopic.stableKey === HOW_TO_USE_KEY;
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;
@@ -1618,6 +1627,23 @@ export function CoreExamFrame({
             Reference
           </p>
           <nav>
+            {REFERENCES.filter(
+              (reference) => reference.stableKey === HOW_TO_USE_KEY,
+            ).map((reference) => (
+              <Link
+                className={
+                  reference.stableKey === selectedTopic.stableKey
+                    ? "ce-topic-link ce-topic-link-active"
+                    : "ce-topic-link"
+                }
+                href={`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`}
+                key={reference.stableKey}
+                onNavigate={() => beginTopicNavigation(reference.stableKey)}
+              >
+                <span aria-hidden="true">•</span>
+                {reference.label}
+              </Link>
+            ))}
             <Link className="ce-topic-link" href="/core-exam-1/sources">
               <span aria-hidden="true">•</span>
               Source library
@@ -1643,14 +1669,16 @@ export function CoreExamFrame({
               className="ce-sidebar-archive"
               open={
                 selectedTopic.kind === "reference" &&
-                selectedTopic.stableKey !== "reference.kessler-chart"
+                selectedTopic.stableKey !== "reference.kessler-chart" &&
+                selectedTopic.stableKey !== HOW_TO_USE_KEY
               }
             >
               <summary>Archive</summary>
               <nav>
                 {REFERENCES.filter(
                   (reference) =>
-                    reference.stableKey !== "reference.kessler-chart",
+                    reference.stableKey !== "reference.kessler-chart" &&
+                    reference.stableKey !== HOW_TO_USE_KEY,
                 ).map((reference) => (
                   <Link
                     className={
@@ -1714,6 +1742,10 @@ export function CoreExamFrame({
               aria-label={`${selectedTopic.label} content`}
             >
               <div className="ce-reading-inner">
+                {isGuide ? (
+                  <HowToUseGuide />
+                ) : (
+                  <>
                 <div className="ce-topic-heading">
                   <div className="ce-topic-eyebrow-row">
                     <div className="ce-topic-eyebrow-group">
@@ -1993,6 +2025,8 @@ export function CoreExamFrame({
                     )}
                     </div>
                   </details>
+                )}
+                  </>
                 )}
 
               </div>

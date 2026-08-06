@@ -1729,6 +1729,7 @@ export function CoreExamFrame({
                     questions.length > 0 &&
                     viewer && (
                       <label className="ce-relevance-toggle">
+                        <span>Sort by Exam Relevance</span>
                         <input
                           checked={sortByRelevance}
                           onChange={(event) =>
@@ -1736,7 +1737,7 @@ export function CoreExamFrame({
                           }
                           type="checkbox"
                         />
-                        <span>Sort by exam relevance</span>
+                        <span className="ce-switch" aria-hidden="true" />
                       </label>
                     )}
                 </div>

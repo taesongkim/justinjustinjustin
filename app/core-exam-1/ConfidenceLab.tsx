@@ -68,6 +68,38 @@ export function ConfidenceLab() {
         </section>
 
         <section className="cs-lab-section">
+          <h2>Hidden — dimmed ring + X (tune X in the panel)</h2>
+          <div className="cs-lab-swatches">
+            {[1, 2, 3, 4, 5].map((level) => (
+              <div className="cs-lab-swatch" key={level}>
+                <ConfidenceRings
+                  members={[{ ...MEMBERS[level - 1], hidden: true }]}
+                />
+                <span>
+                  {level}. {CONFIDENCE_LABELS[level - 1]}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div className="cs-lab-swatches" style={{ marginTop: 18 }}>
+            <div className="cs-lab-swatch">
+              <ConfidenceRings
+                members={MEMBERS.map((m, i) => ({
+                  ...m,
+                  hidden: i % 2 === 0,
+                }))}
+              />
+              <span>Mixed row (some hidden)</span>
+            </div>
+          </div>
+          <p className="cs-lab-note">
+            Ring dims and a small centered X (same weight/color, a touch larger)
+            lays over it. Tune Hidden · ring opacity / X size / X weight in the
+            panel, then Copy CSS.
+          </p>
+        </section>
+
+        <section className="cs-lab-section">
           <h2>In a question card — your slider, then the group rings</h2>
           <div className="cs-lab-card">
             <span className="ce-question-index">03</span>

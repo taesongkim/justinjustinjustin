@@ -1966,6 +1966,54 @@ textarea {
   }
 }
 
+/* Equal-gutter centering of the reading column — wide screens only, where
+   there's room for both panels plus the ~620px column. display:contents
+   flattens main/workspace so the sidebar, reading column, and discussion
+   become cells of a centered body grid: the column stays dead-center on screen
+   while the panels pin to the outer gutters (independent of their widths). */
+@media (min-width: 1400px) {
+  .ce-body {
+    grid-template-columns:
+      1fr
+      min(100%, calc(var(--ce-reading-measure) + 40px))
+      1fr;
+  }
+
+  .ce-main,
+  .ce-workspace {
+    display: contents;
+  }
+
+  .ce-sidebar {
+    grid-column: 1;
+    justify-self: start;
+    width: 232px;
+  }
+
+  .ce-reading {
+    grid-column: 2;
+  }
+
+  .ce-discussion {
+    grid-column: 3;
+    justify-self: end;
+    width: var(--ce-discussion-width);
+    transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .ce-workspace-collapsed .ce-discussion {
+    width: 52px;
+  }
+
+  /* Keep the TOC rail just left of the now-centered column. */
+  .ce-question-toc {
+    left: max(
+      240px,
+      calc(50% - (var(--ce-reading-measure) + 40px) / 2 - 52px)
+    );
+  }
+}
+
 .ce-question-body {
   display: grid;
   gap: 11px;

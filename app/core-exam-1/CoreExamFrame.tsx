@@ -1948,12 +1948,30 @@ export function CoreExamFrame({
                 {reference.label}
               </Link>
             ))}
+            {REFERENCES.filter(
+              (reference) => reference.stableKey === LOWER_SELF_KEY,
+            ).map((reference) => (
+              <Link
+                className={
+                  reference.stableKey === activeTopicKey
+                    ? "ce-topic-link ce-topic-link-active"
+                    : "ce-topic-link"
+                }
+                href={`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`}
+                key={reference.stableKey}
+                onNavigate={() => beginTopicNavigation(reference.stableKey)}
+              >
+                <span aria-hidden="true">•</span>
+                {reference.label}
+              </Link>
+            ))}
             <details
               className="ce-sidebar-archive"
               open={
                 selectedTopic.kind === "reference" &&
                 selectedTopic.stableKey !== "reference.kessler-chart" &&
-                selectedTopic.stableKey !== HOW_TO_USE_KEY
+                selectedTopic.stableKey !== HOW_TO_USE_KEY &&
+                selectedTopic.stableKey !== LOWER_SELF_KEY
               }
             >
               <summary>Archive</summary>
@@ -1961,7 +1979,8 @@ export function CoreExamFrame({
                 {REFERENCES.filter(
                   (reference) =>
                     reference.stableKey !== "reference.kessler-chart" &&
-                    reference.stableKey !== HOW_TO_USE_KEY,
+                    reference.stableKey !== HOW_TO_USE_KEY &&
+                    reference.stableKey !== LOWER_SELF_KEY,
                 ).map((reference) => (
                   <Link
                     className={

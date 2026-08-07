@@ -107,6 +107,11 @@ export const TOPICS: ReaderPageSummary[] = [
 // Rendered as a bespoke interactive page (HowToUseGuide), not markdown content.
 export const HOW_TO_USE_KEY = "reference.how-to-use";
 
+// Also a bespoke interactive page (LowerSelfGuide) — see the note in
+// CoreExamFrame's reader body: new references render as reader content
+// (markdown, or a component keyed by stableKey), never a separate route.
+export const LOWER_SELF_KEY = "reference.lower-self";
+
 export const REFERENCES: ReaderPageSummary[] = [
   {
     stableKey: HOW_TO_USE_KEY,
@@ -136,6 +141,11 @@ export const REFERENCES: ReaderPageSummary[] = [
   {
     stableKey: "reference.kessler-chart",
     label: "Kessler Chart",
+    kind: "reference",
+  },
+  {
+    stableKey: LOWER_SELF_KEY,
+    label: "The Lower Self",
     kind: "reference",
   },
 ];

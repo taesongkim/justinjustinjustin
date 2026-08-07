@@ -5151,13 +5151,8 @@ textarea {
 }
 
 /* ============================================================
-   Lower Self reference guide (/core-exam-1/lower-self)
+   Lower Self reference guide (LowerSelfGuide, reference.lower-self)
    ============================================================ */
-.ce-ls-shell {
-  width: min(100% - 32px, 720px);
-  margin: 0 auto;
-  padding: clamp(28px, 5vw, 56px) 0 96px;
-}
 .ce-ls {
   --ls-serif: Georgia, "Times New Roman", serif;
   --ls-r: 3px;

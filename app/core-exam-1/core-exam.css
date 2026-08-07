@@ -1086,6 +1086,16 @@ textarea {
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* Cross-topic views (All Questions, Source Library) render in the reading pane
+   but want the full width — their own shells self-center. Drop the narrow
+   reading-measure cap; the embedded shells (.ce-index-shell / .ce-source-
+   library-shell) supply their own max-width and centering. */
+.ce-reading-inner-wide {
+  width: 100%;
+  max-width: none;
+  padding: 0;
+}
+
 .ce-reading {
   overflow: hidden;
 }
@@ -2025,6 +2035,12 @@ textarea {
 
   .ce-reading {
     grid-column: 2;
+  }
+
+  /* Cross-topic views need the width — span the whole body grid, not the
+     narrow centered reading column. */
+  .ce-reading[data-view] {
+    grid-column: 1 / -1;
   }
 
   .ce-discussion {

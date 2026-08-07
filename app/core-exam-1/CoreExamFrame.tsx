@@ -47,11 +47,13 @@ import { QuestionTOC } from "./QuestionTOC";
 import { SavingIndicator } from "./SavingIndicator";
 import {
   HOW_TO_USE_KEY,
+  LOWER_SELF_KEY,
   REFERENCES,
   TOPICS,
   type ReaderPageSummary,
 } from "./topics";
 import { HowToUseGuide } from "./HowToUseGuide";
+import { LowerSelfGuide } from "./LowerSelfGuide";
 import { QuestionIndexContent } from "./QuestionIndexContent";
 import { SourceLibraryContent } from "./SourceLibraryContent";
 import type { TopicQuestionGroup } from "./QuestionIndexView";
@@ -1505,6 +1507,7 @@ export function CoreExamFrame({
   // The How-to-Use reference renders a bespoke interactive page in place of the
   // usual heading + question workspace + markdown reader.
   const isGuide = selectedTopic.stableKey === HOW_TO_USE_KEY;
+  const isLowerSelf = selectedTopic.stableKey === LOWER_SELF_KEY;
   // Only topics carry a group discussion; references (incl. the guide) don't, so
   // the panel — and the mobile Content/Discussion switcher — are dropped there.
   const showDiscussion = !view && selectedTopic.kind === "topic";
@@ -1741,13 +1744,6 @@ export function CoreExamFrame({
               <span>REF</span>
               Source library
             </Link>
-            <Link
-              href="/core-exam-1/lower-self"
-              onNavigate={() => beginNavigation()}
-            >
-              <span>REF</span>
-              The Lower Self
-            </Link>
           </nav>
         </details>
 
@@ -1935,14 +1931,6 @@ export function CoreExamFrame({
               <span aria-hidden="true">•</span>
               Source library
             </Link>
-            <Link
-              className="ce-topic-link"
-              href="/core-exam-1/lower-self"
-              onNavigate={() => beginNavigation()}
-            >
-              <span aria-hidden="true">•</span>
-              The Lower Self
-            </Link>
             {REFERENCES.filter(
               (reference) => reference.stableKey === "reference.kessler-chart",
             ).map((reference) => (
@@ -2054,12 +2042,17 @@ export function CoreExamFrame({
                     : "ce-reading-inner"
                 }
               >
+                {/* Reference pages render here as reader content: markdown, or a
+                    bespoke component keyed by stableKey (isGuide, isLowerSelf).
+                    New references go here too — never as a separate route. */}
                 {view === "all-questions" ? (
                   <QuestionIndexContent groups={indexGroups ?? []} />
                 ) : view === "sources" ? (
                   <SourceLibraryContent sources={sourceLibrary ?? []} />
                 ) : isGuide ? (
                   <HowToUseGuide />
+                ) : isLowerSelf ? (
+                  <LowerSelfGuide />
                 ) : (
                   <>
                 <div className="ce-topic-heading">

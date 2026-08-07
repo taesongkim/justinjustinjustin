@@ -4238,7 +4238,10 @@ textarea {
   gap: 12px;
   min-width: 0;
   margin: 0 14px;
-  overflow: hidden;
+  /* clip (not hidden) + a clip margin so a chip's level-3 glow can bleed past
+     the edge instead of being cut off. */
+  overflow: clip;
+  overflow-clip-margin: 12px;
 }
 
 .ce-score-chip {
@@ -4246,14 +4249,13 @@ textarea {
   align-items: center;
   gap: 6px;
   min-width: 0;
-  border-radius: 8px;
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
 
 /* The level-3+ advance glow is a one-shot Web-Animations pulse fired from
-   Scoreboard.tsx (tinted to the member's hue); the border-radius above rounds
-   its inset halo. */
+   Scoreboard.tsx — an outer halo around the .ce-score-bar, tinted to the
+   member's hue. The scoreboard's overflow-clip-margin lets it bleed past. */
 
 .ce-score-name {
   max-width: 64px;

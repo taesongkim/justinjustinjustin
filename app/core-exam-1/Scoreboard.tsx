@@ -33,39 +33,35 @@ function ScoreChip({ member }: { member: ScoreboardMember }) {
   };
 
   // Glow for ~half a second whenever this member brings one more Likely question
-  // up to level 3+ (their bar just grew). Fire a one-shot Web-Animations pulse
-  // rather than routing it through React state — the scoreboard clips overflow,
-  // so the halo tints inward with the member's own hue.
-  const chipRef = useRef<HTMLDivElement>(null);
+  // up to level 3+ (their bar just grew). One-shot Web-Animations pulse — an
+  // outer halo around the bar, tinted to the member's own hue — rather than
+  // routing it through React state.
+  const barRef = useRef<HTMLSpanElement>(null);
   const previousAtLevel3 = useRef(member.likelyAtLevel3);
   useEffect(() => {
     const increased = member.likelyAtLevel3 > previousAtLevel3.current;
     previousAtLevel3.current = member.likelyAtLevel3;
-    if (!increased || !chipRef.current) return;
+    if (!increased || !barRef.current) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const wash = `color-mix(in oklch, ${member.avatarColor}, transparent 68%)`;
-    const halo = `color-mix(in oklch, ${member.avatarColor}, transparent 55%)`;
-    chipRef.current.animate(
+    const glow = `color-mix(in oklch, ${member.avatarColor}, transparent 15%)`;
+    barRef.current.animate(
       [
-        { backgroundColor: "transparent", boxShadow: "inset 0 0 0 0 transparent" },
-        {
-          backgroundColor: wash,
-          boxShadow: `inset 0 0 8px 0 ${halo}`,
-          offset: 0.3,
-        },
-        { backgroundColor: "transparent", boxShadow: "inset 0 0 0 0 transparent" },
+        { boxShadow: "0 0 0 0 transparent" },
+        { boxShadow: `0 0 9px 2px ${glow}`, offset: 0.35 },
+        { boxShadow: "0 0 0 0 transparent" },
       ],
       { duration: 500, easing: "ease" },
     );
   }, [member.likelyAtLevel3, member.avatarColor]);
 
   return (
-    <div className="ce-score-chip" ref={chipRef} role="listitem">
+    <div className="ce-score-chip" role="listitem">
       <span className="ce-score-name" style={nameStyle}>
         {member.firstName}
       </span>
       <span
         className="ce-score-bar"
+        ref={barRef}
         style={trackStyle}
         title={`Of the questions ${member.firstName} marked "likely to be tested" (${member.likely}), how many they've reached mastery level 3+ on (${member.likelyAtLevel3}).`}
       >

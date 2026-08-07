@@ -1037,13 +1037,14 @@ textarea {
 }
 
 /* 0/0 → red (nothing marked likely); n/n → green (all likely mastered);
-   in-between stays the neutral color above. */
+   in-between stays the neutral color above. Softened toward the neutral tone so
+   the vividness matches the gentle member colors rather than reading neon. */
 .ce-topic-link .ce-topic-progress[data-state="empty"] {
-  color: var(--ce-danger);
+  color: color-mix(in oklch, var(--ce-danger), var(--ce-muted) 45%);
 }
 
 .ce-topic-link .ce-topic-progress[data-state="complete"] {
-  color: var(--ce-accent);
+  color: color-mix(in oklch, var(--ce-accent), var(--ce-muted) 32%);
 }
 
 .ce-topic-link:hover {

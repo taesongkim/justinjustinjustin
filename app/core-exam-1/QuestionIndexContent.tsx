@@ -20,6 +20,10 @@ export function QuestionIndexContent({
   const [mastery, setMastery] = useState<"any" | "unset" | 1 | 2 | 3 | 4 | 5>(
     "any",
   );
+  // Filter by the viewer's exam-relevance mark (unmarked counts as "unsure").
+  const [relevance, setRelevance] = useState<
+    "any" | "likely" | "unsure" | "unlikely"
+  >("any");
   const allQuestions = useMemo(
     () =>
       groups.flatMap((group) =>
@@ -41,6 +45,12 @@ export function QuestionIndexContent({
             ? question.isHiddenForMe
             : true;
     if (!statusOk) return false;
+    if (
+      relevance !== "any" &&
+      (question.myLikelihood ?? "unsure") !== relevance
+    ) {
+      return false;
+    }
     if (mastery === "unset") return question.myConfidence == null;
     if (typeof mastery === "number") return question.myConfidence === mastery;
     return true;
@@ -90,6 +100,17 @@ export function QuestionIndexContent({
             type="button"
           >
             {option === "any" ? "Any" : option === "unset" ? "Unset" : option}
+          </button>
+        ))}
+        <span className="ce-index-filter-label">Relevance</span>
+        {(["any", "likely", "unsure", "unlikely"] as const).map((option) => (
+          <button
+            aria-pressed={relevance === option}
+            key={option}
+            onClick={() => setRelevance(option)}
+            type="button"
+          >
+            {option}
           </button>
         ))}
       </div>

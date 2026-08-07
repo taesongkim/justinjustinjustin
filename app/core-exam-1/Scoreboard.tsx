@@ -20,7 +20,8 @@ function orderMembers(
 
 function ScoreChip({ member }: { member: ScoreboardMember }) {
   const nameStyle = hueNameStyle(member.avatarColor);
-  const ratio = member.active > 0 ? member.answered / member.active : 0;
+  const ratio =
+    member.likely > 0 ? member.likelyAtLevel3 / member.likely : 0;
   const fillStyle: CSSProperties = {
     width: `${Math.round(ratio * 100)}%`,
     background: member.avatarColor,
@@ -30,7 +31,11 @@ function ScoreChip({ member }: { member: ScoreboardMember }) {
   };
 
   return (
-    <div className="ce-score-chip" role="listitem">
+    <div
+      className="ce-score-chip"
+      role="listitem"
+      title={`${member.firstName}: ${member.likelyAtLevel3} of ${member.likely} likely questions at level 3+`}
+    >
       <span className="ce-score-name" style={nameStyle}>
         {member.firstName}
       </span>
@@ -38,7 +43,7 @@ function ScoreChip({ member }: { member: ScoreboardMember }) {
         <span className="ce-score-bar-fill" style={fillStyle} />
       </span>
       <span className="ce-score-ratio" style={nameStyle}>
-        {member.answered}/{member.active}
+        {member.likelyAtLevel3}/{member.likely}
       </span>
     </div>
   );

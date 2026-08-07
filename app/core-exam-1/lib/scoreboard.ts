@@ -8,11 +8,11 @@ export type ScoreboardMember = {
   firstName: string;
   displayName: string;
   avatarColor: string;
-  // answered = questions this member has answered, counted only within their
-  // own active set. active = non-archived questions minus the ones this member
-  // has hidden for themselves. So answered ≤ active always.
-  answered: number;
-  active: number;
+  // Exam-prep progress: likely = questions this member marked "likely to be
+  // tested"; likelyAtLevel3 = of those, how many they've brought to mastery
+  // level 3 or higher. So likelyAtLevel3 ≤ likely always.
+  likely: number;
+  likelyAtLevel3: number;
   isViewer: boolean;
   isAssistant: boolean;
   participation: "assistant" | "active" | "observer";
@@ -43,8 +43,8 @@ export async function loadScoreboard(
   const [
     { data: profiles },
     { data: questions },
-    { data: answers },
-    { data: hiddenMarks },
+    { data: likelyMarks },
+    { data: confidenceRows },
   ] = await Promise.all([
     supabase
       .from("core_exam_profiles")
@@ -56,33 +56,34 @@ export async function loadScoreboard(
       .eq("space_id", spaceId)
       .is("archived_at", null),
     supabase
-      .from("core_exam_answers")
-      .select("question_id, author_id")
-      .eq("space_id", spaceId)
-      .is("archived_at", null),
-    supabase
-      .from("core_exam_question_hidden_marks")
+      .from("core_exam_question_likelihood_marks")
       .select("question_id, user_id")
-      .eq("space_id", spaceId),
+      .eq("likelihood", "likely"),
+    supabase
+      .from("core_exam_confidence")
+      .select("target_id, user_id")
+      .eq("target_type", "question")
+      .gte("level", 3),
   ]);
 
+  // Restrict to the space's current (non-archived) questions; RLS already
+  // scopes the mark/confidence rows to the viewer's space.
   const questionIds = new Set((questions ?? []).map((row) => row.id));
-  const totalQuestions = questionIds.size;
 
-  const hiddenByUser = new Map<string, Set<string>>();
-  for (const mark of hiddenMarks ?? []) {
+  const likelyByUser = new Map<string, Set<string>>();
+  for (const mark of likelyMarks ?? []) {
     if (!questionIds.has(mark.question_id)) continue;
-    const set = hiddenByUser.get(mark.user_id) ?? new Set<string>();
+    const set = likelyByUser.get(mark.user_id) ?? new Set<string>();
     set.add(mark.question_id);
-    hiddenByUser.set(mark.user_id, set);
+    likelyByUser.set(mark.user_id, set);
   }
 
-  const answeredByUser = new Map<string, Set<string>>();
-  for (const answer of answers ?? []) {
-    if (!questionIds.has(answer.question_id)) continue;
-    const set = answeredByUser.get(answer.author_id) ?? new Set<string>();
-    set.add(answer.question_id);
-    answeredByUser.set(answer.author_id, set);
+  const level3ByUser = new Map<string, Set<string>>();
+  for (const row of confidenceRows ?? []) {
+    if (!questionIds.has(row.target_id)) continue;
+    const set = level3ByUser.get(row.user_id) ?? new Set<string>();
+    set.add(row.target_id);
+    level3ByUser.set(row.user_id, set);
   }
 
   const profilesById = new Map(
@@ -91,12 +92,11 @@ export async function loadScoreboard(
 
   return memberIds.map((userId) => {
     const profile = profilesById.get(userId);
-    const hiddenSet = hiddenByUser.get(userId) ?? new Set<string>();
-    const answeredSet = answeredByUser.get(userId) ?? new Set<string>();
-    const active = totalQuestions - hiddenSet.size;
-    let answered = 0;
-    for (const questionId of answeredSet) {
-      if (!hiddenSet.has(questionId)) answered += 1;
+    const likelySet = likelyByUser.get(userId) ?? new Set<string>();
+    const level3Set = level3ByUser.get(userId) ?? new Set<string>();
+    let likelyAtLevel3 = 0;
+    for (const questionId of likelySet) {
+      if (level3Set.has(questionId)) likelyAtLevel3 += 1;
     }
     const displayName = profile?.display_name ?? "Study member";
     const avatarColor = profile?.avatar_color ?? ASSISTANT_AVATAR_COLOR;
@@ -105,8 +105,8 @@ export async function loadScoreboard(
       firstName: displayName.split(/\s+/)[0] ?? displayName,
       displayName,
       avatarColor,
-      answered,
-      active,
+      likely: likelySet.size,
+      likelyAtLevel3,
       isViewer: userId === viewerId,
       isAssistant: avatarColor.toLowerCase() === ASSISTANT_AVATAR_COLOR,
       participation: participationByUser.get(userId) ?? "active",

@@ -1741,6 +1741,13 @@ export function CoreExamFrame({
               <span>REF</span>
               Source library
             </Link>
+            <Link
+              href="/core-exam-1/lower-self"
+              onNavigate={() => beginNavigation()}
+            >
+              <span>REF</span>
+              The Lower Self
+            </Link>
           </nav>
         </details>
 
@@ -1927,6 +1934,14 @@ export function CoreExamFrame({
             >
               <span aria-hidden="true">•</span>
               Source library
+            </Link>
+            <Link
+              className="ce-topic-link"
+              href="/core-exam-1/lower-self"
+              onNavigate={() => beginNavigation()}
+            >
+              <span aria-hidden="true">•</span>
+              The Lower Self
             </Link>
             {REFERENCES.filter(
               (reference) => reference.stableKey === "reference.kessler-chart",

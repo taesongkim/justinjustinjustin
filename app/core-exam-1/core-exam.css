@@ -5149,3 +5149,228 @@ textarea {
   display: inline-flex;
   color: var(--ce-accent);
 }
+
+/* ============================================================
+   Lower Self reference guide (/core-exam-1/lower-self)
+   ============================================================ */
+.ce-ls-shell {
+  width: min(100% - 32px, 720px);
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 56px) 0 96px;
+}
+.ce-ls {
+  --ls-serif: Georgia, "Times New Roman", serif;
+  --ls-r: 3px;
+  --ls-r-lg: 5px;
+  --ls-gold: #8a6f2e;
+  --ls-d1: #234f43;
+  --ls-d2: #2c6455;
+  --ls-d3: var(--ce-accent);
+  --ls-d4: #5a9c88;
+  --ls-d5: #93c0b0;
+  --ls-core: #234f43;
+  --ls-core-ink: #eaf3ef;
+  --ls-n1: color-mix(in oklab, var(--ce-accent), var(--ce-raised) 82%);
+  --ls-n2: color-mix(in oklab, var(--ce-accent), var(--ce-raised) 60%);
+  --ls-n3: color-mix(in oklab, var(--ce-accent), var(--ce-raised) 36%);
+  color: var(--ce-ink);
+  font-size: 16px;
+  line-height: 1.6;
+}
+:root[data-theme="dark"] .ce-ls {
+  --ls-gold: #c8a860;
+  --ls-d1: #143c31;
+  --ls-d2: #1e5646;
+  --ls-d4: #57a88d;
+  --ls-d5: #83c1a9;
+  --ls-core: #164235;
+  --ls-core-ink: #e9f4ef;
+}
+
+.ce-ls-title {
+  font-family: var(--ls-serif);
+  font-weight: 600;
+  font-size: clamp(32px, 6.5vw, 46px);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin: 12px 0 16px;
+  text-wrap: balance;
+}
+.ce-ls-lede {
+  font-family: var(--ls-serif);
+  font-size: clamp(17px, 2.6vw, 20px);
+  line-height: 1.5;
+  color: var(--ce-ink-soft);
+  margin: 0;
+  max-width: 46ch;
+}
+.ce-ls-provenance {
+  margin: 22px 0 0;
+  padding: 14px 16px;
+  border-left: 2px solid var(--ce-line-strong);
+  background: var(--ce-panel);
+  border-radius: 0 var(--ls-r) var(--ls-r) 0;
+  font-size: 13.5px;
+  color: var(--ce-ink-soft);
+  line-height: 1.55;
+  max-width: 60ch;
+}
+.ce-ls-section { margin-top: clamp(40px, 6.5vw, 68px); }
+.ce-ls-kicker {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ce-muted);
+  font-weight: 600;
+  margin: 0 0 7px;
+}
+.ce-ls-h2 {
+  font-family: var(--ls-serif);
+  font-weight: 600;
+  font-size: clamp(22px, 3.8vw, 28px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 9px;
+  text-wrap: balance;
+}
+.ce-ls-sub { color: var(--ce-ink-soft); margin: 0 0 22px; max-width: 58ch; }
+
+.ce-ls-marriage {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--ce-line);
+  border-radius: var(--ls-r);
+  background: var(--ce-raised);
+  overflow: hidden;
+}
+.ce-ls-mcell { flex: 1; padding: 18px 16px; text-align: center; }
+.ce-ls-mtag {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ce-muted); font-weight: 600; margin-bottom: 7px;
+}
+.ce-ls-mterm {
+  font-family: var(--ls-serif); font-size: clamp(15px, 2.8vw, 19px);
+  font-weight: 600; line-height: 1.2;
+}
+.ce-ls-mop {
+  flex: 0 0 auto; display: grid; place-items: center; width: 42px;
+  color: var(--ce-faint); font-family: var(--ls-serif); font-size: 22px;
+  background: var(--ce-panel);
+  border-left: 1px solid var(--ce-line); border-right: 1px solid var(--ce-line);
+}
+.ce-ls-mcell.result { background: var(--ce-accent-soft); }
+.ce-ls-mcell.result .ce-ls-mterm { color: var(--ce-accent); }
+
+.ce-ls-tablist {
+  display: flex; border-bottom: 1px solid var(--ce-line); margin-bottom: 28px;
+}
+.ce-ls-tab {
+  appearance: none; border: 0; background: none; font: inherit; cursor: pointer;
+  padding: 11px 2px; margin-right: 28px; color: var(--ce-muted);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  display: flex; flex-direction: column; gap: 3px; text-align: left;
+}
+.ce-ls-tab[aria-selected="true"] { color: var(--ce-ink); border-bottom-color: var(--ce-accent); }
+.ce-ls-tab:focus-visible { outline: 2px solid var(--ce-accent); outline-offset: 3px; border-radius: 2px; }
+.ce-ls-tabname { font-family: var(--ls-serif); font-size: 18px; font-weight: 600; line-height: 1; }
+.ce-ls-tabdesc { font-size: 11.5px; color: var(--ce-muted); }
+.ce-ls-panel[hidden] { display: none; }
+.ce-ls-pintro { color: var(--ce-ink-soft); margin: 0 0 22px; max-width: 58ch; }
+
+.ce-ls-causes {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 26px;
+}
+.ce-ls-cause {
+  border: 1px solid var(--ce-line); border-radius: var(--ls-r);
+  background: var(--ce-raised); padding: 16px 16px 18px;
+}
+.ce-ls-q { font-size: 12px; color: var(--ce-muted); margin: 0 0 9px; display: flex; align-items: baseline; gap: 7px; }
+.ce-ls-q b { color: var(--ce-accent); font-weight: 700; font-family: var(--ls-serif); font-size: 14px; }
+.ce-ls-term { font-family: var(--ls-serif); font-weight: 600; font-size: 18px; line-height: 1.15; margin: 0 0 6px; }
+.ce-ls-gloss { color: var(--ce-ink-soft); font-size: 13px; line-height: 1.5; margin: 0; }
+
+.ce-ls-strata { display: grid; grid-template-columns: 22px 1fr; gap: 0 14px; }
+.ce-ls-rail { position: relative; }
+.ce-ls-rail::before {
+  content: ""; position: absolute; left: 50%; top: 9px; bottom: 9px; width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(var(--ls-d1), var(--ls-d3), var(--ls-d5));
+}
+.ce-ls-arrow { position: absolute; left: 50%; bottom: -2px; transform: translateX(-50%); color: var(--ls-d4); font-size: 11px; }
+.ce-ls-layers { display: flex; flex-direction: column; gap: 8px; }
+.ce-ls-layer {
+  position: relative; border: 1px solid var(--ce-line); border-radius: var(--ls-r);
+  background: var(--ce-raised); padding: 14px 16px 14px 18px;
+}
+.ce-ls-layer::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--ls-dot, var(--ce-accent));
+}
+.ce-ls-role {
+  font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+  font-weight: 700; color: var(--ls-dot, var(--ce-accent)); margin-bottom: 4px;
+}
+.ce-ls-name { font-family: var(--ls-serif); font-weight: 600; font-size: 17px; line-height: 1.2; margin: 0 0 4px; }
+.ce-ls-plus { color: var(--ce-muted); font-weight: 400; }
+.ce-ls-layer.root { --ls-dot: var(--ls-d1); }
+.ce-ls-layer.aim { --ls-dot: var(--ls-d2); }
+.ce-ls-layer.engine { --ls-dot: var(--ce-accent); background: color-mix(in oklab, var(--ce-accent), var(--ce-raised) 93%); }
+.ce-ls-layer.payoff { --ls-dot: var(--ls-gold); }
+.ce-ls-layer.surface { --ls-dot: var(--ls-d5); }
+.ce-ls-summary { font-size: 13px; color: var(--ce-muted); margin: 14px 0 0 36px; line-height: 1.55; }
+.ce-ls-summary b { color: var(--ce-accent); font-weight: 600; }
+
+.ce-ls-face {
+  border: 1px dashed var(--ce-line-strong); border-radius: var(--ls-r);
+  background: color-mix(in oklab, var(--ls-gold), transparent 92%); padding: 14px 16px;
+}
+.ce-ls-facerole { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ls-gold); font-weight: 700; margin-bottom: 6px; }
+.ce-ls-faceline { font-size: 14px; color: var(--ce-ink); }
+.ce-ls-faceline b { font-family: var(--ls-serif); font-weight: 600; }
+.ce-ls-facetactics { font-size: 12.5px; color: var(--ce-ink-soft); margin-top: 4px; }
+.ce-ls-skincue { text-align: center; color: var(--ce-faint); font-size: 11.5px; margin: 7px 0 6px; }
+.ce-ls-nb { position: relative; border-radius: var(--ls-r-lg); border: 1.5px solid; padding: 36px 16px 18px; }
+.ce-ls-distortion { border-color: color-mix(in oklab, var(--ce-accent), var(--ce-line) 30%); background: var(--ls-n1); }
+.ce-ls-intention { border-color: color-mix(in oklab, var(--ce-accent), var(--ce-line) 6%); background: var(--ls-n2); margin-top: 13px; }
+.ce-ls-separation { border-color: var(--ce-accent); background: var(--ls-n3); margin-top: 13px; }
+.ce-ls-nbhead { position: absolute; top: 11px; left: 15px; right: 15px; display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.ce-ls-nbrole { font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ce-muted); font-weight: 700; }
+.ce-ls-nbname { font-family: var(--ls-serif); font-weight: 600; font-size: 17px; line-height: 1; }
+.ce-ls-nbgloss { margin: 0 2px 12px; font-size: 12.5px; color: var(--ce-ink-soft); line-height: 1.5; }
+.ce-ls-core { text-align: center; border-radius: var(--ls-r); background: var(--ls-core); color: var(--ls-core-ink); padding: 16px; }
+.ce-ls-corerole { font-size: 9.5px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.72; font-weight: 700; margin-bottom: 5px; }
+.ce-ls-corename { font-family: var(--ls-serif); font-weight: 600; font-size: 19px; line-height: 1.1; }
+.ce-ls-coresub { font-size: 12px; opacity: 0.82; margin-top: 5px; }
+.ce-ls-readnote { font-size: 12.5px; color: var(--ce-muted); margin: 14px 2px 0; text-align: center; line-height: 1.5; }
+.ce-ls-readnote b { color: var(--ce-accent); font-weight: 600; }
+
+.ce-ls-clar { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ce-ls-aside {
+  border-left: 3px solid var(--ce-accent); background: var(--ce-panel);
+  border-radius: 0 var(--ls-r) var(--ls-r) 0; padding: 14px 16px;
+}
+.ce-ls-aside h3 { font-family: var(--ls-serif); font-size: 16px; font-weight: 600; margin: 0 0 5px; line-height: 1.25; }
+.ce-ls-aside p { margin: 0; font-size: 13px; color: var(--ce-ink-soft); line-height: 1.5; }
+.ce-ls-notrow { border-top: 1px solid var(--ce-line); padding-top: 24px; }
+.ce-ls-nots { list-style: none; padding: 0; margin: 0 0 14px; display: flex; flex-wrap: wrap; gap: 7px; }
+.ce-ls-nots li {
+  font-size: 12.5px; color: var(--ce-ink-soft); background: var(--ce-raised);
+  border: 1px solid var(--ce-line); border-radius: var(--ls-r); padding: 5px 11px;
+}
+.ce-ls-notnote { font-size: 13.5px; color: var(--ce-ink-soft); margin: 0; max-width: 60ch; }
+.ce-ls-xref {
+  margin-top: 20px; padding: 14px 16px; border-radius: var(--ls-r);
+  background: color-mix(in oklab, var(--ls-gold), transparent 91%);
+  border: 1px solid color-mix(in oklab, var(--ls-gold), transparent 70%);
+  font-size: 13px; color: var(--ce-ink-soft); line-height: 1.55;
+}
+.ce-ls-xref b { color: var(--ce-ink); font-weight: 600; }
+.ce-ls-footer { margin-top: 50px; padding-top: 18px; border-top: 1px solid var(--ce-line); font-size: 12.5px; color: var(--ce-faint); line-height: 1.5; }
+
+@media (max-width: 560px) {
+  .ce-ls-causes, .ce-ls-clar { grid-template-columns: 1fr; }
+  .ce-ls-marriage { flex-direction: column; }
+  .ce-ls-mop { width: auto; height: 36px; border: none; border-top: 1px solid var(--ce-line); border-bottom: 1px solid var(--ce-line); }
+  .ce-ls-summary { margin-left: 0; }
+  .ce-ls-tab { margin-right: 20px; }
+}

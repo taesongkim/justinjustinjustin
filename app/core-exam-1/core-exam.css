@@ -971,14 +971,19 @@ textarea {
 }
 
 .ce-body {
+  /* One knob for the sidebar width: the base grid, the ≥1400 sidebar, the
+     in-frame views, and the TOC offset all read it, so nothing drifts. */
+  --ce-sidebar-w: 232px;
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: var(--ce-sidebar-w) minmax(0, 1fr);
   min-height: calc(100vh - var(--ce-header-height));
 }
 
-/* Topic-progress on: widen the sidebar so the label + x/y badge fit on one row. */
+/* Topic-progress on: widen the sidebar so the label + x/y badge fit on one row.
+   Only the variable changes — the ≥1400 centered layout is untouched, so the
+   main column stays centered. */
 .ce-body[data-progress] {
-  grid-template-columns: 288px minmax(0, 1fr);
+  --ce-sidebar-w: 300px;
 }
 
 .ce-sidebar {
@@ -1987,7 +1992,9 @@ textarea {
 
   .ce-question-toc {
     position: fixed;
-    left: 240px; /* just right of the 232px sidebar — tune to taste */
+    /* Sits just right of the sidebar, tracking its width (grows with the
+       Topic-progress toggle). */
+    left: calc(var(--ce-sidebar-w) + 8px);
     top: calc(var(--ce-header-height) + 28px);
     z-index: 15;
     display: flex;
@@ -2058,11 +2065,7 @@ textarea {
   .ce-sidebar {
     grid-column: 1;
     justify-self: start;
-    width: 232px;
-  }
-
-  .ce-body[data-progress] .ce-sidebar {
-    width: 288px;
+    width: var(--ce-sidebar-w);
   }
 
   .ce-reading {
@@ -2071,9 +2074,9 @@ textarea {
 
   /* Cross-topic views opt out of the centered 3-column reading layout: revert
      to the simple sidebar + full-width content grid so the content is wide but
-     never overlaps the sidebar. */
+     never overlaps the sidebar. Same sidebar width as topic pages. */
   .ce-body[data-view] {
-    grid-template-columns: 232px minmax(0, 1fr);
+    grid-template-columns: var(--ce-sidebar-w) minmax(0, 1fr);
   }
 
   .ce-body[data-view] .ce-main,

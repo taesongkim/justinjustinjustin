@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 import {
   ConfidenceRings,
   type ConfidenceRingMember,
@@ -245,24 +245,65 @@ function Step3Card() {
 }
 
 // One static slider per level, so each level's look reads at a glance.
+// A small illustrative scoreboard bar. "denominator" grows the whole bar (the
+// set of Likely questions you're building); "progress" grows the fill within a
+// fixed bar (the Likely questions you've brought to level 3+).
+function ScoreBarDemo({
+  variant,
+  caption,
+}: {
+  variant: "denominator" | "progress";
+  caption: string;
+}) {
+  return (
+    <div className="ce-guide-scorebar-demo">
+      <span
+        aria-hidden="true"
+        className={
+          variant === "denominator"
+            ? "ce-guide-scorebar ce-guide-scorebar-grow"
+            : "ce-guide-scorebar"
+        }
+      >
+        <span
+          className={
+            variant === "progress"
+              ? "ce-guide-scorebar-fill ce-guide-scorebar-fill-grow"
+              : "ce-guide-scorebar-fill"
+          }
+        />
+      </span>
+      <p className="ce-guide-scorebar-caption">{caption}</p>
+    </div>
+  );
+}
+
 function LevelScale() {
   return (
     <div className="ce-guide-levels">
       {CONFIDENCE_LABELS.map((label, index) => {
         const level = index + 1;
         return (
-          <div className="ce-guide-level-row" key={level}>
-            <span className="ce-guide-level-slider">
-              <ConfidenceSlider
-                ariaLabel={`Level ${level}: ${label}`}
-                interactive={false}
-                value={level}
+          <Fragment key={level}>
+            <div className="ce-guide-level-row">
+              <span className="ce-guide-level-slider">
+                <ConfidenceSlider
+                  ariaLabel={`Level ${level}: ${label}`}
+                  interactive={false}
+                  value={level}
+                />
+              </span>
+              <span className="ce-guide-level-label">
+                {level} &middot; {label}
+              </span>
+            </div>
+            {level === 3 && (
+              <ScoreBarDemo
+                caption="This builds your progress in your progress bar."
+                variant="progress"
               />
-            </span>
-            <span className="ce-guide-level-label">
-              {level} &middot; {label}
-            </span>
-          </div>
+            )}
+          </Fragment>
         );
       })}
     </div>
@@ -357,6 +398,10 @@ export function HowToUseGuide() {
           <ul className="ce-guide-substeps">
             <li>
               Mark the ones you expect to be tested as <strong>Likely</strong>.
+              <ScoreBarDemo
+                caption="This builds your denominator in your progress bar."
+                variant="denominator"
+              />
             </li>
             <li>
               <strong>Hide</strong> the ones you don&rsquo;t need &mdash; they

@@ -1086,24 +1086,24 @@ textarea {
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* Cross-topic views (All Questions, Source Library) render in the reading pane
-   but want the full width — their own shells self-center. Drop the narrow
-   reading-measure cap and the reading column's top padding; the embedded shells
-   supply their own width and spacing. Two-class selector so it beats the base
-   .ce-reading-inner regardless of source order. */
-.ce-reading-inner.ce-reading-inner-wide {
+/* Cross-topic views (All Questions, Source Library) render in the reading pane.
+   All rules are scoped under .ce-body[data-view] so they win decisively over the
+   reading-column defaults and never touch the standalone /sources page. The
+   reading column fills its width with a small top gap; the shell caps wide and
+   centers. */
+.ce-body[data-view] .ce-reading-inner {
   width: 100%;
   max-width: none;
-  padding: 0;
+  margin: 0;
+  padding: 20px 24px 90px;
 }
 
-/* Embedded shells: wider than the standalone pages, and a small top gap (they
-   sit below the app header here, not their own full-page header). */
-.ce-index-shell.ce-index-embedded,
-.ce-source-library-shell.ce-source-library-embedded {
+.ce-body[data-view] .ce-index-shell,
+.ce-body[data-view] .ce-source-library-shell {
   width: 100%;
-  max-width: 1400px;
-  padding: 18px 24px 90px;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0;
 }
 
 .ce-reading {
@@ -2047,10 +2047,22 @@ textarea {
     grid-column: 2;
   }
 
-  /* Cross-topic views need the width — span the whole body grid, not the
-     narrow centered reading column. */
-  .ce-reading[data-view] {
-    grid-column: 1 / -1;
+  /* Cross-topic views opt out of the centered 3-column reading layout: revert
+     to the simple sidebar + full-width content grid so the content is wide but
+     never overlaps the sidebar. */
+  .ce-body[data-view] {
+    grid-template-columns: 232px minmax(0, 1fr);
+  }
+
+  .ce-body[data-view] .ce-main,
+  .ce-body[data-view] .ce-workspace {
+    display: block;
+  }
+
+  .ce-body[data-view] .ce-sidebar {
+    grid-column: 1;
+    justify-self: stretch;
+    width: auto;
   }
 
   .ce-discussion {

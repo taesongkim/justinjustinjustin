@@ -1646,7 +1646,7 @@ export function CoreExamFrame({
         </div>
       </header>
 
-      <div className="ce-body">
+      <div className="ce-body" data-view={view ?? undefined}>
         {!view && selectedTopic.kind === "topic" && tocQuestionIds.length > 0 && (
           <QuestionTOC questionIds={tocQuestionIds} />
         )}

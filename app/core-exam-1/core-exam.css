@@ -1095,7 +1095,8 @@ textarea {
   width: 100%;
   max-width: none;
   margin: 0;
-  padding: 20px 24px 90px;
+  /* 48px top matches the topic reading column (.ce-reading-inner). */
+  padding: 48px 24px 90px;
 }
 
 .ce-body[data-view] .ce-index-shell,

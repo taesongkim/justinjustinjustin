@@ -577,11 +577,13 @@ function GroupDiscussionFeed({
 
 function QuestionCard({
   onOpenSource,
+  onMyConfidenceChange,
   question,
   roster,
   viewerId,
 }: {
   onOpenSource: (source: OpenSource) => void;
+  onMyConfidenceChange: (questionId: string, level: number | null) => void;
   question: TopicQuestion;
   roster: RingMember[];
   viewerId: string | null;
@@ -600,6 +602,9 @@ function QuestionCard({
   const saveConfidence = async (level: number) => {
     const previous = myLevel;
     setMyLevel(level);
+    // Bubble the optimistic level up so the sidebar's Topic-progress x/y updates
+    // immediately (the server recompute only happens on navigation).
+    onMyConfidenceChange(question.id, level);
     const supabase = createCoreExamBrowserClient();
     const { error } = await supabase.rpc("core_exam_set_confidence", {
       p_target_type: "question",
@@ -610,6 +615,7 @@ function QuestionCard({
       // The optimistic level silently reverts; log so failures aren't invisible.
       console.error("[confidence] save failed", error.code, error.message);
       setMyLevel(previous);
+      onMyConfidenceChange(question.id, previous);
     }
   };
   // Every active member's ring: the viewer's shows their optimistic level, the
@@ -1294,6 +1300,19 @@ export function CoreExamFrame({
       // ignore storage failures
     }
   };
+  // The viewer's own confidence changes are optimistic-local (no refresh), so the
+  // server-computed topicProgress goes stale for the topic they're editing. Track
+  // their live levels and recompute this topic's x/y from them, so the sidebar
+  // badge updates the instant a slider moves.
+  const [myLiveLevels, setMyLiveLevels] = useState<
+    Record<string, number | null>
+  >({});
+  const handleMyConfidenceChange = useCallback(
+    (questionId: string, level: number | null) => {
+      setMyLiveLevels((prev) => ({ ...prev, [questionId]: level }));
+    },
+    [],
+  );
   // Cards animate to their new spot when the sort toggle flips or a card's
   // exam-relevance changes (which moves it between sections). Uses shared-layout
   // (layoutId) so a card tracked across the flat↔grouped structure change — and
@@ -1425,6 +1444,19 @@ export function CoreExamFrame({
     (question) => !question.isHiddenForMe,
   );
   const countedTotal = countedQuestions.length;
+  // Live Topic-progress counts for the topic being viewed (mirrors the server's
+  // loadTopicProgress, but overlays the viewer's optimistic slider changes).
+  const currentTopicProgress = useMemo(() => {
+    let likely = 0;
+    let likelyAtLevel3 = 0;
+    for (const question of questions) {
+      if (question.myLikelihood !== "likely") continue;
+      likely += 1;
+      const level = myLiveLevels[question.id] ?? question.myConfidence;
+      if ((level ?? 0) >= 3) likelyAtLevel3 += 1;
+    }
+    return { likely, likelyAtLevel3 };
+  }, [questions, myLiveLevels]);
   // The sticky TOC's jump targets, in the same top-to-bottom order the cards
   // actually render — so the lit window stays contiguous. When "Sort by exam
   // relevance" is on, that's the grouped order (likely → unsure → unlikely),
@@ -1781,7 +1813,11 @@ export function CoreExamFrame({
         </div>
       </header>
 
-      <div className="ce-body" data-view={view ?? undefined}>
+      <div
+        className="ce-body"
+        data-view={view ?? undefined}
+        data-progress={showTopicProgress || undefined}
+      >
         {!view && selectedTopic.kind === "topic" && tocQuestionIds.length > 0 && (
           <QuestionTOC questionIds={tocQuestionIds} />
         )}
@@ -1789,7 +1825,12 @@ export function CoreExamFrame({
           <p className="ce-sidebar-label">Exam topics</p>
           <nav>
             {TOPICS.map((topic) => {
-              const progress = topicProgress?.[topic.stableKey];
+              // Use the live-recomputed counts for the topic being viewed so a
+              // slider change reflects instantly; server counts for the rest.
+              const progress =
+                !view && topic.stableKey === selectedTopic.stableKey
+                  ? currentTopicProgress
+                  : topicProgress?.[topic.stableKey];
               return (
                 <Link
                   className={
@@ -2060,6 +2101,7 @@ export function CoreExamFrame({
                                   transition={cardLayoutTransition}
                                 >
                                   <QuestionCard
+                                    onMyConfidenceChange={handleMyConfidenceChange}
                                     onOpenSource={openSourceViewer}
                                     question={question}
                                     roster={ringRoster}
@@ -2084,6 +2126,7 @@ export function CoreExamFrame({
                               transition={cardLayoutTransition}
                             >
                               <QuestionCard
+                                onMyConfidenceChange={handleMyConfidenceChange}
                                 onOpenSource={openSourceViewer}
                                 question={question}
                                 roster={ringRoster}
@@ -2111,6 +2154,7 @@ export function CoreExamFrame({
                             .map((question) => (
                               <QuestionCard
                                 key={question.id}
+                                onMyConfidenceChange={handleMyConfidenceChange}
                                 onOpenSource={openSourceViewer}
                                 question={question}
                                 roster={ringRoster}

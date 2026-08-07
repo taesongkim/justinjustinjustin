@@ -976,6 +976,11 @@ textarea {
   min-height: calc(100vh - var(--ce-header-height));
 }
 
+/* Topic-progress on: widen the sidebar so the label + x/y badge fit on one row. */
+.ce-body[data-progress] {
+  grid-template-columns: 288px minmax(0, 1fr);
+}
+
 .ce-sidebar {
   position: sticky;
   top: var(--ce-header-height);
@@ -996,7 +1001,9 @@ textarea {
 
 .ce-topic-link {
   display: grid;
-  grid-template-columns: 24px 1fr;
+  /* Third column holds the optional Topic-progress x/y badge (0-width when
+     absent), so it sits to the right of the label instead of wrapping. */
+  grid-template-columns: 24px 1fr auto;
   gap: 7px;
   align-items: start;
   margin-bottom: 3px;
@@ -2052,6 +2059,10 @@ textarea {
     grid-column: 1;
     justify-self: start;
     width: 232px;
+  }
+
+  .ce-body[data-progress] .ce-sidebar {
+    width: 288px;
   }
 
   .ce-reading {

@@ -1446,17 +1446,22 @@ export function CoreExamFrame({
   const countedTotal = countedQuestions.length;
   // Live Topic-progress counts for the topic being viewed (mirrors the server's
   // loadTopicProgress, but overlays the viewer's optimistic slider changes).
+  // Reads the initialQuestions PROP, not the `questions` state — the state syncs
+  // a render later, which during a view→topic navigation briefly leaves it stale
+  // (empty) while topicProgress is already the new topic's, producing a phantom
+  // dip-then-rise that would fire the scoreboard glow. Optimistic question adds
+  // don't carry likelihood marks, so they don't affect these counts.
   const currentTopicProgress = useMemo(() => {
     let likely = 0;
     let likelyAtLevel3 = 0;
-    for (const question of questions) {
+    for (const question of initialQuestions) {
       if (question.myLikelihood !== "likely") continue;
       likely += 1;
       const level = myLiveLevels[question.id] ?? question.myConfidence;
       if ((level ?? 0) >= 3) likelyAtLevel3 += 1;
     }
     return { likely, likelyAtLevel3 };
-  }, [questions, myLiveLevels]);
+  }, [initialQuestions, myLiveLevels]);
   // Live scoreboard: the viewer's own row reflects their optimistic slider
   // changes immediately by swapping this topic's server contribution for the
   // live one. Everyone else uses server counts (kept fresh by the realtime

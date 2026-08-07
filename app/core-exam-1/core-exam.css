@@ -1079,6 +1079,34 @@ textarea {
   grid-template-columns: minmax(0, 1fr) 52px;
 }
 
+/* Reference pages have no discussion panel — the reading column takes the full
+   width. (Only affects 1025–1399px: ≥1400 the reading centers in the body grid,
+   ≤1024 the workspace is display:block.) */
+.ce-workspace-solo {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* Cross-topic views (All Questions, Source Library) render in the reading pane.
+   All rules are scoped under .ce-body[data-view] so they win decisively over the
+   reading-column defaults and never touch the standalone /sources page. The
+   reading column fills its width with a small top gap; the shell caps wide and
+   centers. */
+.ce-body[data-view] .ce-reading-inner {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  /* 48px top matches the topic reading column (.ce-reading-inner). */
+  padding: 48px 24px 90px;
+}
+
+.ce-body[data-view] .ce-index-shell,
+.ce-body[data-view] .ce-source-library-shell {
+  width: 100%;
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0;
+}
+
 .ce-reading {
   overflow: hidden;
 }
@@ -2018,6 +2046,24 @@ textarea {
 
   .ce-reading {
     grid-column: 2;
+  }
+
+  /* Cross-topic views opt out of the centered 3-column reading layout: revert
+     to the simple sidebar + full-width content grid so the content is wide but
+     never overlaps the sidebar. */
+  .ce-body[data-view] {
+    grid-template-columns: 232px minmax(0, 1fr);
+  }
+
+  .ce-body[data-view] .ce-main,
+  .ce-body[data-view] .ce-workspace {
+    display: block;
+  }
+
+  .ce-body[data-view] .ce-sidebar {
+    grid-column: 1;
+    justify-self: stretch;
+    width: auto;
   }
 
   .ce-discussion {
@@ -4850,7 +4896,6 @@ textarea {
 
 .ce-guide-lead {
   margin: 14px 0 0;
-  max-width: 60ch;
   color: var(--ce-muted);
   font-size: 15px;
   line-height: 1.6;

@@ -51,6 +51,10 @@ import {
   type ReaderPageSummary,
 } from "./topics";
 import { HowToUseGuide } from "./HowToUseGuide";
+import { QuestionIndexContent } from "./QuestionIndexContent";
+import { SourceLibraryContent } from "./SourceLibraryContent";
+import type { TopicQuestionGroup } from "./QuestionIndexView";
+import type { SourceLibraryItem } from "./lib/sources";
 import { VerificationControl } from "./VerificationControl";
 
 type CoreExamFrameProps = {
@@ -66,6 +70,11 @@ type CoreExamFrameProps = {
   topicConfidence: { topicNodeId: string | null; myLevel: number | null };
   verifications: PageVerifications;
   viewer: CoreExamViewer | null;
+  // Cross-topic views that render in the reading pane instead of a topic. When
+  // set, selectedTopic is a placeholder and the topic body is skipped.
+  view?: "all-questions" | "sources";
+  indexGroups?: TopicQuestionGroup[];
+  sourceLibrary?: SourceLibraryItem[];
 };
 
 type OpenSource = {
@@ -1173,6 +1182,9 @@ export function CoreExamFrame({
   topicConfidence,
   verifications,
   viewer,
+  view,
+  indexGroups,
+  sourceLibrary,
 }: CoreExamFrameProps) {
   useLiveActivity(viewer?.spaceId, viewer?.userId);
   useLiveConfidence(viewer?.spaceId, viewer?.userId);
@@ -1210,7 +1222,30 @@ export function CoreExamFrame({
   const [mobileMode, setMobileMode] = useState<"content" | "discussion">(
     "content",
   );
-  const [discussionCollapsed, setDiscussionCollapsed] = useState(false);
+  // Discussion panel defaults collapsed for everyone; an explicit choice either
+  // way persists (localStorage), same one-time-default pattern as dark mode and
+  // sort-by-relevance.
+  const [discussionCollapsed, setDiscussionCollapsed] = useState(true);
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("ce-discussion-collapsed");
+      if (stored === "open") setDiscussionCollapsed(false);
+      else if (stored === "collapsed") setDiscussionCollapsed(true);
+    } catch {
+      // ignore storage failures (private mode etc.)
+    }
+  }, []);
+  const setDiscussionPreference = (collapsed: boolean) => {
+    setDiscussionCollapsed(collapsed);
+    try {
+      localStorage.setItem(
+        "ce-discussion-collapsed",
+        collapsed ? "collapsed" : "open",
+      );
+    } catch {
+      // ignore storage failures
+    }
+  };
   // Sort-by-relevance defaults ON for everyone; an explicit choice either way
   // is remembered (localStorage). Start from the default so server and first
   // client render match, then apply any stored override on mount.
@@ -1261,10 +1296,12 @@ export function CoreExamFrame({
     (targetKey: string) => {
       // Clicking the current topic doesn't change selectedTopic, so the
       // clear-on-topic-change effect never fires — skip it to avoid a hang.
-      if (targetKey === selectedTopic.stableKey) return;
+      // In a cross-topic view, selectedTopic is a placeholder, so always
+      // navigate (the target is never really the current page).
+      if (!view && targetKey === selectedTopic.stableKey) return;
       beginNavigation();
     },
-    [selectedTopic.stableKey, beginNavigation],
+    [view, selectedTopic.stableKey, beginNavigation],
   );
   useEffect(() => {
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
@@ -1381,6 +1418,11 @@ export function CoreExamFrame({
   // The How-to-Use reference renders a bespoke interactive page in place of the
   // usual heading + question workspace + markdown reader.
   const isGuide = selectedTopic.stableKey === HOW_TO_USE_KEY;
+  // Only topics carry a group discussion; references (incl. the guide) don't, so
+  // the panel — and the mobile Content/Discussion switcher — are dropped there.
+  const showDiscussion = !view && selectedTopic.kind === "topic";
+  // In a cross-topic view, no sidebar topic/reference is the active page.
+  const activeTopicKey = view ? "" : selectedTopic.stableKey;
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;
@@ -1588,7 +1630,7 @@ export function CoreExamFrame({
             {[...TOPICS, ...REFERENCES].map((topic) => (
               <Link
                 className={
-                  topic.stableKey === selectedTopic.stableKey
+                  topic.stableKey === activeTopicKey
                     ? "ce-mobile-topic-active"
                     : undefined
                 }
@@ -1604,7 +1646,11 @@ export function CoreExamFrame({
                 {topic.label}
               </Link>
             ))}
-            <Link href="/core-exam-1/sources">
+            <Link
+              className={view === "sources" ? "ce-mobile-topic-active" : undefined}
+              href="/core-exam-1?view=sources"
+              onNavigate={() => beginNavigation()}
+            >
               <span>REF</span>
               Source library
             </Link>
@@ -1697,8 +1743,8 @@ export function CoreExamFrame({
         </div>
       </header>
 
-      <div className="ce-body">
-        {selectedTopic.kind === "topic" && tocQuestionIds.length > 0 && (
+      <div className="ce-body" data-view={view ?? undefined}>
+        {!view && selectedTopic.kind === "topic" && tocQuestionIds.length > 0 && (
           <QuestionTOC questionIds={tocQuestionIds} />
         )}
         <aside className="ce-sidebar" aria-label="Study topics">
@@ -1707,7 +1753,7 @@ export function CoreExamFrame({
             {TOPICS.map((topic) => (
               <Link
                 className={
-                  topic.stableKey === selectedTopic.stableKey
+                  topic.stableKey === activeTopicKey
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
@@ -1729,7 +1775,7 @@ export function CoreExamFrame({
             ).map((reference) => (
               <Link
                 className={
-                  reference.stableKey === selectedTopic.stableKey
+                  reference.stableKey === activeTopicKey
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
@@ -1741,7 +1787,15 @@ export function CoreExamFrame({
                 {reference.label}
               </Link>
             ))}
-            <Link className="ce-topic-link" href="/core-exam-1/sources">
+            <Link
+              className={
+                view === "sources"
+                  ? "ce-topic-link ce-topic-link-active"
+                  : "ce-topic-link"
+              }
+              href="/core-exam-1?view=sources"
+              onNavigate={() => beginNavigation()}
+            >
               <span aria-hidden="true">•</span>
               Source library
             </Link>
@@ -1750,7 +1804,7 @@ export function CoreExamFrame({
             ).map((reference) => (
               <Link
                 className={
-                  reference.stableKey === selectedTopic.stableKey
+                  reference.stableKey === activeTopicKey
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
@@ -1779,7 +1833,7 @@ export function CoreExamFrame({
                 ).map((reference) => (
                   <Link
                     className={
-                      reference.stableKey === selectedTopic.stableKey
+                      reference.stableKey === activeTopicKey
                         ? "ce-topic-link ce-topic-link-active"
                         : "ce-topic-link"
                     }
@@ -1797,37 +1851,41 @@ export function CoreExamFrame({
         </aside>
 
         <section className="ce-main">
-          <div
-            className="ce-mobile-switcher"
-            role="tablist"
-            aria-label="Page view"
-          >
-            <button
-              aria-selected={mobileMode === "content"}
-              onClick={() => setMobileMode("content")}
-              role="tab"
-              type="button"
+          {showDiscussion && (
+            <div
+              className="ce-mobile-switcher"
+              role="tablist"
+              aria-label="Page view"
             >
-              Content
-            </button>
-            <button
-              aria-selected={mobileMode === "discussion"}
-              onClick={() => setMobileMode("discussion")}
-              role="tab"
-              type="button"
-            >
-              Discussion
-              {discussionEntries.length > 0 && (
-                <span>{discussionEntries.length}</span>
-              )}
-            </button>
-          </div>
+              <button
+                aria-selected={mobileMode === "content"}
+                onClick={() => setMobileMode("content")}
+                role="tab"
+                type="button"
+              >
+                Content
+              </button>
+              <button
+                aria-selected={mobileMode === "discussion"}
+                onClick={() => setMobileMode("discussion")}
+                role="tab"
+                type="button"
+              >
+                Discussion
+                {discussionEntries.length > 0 && (
+                  <span>{discussionEntries.length}</span>
+                )}
+              </button>
+            </div>
+          )}
 
           <div
             className={
-              discussionCollapsed
-                ? "ce-workspace ce-workspace-collapsed"
-                : "ce-workspace"
+              !showDiscussion
+                ? "ce-workspace ce-workspace-solo"
+                : discussionCollapsed
+                  ? "ce-workspace ce-workspace-collapsed"
+                  : "ce-workspace"
             }
           >
             <article
@@ -1836,10 +1894,27 @@ export function CoreExamFrame({
                   ? "ce-reading ce-mobile-active"
                   : "ce-reading"
               }
-              aria-label={`${selectedTopic.label} content`}
+              data-view={view ?? undefined}
+              aria-label={
+                view === "all-questions"
+                  ? "All questions"
+                  : view === "sources"
+                    ? "Source library"
+                    : `${selectedTopic.label} content`
+              }
             >
-              <div className="ce-reading-inner">
-                {isGuide ? (
+              <div
+                className={
+                  view
+                    ? "ce-reading-inner ce-reading-inner-wide"
+                    : "ce-reading-inner"
+                }
+              >
+                {view === "all-questions" ? (
+                  <QuestionIndexContent groups={indexGroups ?? []} />
+                ) : view === "sources" ? (
+                  <SourceLibraryContent sources={sourceLibrary ?? []} />
+                ) : isGuide ? (
                   <HowToUseGuide />
                 ) : (
                   <>
@@ -2043,44 +2118,46 @@ export function CoreExamFrame({
               </div>
             </article>
 
-            <aside
-              className={
-                mobileMode === "discussion"
-                  ? "ce-discussion ce-mobile-active"
-                  : "ce-discussion"
-              }
-              aria-label="Group discussion"
-            >
-              <div className="ce-discussion-header">
-                <div>
-                  <p className="ce-eyebrow">Page conversation</p>
-                  <h2>Group discussion</h2>
+            {showDiscussion && (
+              <aside
+                className={
+                  mobileMode === "discussion"
+                    ? "ce-discussion ce-mobile-active"
+                    : "ce-discussion"
+                }
+                aria-label="Group discussion"
+              >
+                <div className="ce-discussion-header">
+                  <div>
+                    <p className="ce-eyebrow">Page conversation</p>
+                    <h2>Group discussion</h2>
+                  </div>
+                  <button
+                    aria-label={
+                      discussionCollapsed
+                        ? "Expand discussion"
+                        : "Collapse discussion"
+                    }
+                    className="ce-collapse"
+                    onClick={() =>
+                      setDiscussionPreference(!discussionCollapsed)
+                    }
+                    type="button"
+                  >
+                    {discussionCollapsed ? "←" : "→"}
+                  </button>
                 </div>
-                <button
-                  aria-label={
-                    discussionCollapsed
-                      ? "Expand discussion"
-                      : "Collapse discussion"
-                  }
-                  className="ce-collapse"
-                  onClick={() =>
-                    setDiscussionCollapsed((collapsed) => !collapsed)
-                  }
-                  type="button"
-                >
-                  {discussionCollapsed ? "←" : "→"}
-                </button>
-              </div>
 
-              <div className="ce-discussion-content">
+                <div className="ce-discussion-content">
                   <div className="ce-thread">
                     <GroupDiscussionFeed
                       entries={discussionEntries}
                       onRevealTarget={revealTarget}
                     />
                   </div>
-              </div>
-            </aside>
+                </div>
+              </aside>
+            )}
           </div>
         </section>
       </div>

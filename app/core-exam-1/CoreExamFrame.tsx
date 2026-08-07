@@ -51,6 +51,10 @@ import {
   type ReaderPageSummary,
 } from "./topics";
 import { HowToUseGuide } from "./HowToUseGuide";
+import { QuestionIndexContent } from "./QuestionIndexContent";
+import { SourceLibraryContent } from "./SourceLibraryContent";
+import type { TopicQuestionGroup } from "./QuestionIndexView";
+import type { SourceLibraryItem } from "./lib/sources";
 import { VerificationControl } from "./VerificationControl";
 
 type CoreExamFrameProps = {
@@ -66,6 +70,11 @@ type CoreExamFrameProps = {
   topicConfidence: { topicNodeId: string | null; myLevel: number | null };
   verifications: PageVerifications;
   viewer: CoreExamViewer | null;
+  // Cross-topic views that render in the reading pane instead of a topic. When
+  // set, selectedTopic is a placeholder and the topic body is skipped.
+  view?: "all-questions" | "sources";
+  indexGroups?: TopicQuestionGroup[];
+  sourceLibrary?: SourceLibraryItem[];
 };
 
 type OpenSource = {
@@ -1163,6 +1172,9 @@ export function CoreExamFrame({
   topicConfidence,
   verifications,
   viewer,
+  view,
+  indexGroups,
+  sourceLibrary,
 }: CoreExamFrameProps) {
   useLiveActivity(viewer?.spaceId, viewer?.userId);
   useLiveConfidence(viewer?.spaceId, viewer?.userId);
@@ -1274,10 +1286,12 @@ export function CoreExamFrame({
     (targetKey: string) => {
       // Clicking the current topic doesn't change selectedTopic, so the
       // clear-on-topic-change effect never fires — skip it to avoid a hang.
-      if (targetKey === selectedTopic.stableKey) return;
+      // In a cross-topic view, selectedTopic is a placeholder, so always
+      // navigate (the target is never really the current page).
+      if (!view && targetKey === selectedTopic.stableKey) return;
       beginNavigation();
     },
-    [selectedTopic.stableKey, beginNavigation],
+    [view, selectedTopic.stableKey, beginNavigation],
   );
   useEffect(() => {
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
@@ -1396,7 +1410,9 @@ export function CoreExamFrame({
   const isGuide = selectedTopic.stableKey === HOW_TO_USE_KEY;
   // Only topics carry a group discussion; references (incl. the guide) don't, so
   // the panel — and the mobile Content/Discussion switcher — are dropped there.
-  const showDiscussion = selectedTopic.kind === "topic";
+  const showDiscussion = !view && selectedTopic.kind === "topic";
+  // In a cross-topic view, no sidebar topic/reference is the active page.
+  const activeTopicKey = view ? "" : selectedTopic.stableKey;
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;
@@ -1517,7 +1533,7 @@ export function CoreExamFrame({
             {[...TOPICS, ...REFERENCES].map((topic) => (
               <Link
                 className={
-                  topic.stableKey === selectedTopic.stableKey
+                  topic.stableKey === activeTopicKey
                     ? "ce-mobile-topic-active"
                     : undefined
                 }
@@ -1533,7 +1549,11 @@ export function CoreExamFrame({
                 {topic.label}
               </Link>
             ))}
-            <Link href="/core-exam-1/sources">
+            <Link
+              className={view === "sources" ? "ce-mobile-topic-active" : undefined}
+              href="/core-exam-1?view=sources"
+              onNavigate={() => beginNavigation()}
+            >
               <span>REF</span>
               Source library
             </Link>
@@ -1626,8 +1646,8 @@ export function CoreExamFrame({
         </div>
       </header>
 
-      <div className="ce-body">
-        {selectedTopic.kind === "topic" && tocQuestionIds.length > 0 && (
+      <div className="ce-body" data-view={view ?? undefined}>
+        {!view && selectedTopic.kind === "topic" && tocQuestionIds.length > 0 && (
           <QuestionTOC questionIds={tocQuestionIds} />
         )}
         <aside className="ce-sidebar" aria-label="Study topics">
@@ -1636,7 +1656,7 @@ export function CoreExamFrame({
             {TOPICS.map((topic) => (
               <Link
                 className={
-                  topic.stableKey === selectedTopic.stableKey
+                  topic.stableKey === activeTopicKey
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
@@ -1658,7 +1678,7 @@ export function CoreExamFrame({
             ).map((reference) => (
               <Link
                 className={
-                  reference.stableKey === selectedTopic.stableKey
+                  reference.stableKey === activeTopicKey
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
@@ -1670,7 +1690,15 @@ export function CoreExamFrame({
                 {reference.label}
               </Link>
             ))}
-            <Link className="ce-topic-link" href="/core-exam-1/sources">
+            <Link
+              className={
+                view === "sources"
+                  ? "ce-topic-link ce-topic-link-active"
+                  : "ce-topic-link"
+              }
+              href="/core-exam-1?view=sources"
+              onNavigate={() => beginNavigation()}
+            >
               <span aria-hidden="true">•</span>
               Source library
             </Link>
@@ -1679,7 +1707,7 @@ export function CoreExamFrame({
             ).map((reference) => (
               <Link
                 className={
-                  reference.stableKey === selectedTopic.stableKey
+                  reference.stableKey === activeTopicKey
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
@@ -1708,7 +1736,7 @@ export function CoreExamFrame({
                 ).map((reference) => (
                   <Link
                     className={
-                      reference.stableKey === selectedTopic.stableKey
+                      reference.stableKey === activeTopicKey
                         ? "ce-topic-link ce-topic-link-active"
                         : "ce-topic-link"
                     }
@@ -1769,10 +1797,27 @@ export function CoreExamFrame({
                   ? "ce-reading ce-mobile-active"
                   : "ce-reading"
               }
-              aria-label={`${selectedTopic.label} content`}
+              data-view={view ?? undefined}
+              aria-label={
+                view === "all-questions"
+                  ? "All questions"
+                  : view === "sources"
+                    ? "Source library"
+                    : `${selectedTopic.label} content`
+              }
             >
-              <div className="ce-reading-inner">
-                {isGuide ? (
+              <div
+                className={
+                  view
+                    ? "ce-reading-inner ce-reading-inner-wide"
+                    : "ce-reading-inner"
+                }
+              >
+                {view === "all-questions" ? (
+                  <QuestionIndexContent groups={indexGroups ?? []} />
+                ) : view === "sources" ? (
+                  <SourceLibraryContent sources={sourceLibrary ?? []} />
+                ) : isGuide ? (
                   <HowToUseGuide />
                 ) : (
                   <>

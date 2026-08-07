@@ -971,9 +971,19 @@ textarea {
 }
 
 .ce-body {
+  /* One knob for the sidebar width: the base grid, the ≥1400 sidebar, the
+     in-frame views, and the TOC offset all read it, so nothing drifts. */
+  --ce-sidebar-w: 232px;
   display: grid;
-  grid-template-columns: 232px minmax(0, 1fr);
+  grid-template-columns: var(--ce-sidebar-w) minmax(0, 1fr);
   min-height: calc(100vh - var(--ce-header-height));
+}
+
+/* Topic-progress on: widen the sidebar so the label + x/y badge fit on one row.
+   Only the variable changes — the ≥1400 centered layout is untouched, so the
+   main column stays centered. */
+.ce-body[data-progress] {
+  --ce-sidebar-w: 300px;
 }
 
 .ce-sidebar {
@@ -996,7 +1006,9 @@ textarea {
 
 .ce-topic-link {
   display: grid;
-  grid-template-columns: 24px 1fr;
+  /* Third column holds the optional Topic-progress x/y badge (0-width when
+     absent), so it sits to the right of the label instead of wrapping. */
+  grid-template-columns: 24px 1fr auto;
   gap: 7px;
   align-items: start;
   margin-bottom: 3px;
@@ -1012,6 +1024,16 @@ textarea {
   color: var(--ce-faint);
   font-size: 10px;
   font-variant-numeric: tabular-nums;
+}
+
+/* "Topic progress" badge: x/y at the right edge of the topic link. Two-class
+   selector so it beats `.ce-topic-link span` (the number's faint style). */
+.ce-topic-link .ce-topic-progress {
+  align-self: center;
+  color: var(--ce-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .ce-topic-link:hover {
@@ -1970,7 +1992,9 @@ textarea {
 
   .ce-question-toc {
     position: fixed;
-    left: 240px; /* just right of the 232px sidebar — tune to taste */
+    /* Sits just right of the sidebar, tracking its width (grows with the
+       Topic-progress toggle). */
+    left: calc(var(--ce-sidebar-w) + 8px);
     top: calc(var(--ce-header-height) + 28px);
     z-index: 15;
     display: flex;
@@ -2041,7 +2065,7 @@ textarea {
   .ce-sidebar {
     grid-column: 1;
     justify-self: start;
-    width: 232px;
+    width: var(--ce-sidebar-w);
   }
 
   .ce-reading {
@@ -2050,9 +2074,9 @@ textarea {
 
   /* Cross-topic views opt out of the centered 3-column reading layout: revert
      to the simple sidebar + full-width content grid so the content is wide but
-     never overlaps the sidebar. */
+     never overlaps the sidebar. Same sidebar width as topic pages. */
   .ce-body[data-view] {
-    grid-template-columns: 232px minmax(0, 1fr);
+    grid-template-columns: var(--ce-sidebar-w) minmax(0, 1fr);
   }
 
   .ce-body[data-view] .ce-main,
@@ -4214,7 +4238,10 @@ textarea {
   gap: 12px;
   min-width: 0;
   margin: 0 14px;
-  overflow: hidden;
+  /* clip (not hidden) + a clip margin so a chip's level-3 glow can bleed past
+     the edge instead of being cut off. */
+  overflow: clip;
+  overflow-clip-margin: 12px;
 }
 
 .ce-score-chip {
@@ -4225,6 +4252,10 @@ textarea {
   font-size: 11px;
   font-variant-numeric: tabular-nums;
 }
+
+/* The level-3+ advance glow is a one-shot Web-Animations pulse fired from
+   Scoreboard.tsx — an outer halo around the .ce-score-bar, tinted to the
+   member's hue. The scoreboard's overflow-clip-margin lets it bleed past. */
 
 .ce-score-name {
   max-width: 64px;
@@ -4786,13 +4817,26 @@ textarea {
 
 /* Real checkbox stays for accessibility + state; visually hidden behind the
    pill, which mirrors :checked. */
-.ce-relevance-toggle input {
+.ce-relevance-toggle input,
+.ce-menu-toggle input {
   position: absolute;
   inline-size: 1px;
   block-size: 1px;
   margin: 0;
   opacity: 0;
   pointer-events: none;
+}
+
+/* A settings toggle inside a dropdown/menu: label left, pill right. */
+.ce-menu-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--ce-ink-soft);
 }
 
 /* Pill switch: a track with a sliding knob. */
@@ -4819,15 +4863,18 @@ textarea {
   transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.ce-relevance-toggle input:checked + .ce-switch {
+.ce-relevance-toggle input:checked + .ce-switch,
+.ce-menu-toggle input:checked + .ce-switch {
   background: var(--ce-accent);
 }
 
-.ce-relevance-toggle input:checked + .ce-switch::before {
+.ce-relevance-toggle input:checked + .ce-switch::before,
+.ce-menu-toggle input:checked + .ce-switch::before {
   transform: translateX(11px);
 }
 
-.ce-relevance-toggle input:focus-visible + .ce-switch {
+.ce-relevance-toggle input:focus-visible + .ce-switch,
+.ce-menu-toggle input:focus-visible + .ce-switch {
   outline: 2px solid var(--ce-accent);
   outline-offset: 2px;
 }

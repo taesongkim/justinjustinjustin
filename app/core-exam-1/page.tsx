@@ -3,7 +3,12 @@ import { loadPrivateReaderPage } from "./private-content";
 import { CoreExamFrame } from "./CoreExamFrame";
 import type { TopicQuestionGroup } from "./QuestionIndexView";
 import { getCoreExamAccess } from "./lib/viewer";
-import { loadTopicConfidence, loadTopicQuestions } from "./lib/questions";
+import {
+  loadTopicConfidence,
+  loadTopicProgress,
+  loadTopicQuestions,
+  type TopicProgress,
+} from "./lib/questions";
 import { loadGlobalActivity } from "./lib/activity";
 import { loadPageContributions } from "./lib/contributions";
 import { loadPageVerifications } from "./lib/verification";
@@ -22,6 +27,7 @@ const viewFrameBase = (
   viewer: CoreExamViewer,
   activity: CoreExamActivityFeed,
   scoreboard: ScoreboardMember[],
+  topicProgress: Record<string, TopicProgress>,
 ) => ({
   activity,
   collaborativeEmpty: false,
@@ -30,6 +36,7 @@ const viewFrameBase = (
   markdown: "",
   questions: [],
   scoreboard,
+  topicProgress,
   // Synthetic placeholder: matches no real sidebar link, so navigating from a
   // view to any real topic reliably changes selectedTopic.stableKey (which
   // clears the nav loader). The topic body is skipped while `view` is set.
@@ -70,7 +77,7 @@ export default async function CoreExamPage({
     params.view === "all-questions" ||
     params.view === "my-answers"
   ) {
-    const [activity, groups, scoreboard] = await Promise.all([
+    const [activity, groups, scoreboard, topicProgress] = await Promise.all([
       loadGlobalActivity(
         access.viewer.spaceId,
         access.viewer.userId,
@@ -91,11 +98,12 @@ export default async function CoreExamPage({
           return [];
         },
       ),
+      loadTopicProgress(access.viewer.userId),
     ]);
 
     return (
       <CoreExamFrame
-        {...viewFrameBase(access.viewer, activity, scoreboard)}
+        {...viewFrameBase(access.viewer, activity, scoreboard, topicProgress)}
         view="all-questions"
         indexGroups={groups}
       />
@@ -103,7 +111,7 @@ export default async function CoreExamPage({
   }
 
   if (params.view === "sources") {
-    const [activity, sources, scoreboard] = await Promise.all([
+    const [activity, sources, scoreboard, topicProgress] = await Promise.all([
       loadGlobalActivity(access.viewer.spaceId, access.viewer.userId),
       loadSourceLibrary(access.viewer.spaceId),
       loadScoreboard(access.viewer.spaceId, access.viewer.userId).catch(
@@ -112,11 +120,12 @@ export default async function CoreExamPage({
           return [];
         },
       ),
+      loadTopicProgress(access.viewer.userId),
     ]);
 
     return (
       <CoreExamFrame
-        {...viewFrameBase(access.viewer, activity, scoreboard)}
+        {...viewFrameBase(access.viewer, activity, scoreboard, topicProgress)}
         view="sources"
         sourceLibrary={sources}
       />
@@ -135,6 +144,7 @@ export default async function CoreExamPage({
     contributions,
     scoreboard,
     topicConfidence,
+    topicProgress,
   ] = await Promise.all([
     loadGlobalActivity(
       access.viewer.spaceId,
@@ -170,6 +180,7 @@ export default async function CoreExamPage({
           return { topicNodeId: null, myLevel: null };
         })
       : Promise.resolve({ topicNodeId: null, myLevel: null }),
+    loadTopicProgress(access.viewer.userId),
   ]);
 
   return (
@@ -184,6 +195,7 @@ export default async function CoreExamPage({
       scoreboard={scoreboard}
       sourceAvailable={content.available}
       topicConfidence={topicConfidence}
+      topicProgress={topicProgress}
       verifications={verifications}
       viewer={access.viewer}
     />

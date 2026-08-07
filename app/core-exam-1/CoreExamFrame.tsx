@@ -578,12 +578,17 @@ function GroupDiscussionFeed({
 function QuestionCard({
   onOpenSource,
   onMyConfidenceChange,
+  onLikelihoodChange,
   question,
   roster,
   viewerId,
 }: {
   onOpenSource: (source: OpenSource) => void;
   onMyConfidenceChange: (questionId: string, level: number | null) => void;
+  onLikelihoodChange: (
+    questionId: string,
+    likelihood: QuestionLikelihood | null,
+  ) => void;
   question: TopicQuestion;
   roster: RingMember[];
   viewerId: string | null;
@@ -653,6 +658,10 @@ function QuestionCard({
 
   const setLikelihood = async (likelihood: QuestionLikelihood) => {
     setError("");
+    // Flip the mark optimistically so the button, notch, and relevance sort
+    // respond instantly; the RPC + reconciling refresh run in the background.
+    const previous = question.myLikelihood;
+    onLikelihoodChange(question.id, likelihood);
     const supabase = createCoreExamBrowserClient();
     const { error: likelihoodError } = await supabase.rpc(
       "core_exam_set_question_likelihood",
@@ -662,9 +671,11 @@ function QuestionCard({
       },
     );
     if (likelihoodError) {
+      onLikelihoodChange(question.id, previous);
       setError("We couldn’t save that test-likelihood mark.");
       return;
     }
+    // Reconcile attribution / counts / other members' marks off the hot path.
     router.refresh();
   };
 
@@ -1438,6 +1449,21 @@ export function CoreExamFrame({
     },
     [viewer],
   );
+  // Optimistically flip a question's exam-relevance mark in local state so the
+  // notch and the relevance sort respond instantly; the card's background
+  // refresh then reconciles attribution/counts.
+  const handleLikelihoodChange = useCallback(
+    (questionId: string, likelihood: QuestionLikelihood | null) => {
+      setQuestions((previous) =>
+        previous.map((question) =>
+          question.id === questionId
+            ? { ...question, myLikelihood: likelihood }
+            : question,
+        ),
+      );
+    },
+    [],
+  );
   // Answered-status metrics ignore questions the viewer has hidden for
   // themselves, so the count reflects their active study set.
   const countedQuestions = questions.filter(
@@ -1741,6 +1767,13 @@ export function CoreExamFrame({
               <span>REF</span>
               Source library
             </Link>
+            <Link
+              href="/core-exam-1/lower-self"
+              onNavigate={() => beginNavigation()}
+            >
+              <span>REF</span>
+              The Lower Self
+            </Link>
           </nav>
         </details>
 
@@ -1927,6 +1960,14 @@ export function CoreExamFrame({
             >
               <span aria-hidden="true">•</span>
               Source library
+            </Link>
+            <Link
+              className="ce-topic-link"
+              href="/core-exam-1/lower-self"
+              onNavigate={() => beginNavigation()}
+            >
+              <span aria-hidden="true">•</span>
+              The Lower Self
             </Link>
             {REFERENCES.filter(
               (reference) => reference.stableKey === "reference.kessler-chart",
@@ -2140,6 +2181,7 @@ export function CoreExamFrame({
                                   transition={cardLayoutTransition}
                                 >
                                   <QuestionCard
+                                    onLikelihoodChange={handleLikelihoodChange}
                                     onMyConfidenceChange={handleMyConfidenceChange}
                                     onOpenSource={openSourceViewer}
                                     question={question}
@@ -2165,6 +2207,7 @@ export function CoreExamFrame({
                               transition={cardLayoutTransition}
                             >
                               <QuestionCard
+                                onLikelihoodChange={handleLikelihoodChange}
                                 onMyConfidenceChange={handleMyConfidenceChange}
                                 onOpenSource={openSourceViewer}
                                 question={question}
@@ -2193,6 +2236,7 @@ export function CoreExamFrame({
                             .map((question) => (
                               <QuestionCard
                                 key={question.id}
+                                onLikelihoodChange={handleLikelihoodChange}
                                 onMyConfidenceChange={handleMyConfidenceChange}
                                 onOpenSource={openSourceViewer}
                                 question={question}

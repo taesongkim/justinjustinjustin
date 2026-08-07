@@ -1036,6 +1036,16 @@ textarea {
   white-space: nowrap;
 }
 
+/* 0/0 → red (nothing marked likely); n/n → green (all likely mastered);
+   in-between stays the neutral color above. */
+.ce-topic-link .ce-topic-progress[data-state="empty"] {
+  color: var(--ce-danger);
+}
+
+.ce-topic-link .ce-topic-progress[data-state="complete"] {
+  color: var(--ce-accent);
+}
+
 .ce-topic-link:hover {
   background: rgba(var(--ce-glass-rgb), 0.7);
   color: var(--ce-ink);

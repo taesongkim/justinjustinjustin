@@ -47,6 +47,7 @@ import { QuestionTOC } from "./QuestionTOC";
 import { SavingIndicator } from "./SavingIndicator";
 import {
   HOW_TO_USE_KEY,
+  READER_PAGES,
   REFERENCES,
   TOPICS,
   type ReaderPageSummary,
@@ -572,6 +573,34 @@ function GroupDiscussionFeed({
         </button>
       ))}
     </>
+  );
+}
+
+// Instant heading + card skeletons for the page being navigated to, painted
+// while its data loads so a topic switch feels immediate rather than
+// spinner-gated. The heading is real (we know the target); only the cards are
+// placeholders.
+function NavSkeleton({ page }: { page: ReaderPageSummary }) {
+  return (
+    <div className="ce-nav-skeleton">
+      <div className="ce-topic-heading">
+        <div className="ce-topic-eyebrow-row">
+          <div className="ce-topic-eyebrow-group">
+            <p className="ce-eyebrow">
+              {page.kind === "topic" ? `Topic ${page.number}` : "Reference"}
+            </p>
+          </div>
+        </div>
+        <div className="ce-topic-title-row">
+          <h2>{page.label}</h2>
+        </div>
+      </div>
+      <div className="ce-nav-skeleton-cards" aria-hidden="true">
+        {[0, 1, 2, 3].map((index) => (
+          <div className="ce-nav-skeleton-card" key={index} />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -1339,15 +1368,26 @@ export function CoreExamFrame({
   // trigger loading.tsx. Show a centered loader if a switch takes longer than a
   // short beat so fast loads never flash it.
   const [navigating, setNavigating] = useState(false);
+  // The page being navigated to, so we can paint its heading + a card skeleton
+  // instantly instead of holding the old content under a spinner.
+  const [navigatingTo, setNavigatingTo] = useState<ReaderPageSummary | null>(
+    null,
+  );
   const navTimerRef = useRef<number | null>(null);
-  const beginNavigation = useCallback(() => {
+  const beginNavigation = useCallback((target: ReaderPageSummary | null) => {
     if (!TOPIC_NAV_LOADER_ENABLED) return;
     // flushSync paints the overlay synchronously before Link's navigation
     // transition, which would otherwise defer this update out of view.
-    flushSync(() => setNavigating(true));
+    flushSync(() => {
+      setNavigating(true);
+      setNavigatingTo(target);
+    });
     // Safety net: never let the loader stick if a navigation stalls.
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-    navTimerRef.current = window.setTimeout(() => setNavigating(false), 4000);
+    navTimerRef.current = window.setTimeout(() => {
+      setNavigating(false);
+      setNavigatingTo(null);
+    }, 4000);
   }, []);
   const beginTopicNavigation = useCallback(
     (targetKey: string) => {
@@ -1356,13 +1396,16 @@ export function CoreExamFrame({
       // In a cross-topic view, selectedTopic is a placeholder, so always
       // navigate (the target is never really the current page).
       if (!view && targetKey === selectedTopic.stableKey) return;
-      beginNavigation();
+      beginNavigation(
+        READER_PAGES.find((page) => page.stableKey === targetKey) ?? null,
+      );
     },
     [view, selectedTopic.stableKey, beginNavigation],
   );
   useEffect(() => {
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
     setNavigating(false);
+    setNavigatingTo(null);
   }, [selectedTopic.stableKey]);
   // Mobile: All Questions + Activity collapse behind a hamburger. Plain state
   // (not <details>) so the same markup shows the two actions inline on desktop.
@@ -1535,7 +1578,13 @@ export function CoreExamFrame({
   // the panel — and the mobile Content/Discussion switcher — are dropped there.
   const showDiscussion = !view && selectedTopic.kind === "topic";
   // In a cross-topic view, no sidebar topic/reference is the active page.
-  const activeTopicKey = view ? "" : selectedTopic.stableKey;
+  // While navigating, highlight the destination so the sidebar responds at once;
+  // otherwise the current page (none in a cross-topic view).
+  const activeTopicKey = navigatingTo
+    ? navigatingTo.stableKey
+    : view
+      ? ""
+      : selectedTopic.stableKey;
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;
@@ -1762,17 +1811,10 @@ export function CoreExamFrame({
             <Link
               className={view === "sources" ? "ce-mobile-topic-active" : undefined}
               href="/core-exam-1?view=sources"
-              onNavigate={() => beginNavigation()}
+              onNavigate={() => beginNavigation(null)}
             >
               <span>REF</span>
               Source library
-            </Link>
-            <Link
-              href="/core-exam-1/lower-self"
-              onNavigate={() => beginNavigation()}
-            >
-              <span>REF</span>
-              The Lower Self
             </Link>
           </nav>
         </details>
@@ -1813,7 +1855,7 @@ export function CoreExamFrame({
                 className="ce-quiet-button"
                 href="/core-exam-1?view=all-questions"
                 onNavigate={() => {
-                  beginNavigation();
+                  beginNavigation(null);
                   setMenuOpen(false);
                 }}
               >
@@ -1956,18 +1998,10 @@ export function CoreExamFrame({
                   : "ce-topic-link"
               }
               href="/core-exam-1?view=sources"
-              onNavigate={() => beginNavigation()}
+              onNavigate={() => beginNavigation(null)}
             >
               <span aria-hidden="true">•</span>
               Source library
-            </Link>
-            <Link
-              className="ce-topic-link"
-              href="/core-exam-1/lower-self"
-              onNavigate={() => beginNavigation()}
-            >
-              <span aria-hidden="true">•</span>
-              The Lower Self
             </Link>
             {REFERENCES.filter(
               (reference) => reference.stableKey === "reference.kessler-chart",
@@ -2080,7 +2114,9 @@ export function CoreExamFrame({
                     : "ce-reading-inner"
                 }
               >
-                {view === "all-questions" ? (
+                {navigating && navigatingTo ? (
+                  <NavSkeleton page={navigatingTo} />
+                ) : view === "all-questions" ? (
                   <QuestionIndexContent groups={indexGroups ?? []} />
                 ) : view === "sources" ? (
                   <SourceLibraryContent sources={sourceLibrary ?? []} />
@@ -2338,7 +2374,7 @@ export function CoreExamFrame({
         </section>
       </div>
 
-      {navigating && (
+      {navigating && !navigatingTo && (
         <div className="ce-nav-loading" role="status" aria-live="polite">
           <span className="ce-route-loading-spinner" aria-hidden="true" />
           <span className="ce-route-loading-label">Loading…</span>

@@ -2782,6 +2782,12 @@ textarea {
   margin-top: 22px;
 }
 
+/* Kessler chart: rendered bare (no collapsible "Supporting canon" wrapper),
+   matching the canon body's spacing below the page heading. */
+.ce-bare-reader {
+  margin-top: 22px;
+}
+
 .ce-collaborative-empty {
   margin: 18px 0 0;
   padding: 28px;

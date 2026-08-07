@@ -1088,12 +1088,22 @@ textarea {
 
 /* Cross-topic views (All Questions, Source Library) render in the reading pane
    but want the full width — their own shells self-center. Drop the narrow
-   reading-measure cap; the embedded shells (.ce-index-shell / .ce-source-
-   library-shell) supply their own max-width and centering. */
-.ce-reading-inner-wide {
+   reading-measure cap and the reading column's top padding; the embedded shells
+   supply their own width and spacing. Two-class selector so it beats the base
+   .ce-reading-inner regardless of source order. */
+.ce-reading-inner.ce-reading-inner-wide {
   width: 100%;
   max-width: none;
   padding: 0;
+}
+
+/* Embedded shells: wider than the standalone pages, and a small top gap (they
+   sit below the app header here, not their own full-page header). */
+.ce-index-shell.ce-index-embedded,
+.ce-source-library-shell.ce-source-library-embedded {
+  width: 100%;
+  max-width: 1400px;
+  padding: 18px 24px 90px;
 }
 
 .ce-reading {

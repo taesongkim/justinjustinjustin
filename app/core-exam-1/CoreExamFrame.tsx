@@ -163,13 +163,15 @@ const RELEVANCE_SECTIONS = [
 ] as const;
 
 // The Kessler chart page shows only the chart. Drop everything before the first
-// markdown table row (the chart itself), which strips the provenance preamble
-// without touching the stored content. Falls back to the full text if there's
-// no table.
-const stripBeforeFirstTable = (md: string): string => {
+// markdown table row (the chart itself) to strip the provenance preamble, and
+// drop the per-row [Verify] markers — appended to each addressable row, they
+// land in the last (rigid) cell and render as verification rings. Both are
+// display-only; the stored content is untouched.
+const prepareKesslerChart = (md: string): string => {
   const lines = md.split("\n");
   const tableStart = lines.findIndex((line) => /^\s*\|/.test(line));
-  return tableStart > 0 ? lines.slice(tableStart).join("\n").trim() : md;
+  const chart = tableStart > 0 ? lines.slice(tableStart).join("\n").trim() : md;
+  return chart.replace(/\s*\[Verify\]\(#verify-[^)]*\)/g, "");
 };
 
 const revealCoreExamTarget = (targetId: string) => {
@@ -1529,7 +1531,7 @@ export function CoreExamFrame({
   const isKesslerChart =
     selectedTopic.stableKey === "reference.kessler-chart";
   const readerMarkdown = isKesslerChart
-    ? stripBeforeFirstTable(markdown)
+    ? prepareKesslerChart(markdown)
     : markdown;
   const readerBody = sourceAvailable ? (
     <div className="ce-markdown">

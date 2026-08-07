@@ -1457,6 +1457,29 @@ export function CoreExamFrame({
     }
     return { likely, likelyAtLevel3 };
   }, [questions, myLiveLevels]);
+  // Live scoreboard: the viewer's own row reflects their optimistic slider
+  // changes immediately by swapping this topic's server contribution for the
+  // live one. Everyone else uses server counts (kept fresh by the realtime
+  // refresh). Off a topic page there's no live overlay.
+  const liveScoreboard = useMemo(() => {
+    if (view || selectedTopic.kind !== "topic") return scoreboard;
+    const serverCurrent = topicProgress?.[selectedTopic.stableKey];
+    const deltaLikely =
+      currentTopicProgress.likely - (serverCurrent?.likely ?? 0);
+    const deltaAtLevel3 =
+      currentTopicProgress.likelyAtLevel3 -
+      (serverCurrent?.likelyAtLevel3 ?? 0);
+    if (deltaLikely === 0 && deltaAtLevel3 === 0) return scoreboard;
+    return scoreboard.map((member) =>
+      member.isViewer
+        ? {
+            ...member,
+            likely: member.likely + deltaLikely,
+            likelyAtLevel3: member.likelyAtLevel3 + deltaAtLevel3,
+          }
+        : member,
+    );
+  }, [scoreboard, topicProgress, currentTopicProgress, selectedTopic, view]);
   // The sticky TOC's jump targets, in the same top-to-bottom order the cards
   // actually render — so the lit window stays contiguous. When "Sort by exam
   // relevance" is on, that's the grouped order (likely → unsure → unlikely),
@@ -1716,7 +1739,7 @@ export function CoreExamFrame({
           </nav>
         </details>
 
-        <Scoreboard members={scoreboard} />
+        <Scoreboard members={liveScoreboard} />
 
         <div className="ce-header-actions">
           {/* All Questions + Activity: inline on desktop, collapsed behind a

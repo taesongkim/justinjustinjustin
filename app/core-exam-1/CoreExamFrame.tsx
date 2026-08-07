@@ -153,6 +153,16 @@ const RELEVANCE_SECTIONS = [
   { key: "unlikely", label: "Unlikely to be tested" },
 ] as const;
 
+// The Kessler chart page shows only the chart. Drop everything before the first
+// markdown table row (the chart itself), which strips the provenance preamble
+// without touching the stored content. Falls back to the full text if there's
+// no table.
+const stripBeforeFirstTable = (md: string): string => {
+  const lines = md.split("\n");
+  const tableStart = lines.findIndex((line) => /^\s*\|/.test(line));
+  return tableStart > 0 ? lines.slice(tableStart).join("\n").trim() : md;
+};
+
 const revealCoreExamTarget = (targetId: string) => {
   const anchor = document.getElementById(targetId);
   if (!anchor) return false;
@@ -1472,6 +1482,93 @@ export function CoreExamFrame({
     userId: "preview",
   };
 
+  // The Kessler chart renders bare (just the chart), not inside the collapsible
+  // "Supporting canon" container the other reader pages use.
+  const isKesslerChart =
+    selectedTopic.stableKey === "reference.kessler-chart";
+  const readerMarkdown = isKesslerChart
+    ? stripBeforeFirstTable(markdown)
+    : markdown;
+  const readerBody = sourceAvailable ? (
+    <div className="ce-markdown">
+      <ReactMarkdown
+        components={{
+          a({ children, href, ...props }) {
+            if (href?.startsWith("#verify-")) {
+              const stableKey = href.slice("#verify-".length);
+              const verification = verifications[stableKey];
+              return verification ? (
+                <VerificationControl
+                  contributions={contributions[stableKey] ?? []}
+                  verification={verification}
+                />
+              ) : null;
+            }
+
+            return (
+              <a href={href} {...props}>
+                {children}
+              </a>
+            );
+          },
+          code({ children, className, ...props }) {
+            const value = String(children).replace(/\n$/, "");
+
+            const glyph = CONTENT_GLYPHS[value];
+            if (glyph) {
+              const tip = TIER_TOOLTIP[glyph.type];
+              return (
+                <span
+                  aria-label={glyph.label}
+                  className={`ce-marker ce-marker-${glyph.type}`}
+                  data-tip={tip}
+                  tabIndex={tip ? 0 : undefined}
+                  role="img"
+                >
+                  <MarkerGlyph type={glyph.type} />
+                </span>
+              );
+            }
+
+            if (isCitationToken(value)) {
+              const resolved = resolveCitationSource(value);
+              if (resolved) {
+                return (
+                  <button
+                    className="ce-citation ce-citation-button"
+                    onClick={() =>
+                      openSourceViewer({ citation: value, ...resolved })
+                    }
+                    title={`View source ${value}`}
+                    type="button"
+                  >
+                    {value}
+                  </button>
+                );
+              }
+
+              return <span className="ce-citation">{value}</span>;
+            }
+
+            return (
+              <code className={className} {...props}>
+                {children}
+              </code>
+            );
+          },
+        }}
+        remarkPlugins={[remarkGfm]}
+      >
+        {readerMarkdown}
+      </ReactMarkdown>
+    </div>
+  ) : (
+    <div className="ce-source-unavailable">
+      <h3>Private source unavailable</h3>
+      <p>Connect the local source map to preview canonical study content.</p>
+    </div>
+  );
+
   return (
     <main className="ce-app">
       <header className="ce-header">
@@ -1921,111 +2018,25 @@ export function CoreExamFrame({
                   />
                 )}
 
-                {!collaborativeEmpty && (
-                  <details className="ce-canon">
-                    <summary className="ce-canon-summary">
-                      <span className="ce-canon-summary-text">
-                        <span className="ce-eyebrow">Supporting canon</span>
-                        <h3>Source material and study notes</h3>
-                      </span>
-                      <span className="ce-canon-chevron" aria-hidden="true" />
-                    </summary>
+                {!collaborativeEmpty &&
+                  (isKesslerChart ? (
+                    <div className="ce-bare-reader">{readerBody}</div>
+                  ) : (
+                    <details className="ce-canon">
+                      <summary className="ce-canon-summary">
+                        <span className="ce-canon-summary-text">
+                          <span className="ce-eyebrow">Supporting canon</span>
+                          <h3>Source material and study notes</h3>
+                        </span>
+                        <span
+                          className="ce-canon-chevron"
+                          aria-hidden="true"
+                        />
+                      </summary>
 
-                    <div className="ce-canon-body">
-                    {sourceAvailable ? (
-                      <div className="ce-markdown">
-                    <ReactMarkdown
-                      components={{
-                        a({ children, href, ...props }) {
-                          if (href?.startsWith("#verify-")) {
-                            const stableKey = href.slice("#verify-".length);
-                            const verification = verifications[stableKey];
-                            return verification ? (
-                              <VerificationControl
-                                contributions={
-                                  contributions[stableKey] ?? []
-                                }
-                                verification={verification}
-                              />
-                            ) : null;
-                          }
-
-                          return (
-                            <a href={href} {...props}>
-                              {children}
-                            </a>
-                          );
-                        },
-                        code({ children, className, ...props }) {
-                          const value = String(children).replace(/\n$/, "");
-
-                          const glyph = CONTENT_GLYPHS[value];
-                          if (glyph) {
-                            const tip = TIER_TOOLTIP[glyph.type];
-                            return (
-                              <span
-                                aria-label={glyph.label}
-                                className={`ce-marker ce-marker-${glyph.type}`}
-                                data-tip={tip}
-                                tabIndex={tip ? 0 : undefined}
-                                role="img"
-                              >
-                                <MarkerGlyph type={glyph.type} />
-                              </span>
-                            );
-                          }
-
-                          if (isCitationToken(value)) {
-                            const resolved = resolveCitationSource(value);
-                            if (resolved) {
-                              return (
-                                <button
-                                  className="ce-citation ce-citation-button"
-                                  onClick={() =>
-                                    openSourceViewer({
-                                      citation: value,
-                                      ...resolved,
-                                    })
-                                  }
-                                  title={`View source ${value}`}
-                                  type="button"
-                                >
-                                  {value}
-                                </button>
-                              );
-                            }
-
-                            return (
-                              <span className="ce-citation">
-                                {value}
-                              </span>
-                            );
-                          }
-
-                          return (
-                            <code className={className} {...props}>
-                              {children}
-                            </code>
-                          );
-                        },
-                      }}
-                      remarkPlugins={[remarkGfm]}
-                    >
-                      {markdown}
-                    </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="ce-source-unavailable">
-                        <h3>Private source unavailable</h3>
-                        <p>
-                          Connect the local source map to preview canonical
-                          study content.
-                        </p>
-                      </div>
-                    )}
-                    </div>
-                  </details>
-                )}
+                      <div className="ce-canon-body">{readerBody}</div>
+                    </details>
+                  ))}
                   </>
                 )}
 

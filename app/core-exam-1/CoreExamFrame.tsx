@@ -1859,6 +1859,16 @@ export function CoreExamFrame({
                 !view && topic.stableKey === selectedTopic.stableKey
                   ? currentTopicProgress
                   : topicProgress?.[topic.stableKey];
+              const progressX = progress?.likelyAtLevel3 ?? 0;
+              const progressY = progress?.likely ?? 0;
+              // 0/0 (nothing marked likely) reads red; n/n (all likely questions
+              // mastered) reads green; anything in between stays neutral.
+              const progressState =
+                progressY === 0
+                  ? "empty"
+                  : progressX === progressY
+                    ? "complete"
+                    : undefined;
               return (
                 <Link
                   className={
@@ -1875,9 +1885,10 @@ export function CoreExamFrame({
                   {showTopicProgress && (
                     <span
                       className="ce-topic-progress"
+                      data-state={progressState}
                       title="Likely questions at level 3+ / total likely"
                     >
-                      {progress?.likelyAtLevel3 ?? 0}/{progress?.likely ?? 0}
+                      {progressX}/{progressY}
                     </span>
                   )}
                 </Link>

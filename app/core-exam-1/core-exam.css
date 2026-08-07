@@ -1036,6 +1036,17 @@ textarea {
   white-space: nowrap;
 }
 
+/* 0/0 → red (nothing marked likely); n/n → green (all likely mastered);
+   in-between stays the neutral color above. Softened toward the neutral tone so
+   the vividness matches the gentle member colors rather than reading neon. */
+.ce-topic-link .ce-topic-progress[data-state="empty"] {
+  color: color-mix(in oklch, var(--ce-danger), var(--ce-muted) 45%);
+}
+
+.ce-topic-link .ce-topic-progress[data-state="complete"] {
+  color: color-mix(in oklch, var(--ce-accent), var(--ce-muted) 32%);
+}
+
 .ce-topic-link:hover {
   background: rgba(var(--ce-glass-rgb), 0.7);
   color: var(--ce-ink);

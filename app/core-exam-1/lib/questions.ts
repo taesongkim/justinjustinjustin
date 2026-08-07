@@ -323,3 +323,66 @@ export async function loadTopicConfidence(
     .maybeSingle();
   return { topicNodeId: topic.id, myLevel: row?.level ?? null };
 }
+
+// Per-topic counts for the viewer's "Topic progress" toggle: how many questions
+// they marked "likely", and how many of those sit at mastery level 3 or higher
+// (the study-ready threshold). Computed with a few lightweight, space-scoped
+// queries plus JS aggregation — no per-topic round-trips and no new RPC.
+// Degrades to {} on any failure so the sidebar simply omits the badges.
+export type TopicProgress = { likely: number; likelyAtLevel3: number };
+
+export async function loadTopicProgress(
+  viewerId: string,
+): Promise<Record<string, TopicProgress>> {
+  try {
+    const supabase = await createCoreExamServerClient();
+
+    const [{ data: topicNodes }, { data: questions }, { data: likelyMarks }, { data: confidenceRows }] =
+      await Promise.all([
+        supabase
+          .from("core_exam_content_nodes")
+          .select("id, stable_key")
+          .eq("kind", "topic"),
+        supabase.from("core_exam_questions").select("id, topic_node_id"),
+        supabase
+          .from("core_exam_question_likelihood_marks")
+          .select("question_id")
+          .eq("user_id", viewerId)
+          .eq("likelihood", "likely"),
+        supabase
+          .from("core_exam_confidence")
+          .select("target_id")
+          .eq("user_id", viewerId)
+          .eq("target_type", "question")
+          .gte("level", 3),
+      ]);
+
+    if (!topicNodes || topicNodes.length === 0) return {};
+
+    const nodeToStableKey = new Map<string, string>();
+    for (const node of topicNodes) {
+      nodeToStableKey.set(node.id, node.stable_key);
+    }
+    const questionToNode = new Map<string, string>();
+    for (const question of questions ?? []) {
+      questionToNode.set(question.id, question.topic_node_id);
+    }
+    const atLevel3 = new Set(
+      (confidenceRows ?? []).map((row) => row.target_id),
+    );
+
+    const progress: Record<string, TopicProgress> = {};
+    for (const mark of likelyMarks ?? []) {
+      const nodeId = questionToNode.get(mark.question_id);
+      const stableKey = nodeId ? nodeToStableKey.get(nodeId) : undefined;
+      if (!stableKey) continue;
+      const entry = (progress[stableKey] ??= { likely: 0, likelyAtLevel3: 0 });
+      entry.likely += 1;
+      if (atLevel3.has(mark.question_id)) entry.likelyAtLevel3 += 1;
+    }
+    return progress;
+  } catch (error) {
+    console.error("topic progress load failed", error);
+    return {};
+  }
+}

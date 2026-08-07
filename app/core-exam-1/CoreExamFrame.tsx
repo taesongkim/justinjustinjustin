@@ -29,6 +29,7 @@ import { hueNameStyle } from "./lib/hue";
 import { createCoreExamBrowserClient } from "./lib/supabase/browser";
 import type {
   QuestionLikelihood,
+  TopicProgress,
   TopicQuestion,
 } from "./lib/questions";
 import type { PageVerifications } from "./lib/verification";
@@ -75,6 +76,8 @@ type CoreExamFrameProps = {
   view?: "all-questions" | "sources";
   indexGroups?: TopicQuestionGroup[];
   sourceLibrary?: SourceLibraryItem[];
+  // Per-topic Likely / Likely-at-level-3 counts for the "Topic progress" toggle.
+  topicProgress?: Record<string, TopicProgress>;
 };
 
 type OpenSource = {
@@ -1187,6 +1190,7 @@ export function CoreExamFrame({
   view,
   indexGroups,
   sourceLibrary,
+  topicProgress,
 }: CoreExamFrameProps) {
   useLiveActivity(viewer?.spaceId, viewer?.userId);
   useLiveConfidence(viewer?.spaceId, viewer?.userId);
@@ -1265,6 +1269,27 @@ export function CoreExamFrame({
     setSortByRelevance(next);
     try {
       localStorage.setItem("ce-sort-relevance", next ? "on" : "off");
+    } catch {
+      // ignore storage failures
+    }
+  };
+  // "Topic progress": off by default, choice persists (same pattern as above).
+  // When on, each sidebar topic shows x/y — y = questions marked Likely, x = of
+  // those, how many the viewer has at mastery level 3+.
+  const [showTopicProgress, setShowTopicProgress] = useState(false);
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("ce-topic-progress") === "on") {
+        setShowTopicProgress(true);
+      }
+    } catch {
+      // ignore storage failures
+    }
+  }, []);
+  const setTopicProgressPreference = (next: boolean) => {
+    setShowTopicProgress(next);
+    try {
+      localStorage.setItem("ce-topic-progress", next ? "on" : "off");
     } catch {
       // ignore storage failures
     }
@@ -1729,6 +1754,17 @@ export function CoreExamFrame({
               <strong>{identity.displayName}</strong>
               <span>{identity.email}</span>
               <span className="ce-identity-role">{identity.role}</span>
+              <label className="ce-menu-toggle">
+                <span>Topic progress</span>
+                <input
+                  checked={showTopicProgress}
+                  onChange={(event) =>
+                    setTopicProgressPreference(event.target.checked)
+                  }
+                  type="checkbox"
+                />
+                <span className="ce-switch" aria-hidden="true" />
+              </label>
               {viewer?.role === "owner" &&
                 process.env.NODE_ENV === "development" && (
                   <Link href="/core-exam-1/question-workshop">
@@ -1752,21 +1788,32 @@ export function CoreExamFrame({
         <aside className="ce-sidebar" aria-label="Study topics">
           <p className="ce-sidebar-label">Exam topics</p>
           <nav>
-            {TOPICS.map((topic) => (
-              <Link
-                className={
-                  topic.stableKey === activeTopicKey
-                    ? "ce-topic-link ce-topic-link-active"
-                    : "ce-topic-link"
-                }
-                href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
-                key={topic.stableKey}
-                onNavigate={() => beginTopicNavigation(topic.stableKey)}
-              >
-                <span>{String(topic.number).padStart(2, "0")}</span>
-                {topic.label}
-              </Link>
-            ))}
+            {TOPICS.map((topic) => {
+              const progress = topicProgress?.[topic.stableKey];
+              return (
+                <Link
+                  className={
+                    topic.stableKey === activeTopicKey
+                      ? "ce-topic-link ce-topic-link-active"
+                      : "ce-topic-link"
+                  }
+                  href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
+                  key={topic.stableKey}
+                  onNavigate={() => beginTopicNavigation(topic.stableKey)}
+                >
+                  <span>{String(topic.number).padStart(2, "0")}</span>
+                  {topic.label}
+                  {showTopicProgress && (
+                    <span
+                      className="ce-topic-progress"
+                      title="Likely questions at level 3+ / total likely"
+                    >
+                      {progress?.likelyAtLevel3 ?? 0}/{progress?.likely ?? 0}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </nav>
           <p className="ce-sidebar-label ce-sidebar-reference-label">
             Reference

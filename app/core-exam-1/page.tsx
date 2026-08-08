@@ -132,6 +132,26 @@ export default async function CoreExamPage({
     );
   }
 
+  if (params.view === "timeline") {
+    const [activity, scoreboard, topicProgress] = await Promise.all([
+      loadGlobalActivity(access.viewer.spaceId, access.viewer.userId),
+      loadScoreboard(access.viewer.spaceId, access.viewer.userId).catch(
+        (error) => {
+          console.error("scoreboard load failed; showing none", error);
+          return [];
+        },
+      ),
+      loadTopicProgress(access.viewer.userId),
+    ]);
+
+    return (
+      <CoreExamFrame
+        {...viewFrameBase(access.viewer, activity, scoreboard, topicProgress)}
+        view="timeline"
+      />
+    );
+  }
+
   const requestedKey = params.topic;
   const selectedTopic =
     READER_PAGES.find((topic) => topic.stableKey === requestedKey) ??

@@ -56,6 +56,7 @@ import { HowToUseGuide } from "./HowToUseGuide";
 import { LowerSelfGuide } from "./LowerSelfGuide";
 import { QuestionIndexContent } from "./QuestionIndexContent";
 import { SourceLibraryContent } from "./SourceLibraryContent";
+import { DevelopmentalTimeline } from "./DevelopmentalTimeline";
 import type { TopicQuestionGroup } from "./QuestionIndexView";
 import type { SourceLibraryItem } from "./lib/sources";
 import { VerificationControl } from "./VerificationControl";
@@ -75,7 +76,7 @@ type CoreExamFrameProps = {
   viewer: CoreExamViewer | null;
   // Cross-topic views that render in the reading pane instead of a topic. When
   // set, selectedTopic is a placeholder and the topic body is skipped.
-  view?: "all-questions" | "sources";
+  view?: "all-questions" | "sources" | "timeline";
   indexGroups?: TopicQuestionGroup[];
   sourceLibrary?: SourceLibraryItem[];
   // Per-topic Likely / Likely-at-level-3 counts for the "Topic progress" toggle.
@@ -1744,6 +1745,16 @@ export function CoreExamFrame({
               <span>REF</span>
               Source library
             </Link>
+            <Link
+              className={
+                view === "timeline" ? "ce-mobile-topic-active" : undefined
+              }
+              href="/core-exam-1?view=timeline"
+              onNavigate={() => beginNavigation()}
+            >
+              <span>REF</span>
+              Developmental timeline
+            </Link>
           </nav>
         </details>
 
@@ -1931,6 +1942,18 @@ export function CoreExamFrame({
               <span aria-hidden="true">•</span>
               Source library
             </Link>
+            <Link
+              className={
+                view === "timeline"
+                  ? "ce-topic-link ce-topic-link-active"
+                  : "ce-topic-link"
+              }
+              href="/core-exam-1?view=timeline"
+              onNavigate={() => beginNavigation()}
+            >
+              <span aria-hidden="true">•</span>
+              Developmental timeline
+            </Link>
             {REFERENCES.filter(
               (reference) => reference.stableKey === "reference.kessler-chart",
             ).map((reference) => (
@@ -2051,7 +2074,9 @@ export function CoreExamFrame({
                   ? "All questions"
                   : view === "sources"
                     ? "Source library"
-                    : `${selectedTopic.label} content`
+                    : view === "timeline"
+                      ? "Developmental timeline"
+                      : `${selectedTopic.label} content`
               }
             >
               <div
@@ -2068,6 +2093,8 @@ export function CoreExamFrame({
                   <QuestionIndexContent groups={indexGroups ?? []} />
                 ) : view === "sources" ? (
                   <SourceLibraryContent sources={sourceLibrary ?? []} />
+                ) : view === "timeline" ? (
+                  <DevelopmentalTimeline />
                 ) : isGuide ? (
                   <HowToUseGuide />
                 ) : isLowerSelf ? (

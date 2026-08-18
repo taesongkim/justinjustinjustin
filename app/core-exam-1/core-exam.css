@@ -4309,6 +4309,8 @@ a.ce-score-name-pov:hover {
   border-bottom: 1px solid var(--ce-accent);
   color: var(--ce-ink);
   font-size: 12px;
+  /* Slightly translucent so it reads as overlaying the header beneath it. */
+  opacity: 0.8;
 }
 
 .ce-pov-banner-avatar {

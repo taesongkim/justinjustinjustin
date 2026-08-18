@@ -102,6 +102,14 @@ export const TOPICS: ReaderPageSummary[] = [
     label: "Transference and Countertransference",
     kind: "topic",
   },
+  // A catch-all space for misc questions; behaves like any other topic. Its
+  // content node is created by migration 20260812000000_core_exam_other_node.
+  {
+    number: 17,
+    stableKey: "topic-17.other",
+    label: "Other",
+    kind: "topic",
+  },
 ];
 
 // Rendered as a bespoke interactive page (HowToUseGuide), not markdown content.

@@ -605,20 +605,34 @@ function GroupDiscussionFeed({
 // while its data loads so a topic switch feels immediate rather than
 // spinner-gated. The heading is real (we know the target); only the cards are
 // placeholders.
+// Topic-only skeleton. It mirrors the real topic heading — eyebrow, confidence
+// slider, "x of y answered" status, and the relevance toggle — so those
+// controls don't pop in and shift the layout when the real content resolves.
+// Reference pages use the plain overlay spinner instead (see ce-nav-loading).
 function NavSkeleton({ page }: { page: ReaderPageSummary }) {
   return (
     <div className="ce-nav-skeleton">
       <div className="ce-topic-heading">
         <div className="ce-topic-eyebrow-row">
           <div className="ce-topic-eyebrow-group">
-            <p className="ce-eyebrow">
-              {page.kind === "topic" ? `Topic ${page.number}` : "Reference"}
-            </p>
+            <p className="ce-eyebrow">{`Topic ${page.number}`}</p>
+            <span
+              className="ce-nav-skeleton-pill ce-nav-skeleton-slider"
+              aria-hidden="true"
+            />
           </div>
+          <span
+            className="ce-nav-skeleton-pill ce-nav-skeleton-status"
+            aria-hidden="true"
+          />
         </div>
         <div className="ce-topic-title-row">
           <h2>{page.label}</h2>
         </div>
+        <span
+          className="ce-nav-skeleton-pill ce-nav-skeleton-toggle"
+          aria-hidden="true"
+        />
       </div>
       <div className="ce-nav-skeleton-cards" aria-hidden="true">
         {[0, 1, 2, 3].map((index) => (
@@ -1287,6 +1301,12 @@ export function CoreExamFrame({
     const query = next.toString();
     return query ? `${povPathname}?${query}` : povPathname;
   }, [povPathname, povSearchParams]);
+  // Keep POV mode while switching pages: every in-app nav href carries ?pov=.
+  // Base hrefs already have a `?`, so we append `&pov=`.
+  const withPov = (href: string) =>
+    povMember
+      ? `${href}&pov=${encodeURIComponent(povMember.userId)}`
+      : href;
   useLiveActivity(viewer?.spaceId, viewer?.userId);
   useLiveConfidence(viewer?.spaceId, viewer?.userId);
   // Viewer's own confidence for the whole topic (optimistic; resyncs on load).
@@ -1372,11 +1392,12 @@ export function CoreExamFrame({
   // "Topic progress": off by default, choice persists (same pattern as above).
   // When on, each sidebar topic shows x/y — y = questions marked Likely, x = of
   // those, how many the viewer has at mastery level 3+.
-  const [showTopicProgress, setShowTopicProgress] = useState(false);
+  // Default on for everyone; only an explicit prior "off" keeps it hidden.
+  const [showTopicProgress, setShowTopicProgress] = useState(true);
   useEffect(() => {
     try {
-      if (localStorage.getItem("ce-topic-progress") === "on") {
-        setShowTopicProgress(true);
+      if (localStorage.getItem("ce-topic-progress") === "off") {
+        setShowTopicProgress(false);
       }
     } catch {
       // ignore storage failures
@@ -1866,7 +1887,7 @@ export function CoreExamFrame({
                     ? "ce-mobile-topic-active"
                     : undefined
                 }
-                href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
+                href={withPov(`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`)}
                 key={topic.stableKey}
                 onNavigate={() => beginTopicNavigation(topic.stableKey)}
               >
@@ -1880,7 +1901,7 @@ export function CoreExamFrame({
             ))}
             <Link
               className={view === "sources" ? "ce-mobile-topic-active" : undefined}
-              href="/core-exam-1?view=sources"
+              href={withPov("/core-exam-1?view=sources")}
               onNavigate={() => beginNavigation(null)}
             >
               <span>REF</span>
@@ -1890,7 +1911,7 @@ export function CoreExamFrame({
               className={
                 view === "timeline" ? "ce-mobile-topic-active" : undefined
               }
-              href="/core-exam-1?view=timeline"
+              href={withPov("/core-exam-1?view=timeline")}
               onNavigate={() => beginNavigation(null)}
             >
               <span>REF</span>
@@ -1933,7 +1954,7 @@ export function CoreExamFrame({
             >
               <Link
                 className="ce-quiet-button"
-                href="/core-exam-1?view=all-questions"
+                href={withPov("/core-exam-1?view=all-questions")}
                 onNavigate={() => {
                   beginNavigation(null);
                   setMenuOpen(false);
@@ -2031,7 +2052,7 @@ export function CoreExamFrame({
                       ? "ce-topic-link ce-topic-link-active"
                       : "ce-topic-link"
                   }
-                  href={`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`}
+                  href={withPov(`/core-exam-1?topic=${encodeURIComponent(topic.stableKey)}`)}
                   key={topic.stableKey}
                   onNavigate={() => beginTopicNavigation(topic.stableKey)}
                 >
@@ -2063,7 +2084,7 @@ export function CoreExamFrame({
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
-                href={`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`}
+                href={withPov(`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`)}
                 key={reference.stableKey}
                 onNavigate={() => beginTopicNavigation(reference.stableKey)}
               >
@@ -2077,7 +2098,7 @@ export function CoreExamFrame({
                   ? "ce-topic-link ce-topic-link-active"
                   : "ce-topic-link"
               }
-              href="/core-exam-1?view=sources"
+              href={withPov("/core-exam-1?view=sources")}
               onNavigate={() => beginNavigation(null)}
             >
               <span aria-hidden="true">•</span>
@@ -2089,7 +2110,7 @@ export function CoreExamFrame({
                   ? "ce-topic-link ce-topic-link-active"
                   : "ce-topic-link"
               }
-              href="/core-exam-1?view=timeline"
+              href={withPov("/core-exam-1?view=timeline")}
               onNavigate={() => beginNavigation(null)}
             >
               <span aria-hidden="true">•</span>
@@ -2104,7 +2125,7 @@ export function CoreExamFrame({
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
-                href={`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`}
+                href={withPov(`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`)}
                 key={reference.stableKey}
                 onNavigate={() => beginTopicNavigation(reference.stableKey)}
               >
@@ -2121,7 +2142,7 @@ export function CoreExamFrame({
                     ? "ce-topic-link ce-topic-link-active"
                     : "ce-topic-link"
                 }
-                href={`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`}
+                href={withPov(`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`)}
                 key={reference.stableKey}
                 onNavigate={() => beginTopicNavigation(reference.stableKey)}
               >
@@ -2152,7 +2173,7 @@ export function CoreExamFrame({
                         ? "ce-topic-link ce-topic-link-active"
                         : "ce-topic-link"
                     }
-                    href={`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`}
+                    href={withPov(`/core-exam-1?topic=${encodeURIComponent(reference.stableKey)}`)}
                     key={reference.stableKey}
                     onNavigate={() => beginTopicNavigation(reference.stableKey)}
                   >
@@ -2230,7 +2251,7 @@ export function CoreExamFrame({
                 {/* Reference pages render here as reader content: markdown, or a
                     bespoke component keyed by stableKey (isGuide, isLowerSelf).
                     New references go here too — never as a separate route. */}
-                {navigating && navigatingTo ? (
+                {navigating && navigatingTo && navigatingTo.kind === "topic" ? (
                   <NavSkeleton page={navigatingTo} />
                 ) : view === "all-questions" ? (
                   <QuestionIndexContent groups={indexGroups ?? []} />
@@ -2495,7 +2516,7 @@ export function CoreExamFrame({
         </section>
       </div>
 
-      {navigating && !navigatingTo && (
+      {navigating && (!navigatingTo || navigatingTo.kind === "reference") && (
         <div className="ce-nav-loading" role="status" aria-live="polite">
           <span className="ce-route-loading-spinner" aria-hidden="true" />
           <span className="ce-route-loading-label">Loading…</span>

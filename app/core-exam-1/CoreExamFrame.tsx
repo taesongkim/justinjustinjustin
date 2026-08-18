@@ -56,6 +56,7 @@ import { SavingIndicator } from "./SavingIndicator";
 import {
   HOW_TO_USE_KEY,
   LOWER_SELF_KEY,
+  READER_PAGES,
   REFERENCES,
   TOPICS,
   type ReaderPageSummary,
@@ -600,15 +601,48 @@ function GroupDiscussionFeed({
   );
 }
 
+// Instant heading + card skeletons for the page being navigated to, painted
+// while its data loads so a topic switch feels immediate rather than
+// spinner-gated. The heading is real (we know the target); only the cards are
+// placeholders.
+function NavSkeleton({ page }: { page: ReaderPageSummary }) {
+  return (
+    <div className="ce-nav-skeleton">
+      <div className="ce-topic-heading">
+        <div className="ce-topic-eyebrow-row">
+          <div className="ce-topic-eyebrow-group">
+            <p className="ce-eyebrow">
+              {page.kind === "topic" ? `Topic ${page.number}` : "Reference"}
+            </p>
+          </div>
+        </div>
+        <div className="ce-topic-title-row">
+          <h2>{page.label}</h2>
+        </div>
+      </div>
+      <div className="ce-nav-skeleton-cards" aria-hidden="true">
+        {[0, 1, 2, 3].map((index) => (
+          <div className="ce-nav-skeleton-card" key={index} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function QuestionCard({
   onOpenSource,
   onMyConfidenceChange,
+  onLikelihoodChange,
   question,
   roster,
   viewerId,
 }: {
   onOpenSource: (source: OpenSource) => void;
   onMyConfidenceChange: (questionId: string, level: number | null) => void;
+  onLikelihoodChange: (
+    questionId: string,
+    likelihood: QuestionLikelihood | null,
+  ) => void;
   question: TopicQuestion;
   roster: RingMember[];
   viewerId: string | null;
@@ -681,6 +715,10 @@ function QuestionCard({
   const setLikelihood = async (likelihood: QuestionLikelihood) => {
     if (readOnly) return;
     setError("");
+    // Flip the mark optimistically so the button, notch, and relevance sort
+    // respond instantly; the RPC + reconciling refresh run in the background.
+    const previous = question.myLikelihood;
+    onLikelihoodChange(question.id, likelihood);
     const supabase = createCoreExamBrowserClient();
     const { error: likelihoodError } = await supabase.rpc(
       "core_exam_set_question_likelihood",
@@ -690,9 +728,11 @@ function QuestionCard({
       },
     );
     if (likelihoodError) {
+      onLikelihoodChange(question.id, previous);
       setError("We couldn’t save that test-likelihood mark.");
       return;
     }
+    // Reconcile attribution / counts / other members' marks off the hot path.
     router.refresh();
   };
 
@@ -1378,15 +1418,26 @@ export function CoreExamFrame({
   // trigger loading.tsx. Show a centered loader if a switch takes longer than a
   // short beat so fast loads never flash it.
   const [navigating, setNavigating] = useState(false);
+  // The page being navigated to, so we can paint its heading + a card skeleton
+  // instantly instead of holding the old content under a spinner.
+  const [navigatingTo, setNavigatingTo] = useState<ReaderPageSummary | null>(
+    null,
+  );
   const navTimerRef = useRef<number | null>(null);
-  const beginNavigation = useCallback(() => {
+  const beginNavigation = useCallback((target: ReaderPageSummary | null) => {
     if (!TOPIC_NAV_LOADER_ENABLED) return;
     // flushSync paints the overlay synchronously before Link's navigation
     // transition, which would otherwise defer this update out of view.
-    flushSync(() => setNavigating(true));
+    flushSync(() => {
+      setNavigating(true);
+      setNavigatingTo(target);
+    });
     // Safety net: never let the loader stick if a navigation stalls.
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
-    navTimerRef.current = window.setTimeout(() => setNavigating(false), 4000);
+    navTimerRef.current = window.setTimeout(() => {
+      setNavigating(false);
+      setNavigatingTo(null);
+    }, 4000);
   }, []);
   const beginTopicNavigation = useCallback(
     (targetKey: string) => {
@@ -1395,13 +1446,16 @@ export function CoreExamFrame({
       // In a cross-topic view, selectedTopic is a placeholder, so always
       // navigate (the target is never really the current page).
       if (!view && targetKey === selectedTopic.stableKey) return;
-      beginNavigation();
+      beginNavigation(
+        READER_PAGES.find((page) => page.stableKey === targetKey) ?? null,
+      );
     },
     [view, selectedTopic.stableKey, beginNavigation],
   );
   useEffect(() => {
     if (navTimerRef.current) window.clearTimeout(navTimerRef.current);
     setNavigating(false);
+    setNavigatingTo(null);
   }, [selectedTopic.stableKey]);
   // Mobile: All Questions + Activity collapse behind a hamburger. Plain state
   // (not <details>) so the same markup shows the two actions inline on desktop.
@@ -1488,6 +1542,21 @@ export function CoreExamFrame({
     },
     [viewer],
   );
+  // Optimistically flip a question's exam-relevance mark in local state so the
+  // notch and the relevance sort respond instantly; the card's background
+  // refresh then reconciles attribution/counts.
+  const handleLikelihoodChange = useCallback(
+    (questionId: string, likelihood: QuestionLikelihood | null) => {
+      setQuestions((previous) =>
+        previous.map((question) =>
+          question.id === questionId
+            ? { ...question, myLikelihood: likelihood }
+            : question,
+        ),
+      );
+    },
+    [],
+  );
   // Answered-status metrics ignore questions the viewer has hidden for
   // themselves, so the count reflects their active study set.
   const countedQuestions = questions.filter(
@@ -1560,7 +1629,13 @@ export function CoreExamFrame({
   // the panel — and the mobile Content/Discussion switcher — are dropped there.
   const showDiscussion = !view && selectedTopic.kind === "topic";
   // In a cross-topic view, no sidebar topic/reference is the active page.
-  const activeTopicKey = view ? "" : selectedTopic.stableKey;
+  // While navigating, highlight the destination so the sidebar responds at once;
+  // otherwise the current page (none in a cross-topic view).
+  const activeTopicKey = navigatingTo
+    ? navigatingTo.stableKey
+    : view
+      ? ""
+      : selectedTopic.stableKey;
   const answeredCount = countedQuestions.filter(
     (question) => question.myAnswer,
   ).length;
@@ -1806,7 +1881,7 @@ export function CoreExamFrame({
             <Link
               className={view === "sources" ? "ce-mobile-topic-active" : undefined}
               href="/core-exam-1?view=sources"
-              onNavigate={() => beginNavigation()}
+              onNavigate={() => beginNavigation(null)}
             >
               <span>REF</span>
               Source library
@@ -1816,7 +1891,7 @@ export function CoreExamFrame({
                 view === "timeline" ? "ce-mobile-topic-active" : undefined
               }
               href="/core-exam-1?view=timeline"
-              onNavigate={() => beginNavigation()}
+              onNavigate={() => beginNavigation(null)}
             >
               <span>REF</span>
               Developmental timeline
@@ -1860,7 +1935,7 @@ export function CoreExamFrame({
                 className="ce-quiet-button"
                 href="/core-exam-1?view=all-questions"
                 onNavigate={() => {
-                  beginNavigation();
+                  beginNavigation(null);
                   setMenuOpen(false);
                 }}
               >
@@ -2003,7 +2078,7 @@ export function CoreExamFrame({
                   : "ce-topic-link"
               }
               href="/core-exam-1?view=sources"
-              onNavigate={() => beginNavigation()}
+              onNavigate={() => beginNavigation(null)}
             >
               <span aria-hidden="true">•</span>
               Source library
@@ -2015,7 +2090,7 @@ export function CoreExamFrame({
                   : "ce-topic-link"
               }
               href="/core-exam-1?view=timeline"
-              onNavigate={() => beginNavigation()}
+              onNavigate={() => beginNavigation(null)}
             >
               <span aria-hidden="true">•</span>
               Developmental timeline
@@ -2155,7 +2230,9 @@ export function CoreExamFrame({
                 {/* Reference pages render here as reader content: markdown, or a
                     bespoke component keyed by stableKey (isGuide, isLowerSelf).
                     New references go here too — never as a separate route. */}
-                {view === "all-questions" ? (
+                {navigating && navigatingTo ? (
+                  <NavSkeleton page={navigatingTo} />
+                ) : view === "all-questions" ? (
                   <QuestionIndexContent groups={indexGroups ?? []} />
                 ) : view === "sources" ? (
                   <SourceLibraryContent sources={sourceLibrary ?? []} />
@@ -2261,6 +2338,7 @@ export function CoreExamFrame({
                                   transition={cardLayoutTransition}
                                 >
                                   <QuestionCard
+                                    onLikelihoodChange={handleLikelihoodChange}
                                     onMyConfidenceChange={handleMyConfidenceChange}
                                     onOpenSource={openSourceViewer}
                                     question={question}
@@ -2286,6 +2364,7 @@ export function CoreExamFrame({
                               transition={cardLayoutTransition}
                             >
                               <QuestionCard
+                                onLikelihoodChange={handleLikelihoodChange}
                                 onMyConfidenceChange={handleMyConfidenceChange}
                                 onOpenSource={openSourceViewer}
                                 question={question}
@@ -2314,6 +2393,7 @@ export function CoreExamFrame({
                             .map((question) => (
                               <QuestionCard
                                 key={question.id}
+                                onLikelihoodChange={handleLikelihoodChange}
                                 onMyConfidenceChange={handleMyConfidenceChange}
                                 onOpenSource={openSourceViewer}
                                 question={question}
@@ -2415,7 +2495,7 @@ export function CoreExamFrame({
         </section>
       </div>
 
-      {navigating && (
+      {navigating && !navigatingTo && (
         <div className="ce-nav-loading" role="status" aria-live="polite">
           <span className="ce-route-loading-spinner" aria-hidden="true" />
           <span className="ce-route-loading-label">Loading…</span>

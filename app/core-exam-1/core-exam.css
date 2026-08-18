@@ -1772,6 +1772,49 @@ textarea {
   background: var(--ce-paper);
 }
 
+/* Navigation skeleton: real target heading + pulsing card placeholders, shown
+   instantly on a topic switch while the real content loads. */
+.ce-nav-skeleton-cards {
+  display: grid;
+  gap: 9px;
+}
+
+.ce-nav-skeleton-card {
+  height: 54px;
+  border-radius: 12px;
+  border: 1px solid var(--ce-line);
+  background: var(--ce-raised);
+  animation: ce-nav-skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+.ce-nav-skeleton-card:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.ce-nav-skeleton-card:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+.ce-nav-skeleton-card:nth-child(4) {
+  animation-delay: 0.36s;
+}
+
+@keyframes ce-nav-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-nav-skeleton-card {
+    animation: none;
+  }
+}
+
 .ce-nav-loading {
   position: fixed;
   inset: 0;

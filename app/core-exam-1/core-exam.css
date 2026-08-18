@@ -5172,6 +5172,75 @@ a.ce-score-name-pov:hover {
   gap: 10px;
 }
 
+/* Illustrative scoreboard bar inside the guide. */
+.ce-guide-scorebar-demo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 4px;
+}
+
+.ce-guide-scorebar {
+  flex: none;
+  display: inline-block;
+  width: 120px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--ce-line);
+  overflow: hidden;
+}
+
+.ce-guide-scorebar-fill {
+  display: block;
+  width: 28%;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ce-accent);
+}
+
+/* denominator: the whole bar grows. progress: the fill grows in a fixed bar. */
+.ce-guide-scorebar-grow {
+  animation: ce-guide-scorebar-grow 3s ease-in-out infinite;
+}
+
+@keyframes ce-guide-scorebar-grow {
+  0%,
+  100% {
+    width: 44px;
+  }
+  50% {
+    width: 120px;
+  }
+}
+
+.ce-guide-scorebar-fill-grow {
+  animation: ce-guide-scorebar-fill-grow 3s ease-in-out infinite;
+}
+
+@keyframes ce-guide-scorebar-fill-grow {
+  0%,
+  100% {
+    width: 18%;
+  }
+  50% {
+    width: 82%;
+  }
+}
+
+.ce-guide-scorebar-caption {
+  margin: 0;
+  color: var(--ce-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ce-guide-scorebar-grow,
+  .ce-guide-scorebar-fill-grow {
+    animation: none;
+  }
+}
+
 .ce-guide-level-row {
   display: flex;
   align-items: center;

@@ -16,6 +16,43 @@ export type CoreExamAccess =
   | { status: "unauthorized"; email: string }
   | { status: "member"; viewer: CoreExamViewer };
 
+export type PovMember = {
+  userId: string;
+  displayName: string;
+  avatarColor: string;
+};
+
+// Resolve another member of the viewer's space for "View POV". Returns their
+// public profile only if they're an active member of that space — so a stray or
+// foreign id in ?pov= is simply ignored — and never the viewer themselves.
+export async function loadSpaceMember(
+  spaceId: string,
+  userId: string,
+  excludeUserId: string,
+): Promise<PovMember | null> {
+  if (!userId || userId === excludeUserId) return null;
+  const supabase = await createCoreExamServerClient();
+  const { data: membership } = await supabase
+    .from("core_exam_memberships")
+    .select("user_id")
+    .eq("space_id", spaceId)
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+  if (!membership) return null;
+  const { data: profile } = await supabase
+    .from("core_exam_profiles")
+    .select("display_name, avatar_color")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!profile) return null;
+  return {
+    userId,
+    displayName: profile.display_name,
+    avatarColor: profile.avatar_color,
+  };
+}
+
 export async function getCoreExamAccess(): Promise<CoreExamAccess> {
   const supabase = await createCoreExamServerClient();
   const {

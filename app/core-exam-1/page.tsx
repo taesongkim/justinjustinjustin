@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { loadPrivateReaderPage } from "./private-content";
 import { CoreExamFrame } from "./CoreExamFrame";
 import type { TopicQuestionGroup } from "./QuestionIndexView";
-import { getCoreExamAccess } from "./lib/viewer";
+import { getCoreExamAccess, loadSpaceMember } from "./lib/viewer";
 import {
   loadTopicConfidence,
   loadTopicProgress,
@@ -16,7 +16,7 @@ import { loadScoreboard } from "./lib/scoreboard";
 import { loadSourceLibrary } from "./lib/sources";
 import { UnauthorizedAccount } from "./UnauthorizedAccount";
 import { READER_PAGES, TOPICS } from "./topics";
-import type { CoreExamViewer } from "./lib/viewer";
+import type { CoreExamViewer, PovMember } from "./lib/viewer";
 import type { CoreExamActivityFeed } from "./lib/activity";
 import type { ScoreboardMember } from "./lib/scoreboard";
 
@@ -28,6 +28,7 @@ const viewFrameBase = (
   activity: CoreExamActivityFeed,
   scoreboard: ScoreboardMember[],
   topicProgress: Record<string, TopicProgress>,
+  povMember: PovMember | null,
 ) => ({
   activity,
   collaborativeEmpty: false,
@@ -37,6 +38,7 @@ const viewFrameBase = (
   questions: [],
   scoreboard,
   topicProgress,
+  povMember,
   // Synthetic placeholder: matches no real sidebar link, so navigating from a
   // view to any real topic reliably changes selectedTopic.stableKey (which
   // clears the nav loader). The topic body is skipped while `view` is set.
@@ -50,6 +52,7 @@ const viewFrameBase = (
 type CoreExamPageProps = {
   searchParams: Promise<{
     contribution?: string;
+    pov?: string;
     target?: string;
     topic?: string;
     view?: string;
@@ -73,6 +76,19 @@ export default async function CoreExamPage({
 
   const params = await searchParams;
 
+  // "View POV": render another member's perspective (their marks, confidence,
+  // answers, hidden set) read-only. Auth stays the real viewer; only the
+  // "my"-perspective loads use the pov member's id. An invalid/foreign id or the
+  // viewer's own id resolves to null and we render normally.
+  const povMember = params.pov
+    ? await loadSpaceMember(
+        access.viewer.spaceId,
+        params.pov,
+        access.viewer.userId,
+      )
+    : null;
+  const perspectiveUserId = povMember?.userId ?? access.viewer.userId;
+
   if (
     params.view === "all-questions" ||
     params.view === "my-answers"
@@ -87,7 +103,7 @@ export default async function CoreExamPage({
           label: topic.label,
           questions: await loadTopicQuestions(
             topic.stableKey,
-            access.viewer.userId,
+            perspectiveUserId,
           ),
           stableKey: topic.stableKey,
         })),
@@ -98,12 +114,18 @@ export default async function CoreExamPage({
           return [];
         },
       ),
-      loadTopicProgress(access.viewer.userId),
+      loadTopicProgress(perspectiveUserId),
     ]);
 
     return (
       <CoreExamFrame
-        {...viewFrameBase(access.viewer, activity, scoreboard, topicProgress)}
+        {...viewFrameBase(
+          access.viewer,
+          activity,
+          scoreboard,
+          topicProgress,
+          povMember,
+        )}
         view="all-questions"
         indexGroups={groups}
       />
@@ -120,12 +142,18 @@ export default async function CoreExamPage({
           return [];
         },
       ),
-      loadTopicProgress(access.viewer.userId),
+      loadTopicProgress(perspectiveUserId),
     ]);
 
     return (
       <CoreExamFrame
-        {...viewFrameBase(access.viewer, activity, scoreboard, topicProgress)}
+        {...viewFrameBase(
+          access.viewer,
+          activity,
+          scoreboard,
+          topicProgress,
+          povMember,
+        )}
         view="sources"
         sourceLibrary={sources}
       />
@@ -141,12 +169,18 @@ export default async function CoreExamPage({
           return [];
         },
       ),
-      loadTopicProgress(access.viewer.userId),
+      loadTopicProgress(perspectiveUserId),
     ]);
 
     return (
       <CoreExamFrame
-        {...viewFrameBase(access.viewer, activity, scoreboard, topicProgress)}
+        {...viewFrameBase(
+          access.viewer,
+          activity,
+          scoreboard,
+          topicProgress,
+          povMember,
+        )}
         view="timeline"
       />
     );
@@ -177,7 +211,7 @@ export default async function CoreExamPage({
     selectedTopic.kind === "topic"
       ? loadTopicQuestions(
           selectedTopic.stableKey,
-          access.viewer.userId,
+          perspectiveUserId,
         )
       : Promise.resolve([]),
     loadPageVerifications(selectedTopic.stableKey),
@@ -194,13 +228,13 @@ export default async function CoreExamPage({
     selectedTopic.kind === "topic"
       ? loadTopicConfidence(
           selectedTopic.stableKey,
-          access.viewer.userId,
+          perspectiveUserId,
         ).catch((error) => {
           console.error("topic confidence load failed", error);
           return { topicNodeId: null, myLevel: null };
         })
       : Promise.resolve({ topicNodeId: null, myLevel: null }),
-    loadTopicProgress(access.viewer.userId),
+    loadTopicProgress(perspectiveUserId),
   ]);
 
   return (
@@ -218,6 +252,7 @@ export default async function CoreExamPage({
       topicProgress={topicProgress}
       verifications={verifications}
       viewer={access.viewer}
+      povMember={povMember}
     />
   );
 }

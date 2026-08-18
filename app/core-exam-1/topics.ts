@@ -102,10 +102,23 @@ export const TOPICS: ReaderPageSummary[] = [
     label: "Transference and Countertransference",
     kind: "topic",
   },
+  // A catch-all space for misc questions; behaves like any other topic. Its
+  // content node is created by migration 20260812000000_core_exam_other_node.
+  {
+    number: 17,
+    stableKey: "topic-17.other",
+    label: "Other",
+    kind: "topic",
+  },
 ];
 
 // Rendered as a bespoke interactive page (HowToUseGuide), not markdown content.
 export const HOW_TO_USE_KEY = "reference.how-to-use";
+
+// Also a bespoke interactive page (LowerSelfGuide) — see the note in
+// CoreExamFrame's reader body: new references render as reader content
+// (markdown, or a component keyed by stableKey), never a separate route.
+export const LOWER_SELF_KEY = "reference.lower-self";
 
 export const REFERENCES: ReaderPageSummary[] = [
   {
@@ -136,6 +149,11 @@ export const REFERENCES: ReaderPageSummary[] = [
   {
     stableKey: "reference.kessler-chart",
     label: "Kessler Chart",
+    kind: "reference",
+  },
+  {
+    stableKey: LOWER_SELF_KEY,
+    label: "The Lower Self",
     kind: "reference",
   },
 ];

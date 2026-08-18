@@ -605,34 +605,34 @@ function GroupDiscussionFeed({
 // while its data loads so a topic switch feels immediate rather than
 // spinner-gated. The heading is real (we know the target); only the cards are
 // placeholders.
-// Topic-only skeleton. It mirrors the real topic heading — eyebrow, confidence
-// slider, "x of y answered" status, and the relevance toggle — so those
-// controls don't pop in and shift the layout when the real content resolves.
-// Reference pages use the plain overlay spinner instead (see ce-nav-loading).
+// Topic-only skeleton. It reuses the real topic-heading markup — the same
+// eyebrow, confidence slider, status, and relevance toggle classes — so the
+// heading occupies identical space and nothing shifts when the real content
+// resolves; only the question cards below are placeholder shimmer. Reference
+// pages use the plain overlay spinner instead (see ce-nav-loading).
 function NavSkeleton({ page }: { page: ReaderPageSummary }) {
   return (
     <div className="ce-nav-skeleton">
-      <div className="ce-topic-heading">
+      <div className="ce-topic-heading" aria-hidden="true">
         <div className="ce-topic-eyebrow-row">
           <div className="ce-topic-eyebrow-group">
             <p className="ce-eyebrow">{`Topic ${page.number}`}</p>
-            <span
-              className="ce-nav-skeleton-pill ce-nav-skeleton-slider"
-              aria-hidden="true"
-            />
+            <span className="ce-topic-confidence">
+              <ConfidenceSlider ariaLabel="" interactive={false} value={null} />
+            </span>
           </div>
-          <span
-            className="ce-nav-skeleton-pill ce-nav-skeleton-status"
-            aria-hidden="true"
-          />
+          <span className="ce-status" data-progress="na">
+            &nbsp;
+          </span>
         </div>
         <div className="ce-topic-title-row">
           <h2>{page.label}</h2>
         </div>
-        <span
-          className="ce-nav-skeleton-pill ce-nav-skeleton-toggle"
-          aria-hidden="true"
-        />
+        <label className="ce-relevance-toggle">
+          <span>Sort by Exam Relevance</span>
+          <input checked={false} disabled readOnly type="checkbox" />
+          <span className="ce-switch" aria-hidden="true" />
+        </label>
       </div>
       <div className="ce-nav-skeleton-cards" aria-hidden="true">
         {[0, 1, 2, 3].map((index) => (

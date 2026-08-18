@@ -1809,36 +1809,8 @@ textarea {
   }
 }
 
-/* Placeholder blocks that stand in for the topic heading's slider, status,
-   and relevance toggle, sized to their real counterparts so nothing shifts
-   when the real content resolves. */
-.ce-nav-skeleton-pill {
-  display: block;
-  border-radius: 999px;
-  background: var(--ce-raised);
-  border: 1px solid var(--ce-line);
-  animation: ce-nav-skeleton-pulse 1.2s ease-in-out infinite;
-}
-
-.ce-nav-skeleton-slider {
-  width: 96px;
-  height: 20px;
-}
-
-.ce-nav-skeleton-status {
-  width: 96px;
-  height: 13px;
-}
-
-.ce-nav-skeleton-toggle {
-  width: 150px;
-  height: 16px;
-  margin: 14px 0 -12px auto;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .ce-nav-skeleton-card,
-  .ce-nav-skeleton-pill {
+  .ce-nav-skeleton-card {
     animation: none;
   }
 }

@@ -4292,8 +4292,15 @@ a.ce-score-name-pov:hover {
   text-decoration: underline;
 }
 
-/* "View POV" banner: shown while viewing another member's perspective. */
+/* "View POV" banner: overlays the top of the header (obscuring it is fine)
+   rather than sitting in flow, so it never shifts the layout — fixed-position
+   elements like the TOC notches stay aligned. */
 .ce-pov-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
   display: flex;
   align-items: center;
   gap: 10px;

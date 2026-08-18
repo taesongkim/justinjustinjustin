@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, type CSSProperties } from "react";
 
 import type { ScoreboardMember } from "./lib/scoreboard";
@@ -20,7 +22,13 @@ function orderMembers(
   });
 }
 
-function ScoreChip({ member }: { member: ScoreboardMember }) {
+function ScoreChip({
+  member,
+  povHref,
+}: {
+  member: ScoreboardMember;
+  povHref: string | null;
+}) {
   const nameStyle = hueNameStyle(member.avatarColor);
   const ratio =
     member.likely > 0 ? member.likelyAtLevel3 / member.likely : 0;
@@ -56,9 +64,20 @@ function ScoreChip({ member }: { member: ScoreboardMember }) {
 
   return (
     <div className="ce-score-chip" role="listitem">
-      <span className="ce-score-name" style={nameStyle}>
-        {member.firstName}
-      </span>
+      {povHref ? (
+        <Link
+          className="ce-score-name ce-score-name-pov"
+          href={povHref}
+          style={nameStyle}
+          title={`View ${member.firstName}'s POV`}
+        >
+          {member.firstName}
+        </Link>
+      ) : (
+        <span className="ce-score-name" style={nameStyle}>
+          {member.firstName}
+        </span>
+      )}
       <span
         className="ce-score-bar"
         ref={barRef}
@@ -79,6 +98,17 @@ export function Scoreboard({
 }: {
   members: ScoreboardMember[];
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  // "View POV" for another member: current URL with ?pov=<their id> (replacing
+  // any existing pov). null for yourself and the assistant — no pov there.
+  const povHref = (member: ScoreboardMember): string | null => {
+    if (member.isViewer || member.isAssistant) return null;
+    const next = new URLSearchParams(searchParams.toString());
+    next.set("pov", member.userId);
+    return `${pathname}?${next.toString()}`;
+  };
+
   const ordered = orderMembers(members);
   if (ordered.length === 0) return null;
   // On mobile the collapsed summary shows the viewer's own progress at a
@@ -90,16 +120,24 @@ export function Scoreboard({
     <>
       <div className="ce-scoreboard" role="list" aria-label="Study progress">
         {ordered.map((member) => (
-          <ScoreChip key={member.userId} member={member} />
+          <ScoreChip
+            key={member.userId}
+            member={member}
+            povHref={povHref(member)}
+          />
         ))}
       </div>
       <details className="ce-scoreboard-mobile">
         <summary aria-label="Study progress">
-          <ScoreChip member={summaryMember} />
+          <ScoreChip member={summaryMember} povHref={null} />
         </summary>
         <div className="ce-scoreboard-mobile-list" role="list">
           {ordered.map((member) => (
-            <ScoreChip key={member.userId} member={member} />
+            <ScoreChip
+              key={member.userId}
+              member={member}
+              povHref={povHref(member)}
+            />
           ))}
         </div>
       </details>

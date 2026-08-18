@@ -2,8 +2,16 @@
 
 import { LayoutGroup, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { flushSync } from "react-dom";
 import ReactMarkdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
@@ -33,7 +41,7 @@ import type {
   TopicQuestion,
 } from "./lib/questions";
 import type { PageVerifications } from "./lib/verification";
-import type { CoreExamViewer } from "./lib/viewer";
+import type { CoreExamViewer, PovMember } from "./lib/viewer";
 import type { ScoreboardMember } from "./lib/scoreboard";
 import { Scoreboard } from "./Scoreboard";
 import { CoreStudyLogo } from "./CoreStudyLogo";
@@ -81,6 +89,10 @@ type CoreExamFrameProps = {
   sourceLibrary?: SourceLibraryItem[];
   // Per-topic Likely / Likely-at-level-3 counts for the "Topic progress" toggle.
   topicProgress?: Record<string, TopicProgress>;
+  // When set, the page is showing this member's read-only perspective ("View
+  // POV"): their marks/answers/confidence drive the content, and all write
+  // controls are disabled.
+  povMember?: PovMember | null;
 };
 
 type OpenSource = {
@@ -160,6 +172,10 @@ function MarkerGlyph({ type }: { type: string }) {
 // Flip to false to turn the centered nav loader back off.
 const TOPIC_NAV_LOADER_ENABLED = true;
 
+// True while showing another member's POV — write controls read this to disable
+// themselves, so nothing can be edited from someone else's perspective.
+const ReadOnlyContext = createContext(false);
+
 // "Sort by exam relevance" groups non-hidden cards by the viewer's own
 // likelihood mark (unmarked counts as "unsure"), in this order.
 const RELEVANCE_SECTIONS = [
@@ -235,6 +251,7 @@ function CommentThread({
   questionId?: string | null;
 }) {
   const router = useRouter();
+  const readOnly = useContext(ReadOnlyContext);
   const [draft, setDraft] = useState("");
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -242,6 +259,7 @@ function CommentThread({
   const topLevel = comments.filter((comment) => !comment.parentCommentId);
 
   const addComment = async () => {
+    if (readOnly) return;
     if (!draft.trim()) return;
     setSaving(true);
     setError("");
@@ -284,12 +302,14 @@ function CommentThread({
                 </time>
               </div>
               <CommentMarkdown body={comment.body} />
-              <button
-                onClick={() => setReplyTo(comment.id)}
-                type="button"
-              >
-                Reply
-              </button>
+              {!readOnly && (
+                <button
+                  onClick={() => setReplyTo(comment.id)}
+                  type="button"
+                >
+                  Reply
+                </button>
+              )}
               {comments
                 .filter((reply) => reply.parentCommentId === comment.id)
                 .map((reply) => (
@@ -316,6 +336,7 @@ function CommentThread({
           ))}
         </div>
       )}
+      {!readOnly && (
       <div className="ce-card-comment-composer">
         {replyTo && (
           <button onClick={() => setReplyTo(null)} type="button">
@@ -351,6 +372,7 @@ function CommentThread({
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }
@@ -592,6 +614,7 @@ function QuestionCard({
   viewerId: string | null;
 }) {
   const router = useRouter();
+  const readOnly = useContext(ReadOnlyContext);
   // Exam-relevance notch (always shown): unmarked reads as "unsure".
   const relevanceKey = question.myLikelihood ?? "unsure";
   const relevanceLabel =
@@ -603,6 +626,7 @@ function QuestionCard({
     setMyLevel(question.myConfidence);
   }, [question.myConfidence]);
   const saveConfidence = async (level: number) => {
+    if (readOnly) return;
     const previous = myLevel;
     setMyLevel(level);
     // Bubble the optimistic level up so the sidebar's Topic-progress x/y updates
@@ -655,6 +679,7 @@ function QuestionCard({
   }, [question.myAnswer?.id, question.myAnswer?.editedAt]);
 
   const setLikelihood = async (likelihood: QuestionLikelihood) => {
+    if (readOnly) return;
     setError("");
     const supabase = createCoreExamBrowserClient();
     const { error: likelihoodError } = await supabase.rpc(
@@ -672,6 +697,7 @@ function QuestionCard({
   };
 
   const setHidden = async (shouldHide: boolean) => {
+    if (readOnly) return;
     setError("");
     const supabase = createCoreExamBrowserClient();
     const { error: hiddenError } = await supabase.rpc(
@@ -689,6 +715,7 @@ function QuestionCard({
   };
 
   const saveAnswer = async () => {
+    if (readOnly) return;
     if (!answerText.trim()) return;
     setSaving(true);
     setAwaitingAnswer(true);
@@ -751,7 +778,11 @@ function QuestionCard({
             onClick={(event) => event.stopPropagation()}
             onPointerDown={(event) => event.stopPropagation()}
           >
-            <ConfidenceSlider onChange={saveConfidence} value={myLevel} />
+            <ConfidenceSlider
+              interactive={!readOnly}
+              onChange={saveConfidence}
+              value={myLevel}
+            />
           </span>
           <ConfidenceRings members={ringMembers} />
         </span>
@@ -792,6 +823,7 @@ function QuestionCard({
               <h4>My answer</h4>
             </div>
             {!editing &&
+              !readOnly &&
               (question.myAnswer ? (
                 <button
                   aria-label="Update my answer"
@@ -932,6 +964,7 @@ function QuestionCard({
               <button
                 aria-pressed={question.myLikelihood === option}
                 data-likelihood={option}
+                disabled={readOnly}
                 key={option}
                 onClick={() => setLikelihood(option)}
                 title={
@@ -976,14 +1009,16 @@ function QuestionCard({
             </details>
           )}
           <div className="ce-question-hide">
-            <button
-              onClick={() => setHidden(!question.isHiddenForMe)}
-              type="button"
-            >
-              {question.isHiddenForMe
-                ? "Show this question again"
-                : "Hide this question (personally)"}
-            </button>
+            {!readOnly && (
+              <button
+                onClick={() => setHidden(!question.isHiddenForMe)}
+                type="button"
+              >
+                {question.isHiddenForMe
+                  ? "Show this question again"
+                  : "Hide this question (personally)"}
+              </button>
+            )}
             {question.hiddenBy.length > 0 && (
               <span>
                 Hidden by{" "}
@@ -1200,7 +1235,18 @@ export function CoreExamFrame({
   indexGroups,
   sourceLibrary,
   topicProgress,
+  povMember,
 }: CoreExamFrameProps) {
+  const readOnly = !!povMember;
+  // Exit POV: current URL minus the ?pov param (keeps the topic/view you're on).
+  const povPathname = usePathname();
+  const povSearchParams = useSearchParams();
+  const exitPovHref = useMemo(() => {
+    const next = new URLSearchParams(povSearchParams.toString());
+    next.delete("pov");
+    const query = next.toString();
+    return query ? `${povPathname}?${query}` : povPathname;
+  }, [povPathname, povSearchParams]);
   useLiveActivity(viewer?.spaceId, viewer?.userId);
   useLiveConfidence(viewer?.spaceId, viewer?.userId);
   // Viewer's own confidence for the whole topic (optimistic; resyncs on load).
@@ -1211,6 +1257,7 @@ export function CoreExamFrame({
     setTopicLevel(topicConfidence.myLevel);
   }, [topicConfidence.myLevel]);
   const saveTopicConfidence = async (level: number) => {
+    if (readOnly) return;
     if (!topicConfidence.topicNodeId) return;
     const previous = topicLevel;
     setTopicLevel(level);
@@ -1703,7 +1750,26 @@ export function CoreExamFrame({
   );
 
   return (
-    <main className="ce-app">
+    <ReadOnlyContext.Provider value={readOnly}>
+    <main className="ce-app" data-pov={readOnly || undefined}>
+      {povMember && (
+        <div className="ce-pov-banner" role="status">
+          <span
+            aria-hidden="true"
+            className="ce-pov-banner-avatar"
+            style={{ background: povMember.avatarColor }}
+          >
+            {povMember.displayName[0]}
+          </span>
+          <span className="ce-pov-banner-text">
+            Viewing <strong>{povMember.displayName}</strong>&rsquo;s perspective
+            &middot; read-only
+          </span>
+          <Link className="ce-pov-banner-exit" href={exitPovHref}>
+            Exit
+          </Link>
+        </div>
+      )}
       <header className="ce-header">
         <div className="ce-brand">
           <CoreStudyLogo className="ce-brand-logo" />
@@ -2117,6 +2183,7 @@ export function CoreExamFrame({
                           <span className="ce-topic-confidence">
                             <ConfidenceSlider
                               ariaLabel="Your confidence for this topic"
+                              interactive={!readOnly}
                               onChange={saveTopicConfidence}
                               value={topicLevel}
                             />
@@ -2272,7 +2339,7 @@ export function CoreExamFrame({
                   </section>
                 )}
 
-                {selectedTopic.kind === "topic" && (
+                {selectedTopic.kind === "topic" && !readOnly && (
                   <AskQuestionForm
                     onQuestionAdded={handleQuestionAdded}
                     topicStableKey={selectedTopic.stableKey}
@@ -2364,5 +2431,6 @@ export function CoreExamFrame({
         />
       )}
     </main>
+    </ReadOnlyContext.Provider>
   );
 }
